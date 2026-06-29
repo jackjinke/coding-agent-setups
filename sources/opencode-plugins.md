@@ -50,7 +50,9 @@ vendored, uploaded, or installed by `scripts/sync.sh`.
 If Moshi hook is installed on a machine, `download` preserves it and `upload`
 ignores it.
 
-The same rule applies to `opencode.json`: Moshi plugin entries are kept from the
-local machine during `download`, but filtered out of repo files during `upload`.
+The same rule applies across agents. `scripts/moshi-hooks.sh` treats hook
+commands whose command contains `moshi` as local-only state for Claude Code and
+Codex, and treats Moshi plugin entries in `opencode.json` as local-only state
+for OpenCode.
 
 There are currently no vendored local OpenCode plugins in this repo.

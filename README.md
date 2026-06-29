@@ -106,9 +106,11 @@ bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh restore
 Restore lists the current recoverable versions, lets you choose one, then
 restores every folder that has a backup for that version.
 
-Moshi hook is managed outside this repo. If it is installed locally, sync
-preserves its OpenCode plugin file and `opencode.json` plugin entry on
-`download`, and filters both out on `upload`.
+Moshi hook is managed outside this repo. If it is installed locally, `download`
+preserves local hook commands whose command contains `moshi` for Claude Code and
+Codex, and preserves local Moshi plugin entries for OpenCode. `upload` filters
+those local Moshi entries out of repo files. The Moshi-specific capture,
+restore, and filtering rules live in `scripts/moshi-hooks.sh`.
 
 If an upstream change makes a local patch fail to apply, interactive runs ask
 whether to use the upstream latest version without that patch. `--yes` only skips

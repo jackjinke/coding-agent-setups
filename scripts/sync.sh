@@ -97,6 +97,8 @@ if [[ "$mode" == "download" ]]; then
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$repo_root/scripts/moshi-hooks.sh"
+
 files_dir="$repo_root/files"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
@@ -305,58 +307,10 @@ sanitize_opencode_config() {
   fi
   tmp="$(make_temp_file)"
   jq '
-    def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
     .provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"
-    | .plugin |= (
-        if type == "array" then
-          map(select(is_moshi_plugin | not))
-        else
-          .
-        end
-      )
   ' "$path" > "$tmp"
   mv "$tmp" "$path"
-}
-
-capture_moshi_opencode_plugins() {
-  local config="$1"
-  local output="$2"
-
-  if [[ ! -f "$config" ]]; then
-    printf '[]\n' > "$output"
-    return 0
-  fi
-
-  if ! jq '[.plugin[]? | select(tostring | ascii_downcase | contains("moshi"))]' "$config" > "$output"; then
-    printf '[]\n' > "$output"
-  fi
-}
-
-restore_moshi_opencode_plugins() {
-  local config="$1"
-  local saved_plugins="$2"
-  local tmp
-
-  if [[ ! -f "$config" || ! -f "$saved_plugins" ]]; then
-    return 0
-  fi
-
-  tmp="$(make_temp_file)"
-  jq --slurpfile moshi "$saved_plugins" '
-    def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
-    .plugin = (
-      (
-        if (.plugin | type) == "array" then
-          .plugin
-        else
-          []
-        end
-        | map(select(is_moshi_plugin | not))
-      )
-      + ($moshi[0] // [])
-    )
-  ' "$config" > "$tmp"
-  mv "$tmp" "$config"
+  sanitize_moshi_opencode_plugins "$path"
 }
 
 sanitize_codex_config() {
@@ -827,6 +781,8 @@ upload_from_home() {
   if agent_enabled OPENCODE; then
     copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
   fi
+  sanitize_moshi_command_hooks "$files_dir/.claude/settings.json"
+  sanitize_moshi_command_hooks "$files_dir/.codex/hooks.json"
   sanitize_opencode_config
   sanitize_codex_config
   prune_non_vendored_targets_from_repo
@@ -837,9 +793,19 @@ upload_from_home() {
 
 download_to_home() {
   local moshi_plugins_file=""
+  local claude_moshi_hooks_file=""
+  local codex_moshi_hooks_file=""
 
   create_download_backups
 
+  if agent_enabled CODEX; then
+    codex_moshi_hooks_file="$(make_temp_file)"
+    capture_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
+  fi
+  if agent_enabled CLAUDE; then
+    claude_moshi_hooks_file="$(make_temp_file)"
+    capture_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
+  fi
   if agent_enabled OPENCODE; then
     moshi_plugins_file="$(make_temp_file)"
     capture_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
@@ -850,9 +816,13 @@ download_to_home() {
   copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
   if agent_enabled CODEX; then
     copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
+    restore_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
+    rm -f "$codex_moshi_hooks_file"
   fi
   if agent_enabled CLAUDE; then
     copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
+    restore_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
+    rm -f "$claude_moshi_hooks_file"
   fi
   if agent_enabled OPENCODE; then
     copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"

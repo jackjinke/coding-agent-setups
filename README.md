@@ -12,13 +12,7 @@ machine-specific runtime state. Hermes and Cursor are intentionally not synced.
 Setup from anywhere:
 
 ```bash
-tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp"
-```
-
-Setup and immediately download the enabled config:
-
-```bash
-tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp" --sync
+bash -c "$(curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh)"
 ```
 
 Setup is interactive. It asks which agents to sync and whether to install shell
@@ -32,21 +26,20 @@ If shell commands are enabled, setup installs:
 
 ```text
 coding-agent-setups
-coding-agent-sync
 ```
 
 ## Use
 
-Download the latest enabled setup to this machine:
+Sync the latest enabled setup to this machine:
 
 ```bash
-coding-agent-sync
+coding-agent-setups sync
 ```
 
-Upload this machine's enabled setup into the repo:
+Publish this machine's enabled setup into the repo:
 
 ```bash
-coding-agent-setups sync upload
+coding-agent-setups publish
 ```
 
 Re-run setup:
@@ -55,7 +48,7 @@ Re-run setup:
 coding-agent-setups setup
 ```
 
-Restore from a download backup:
+Restore from a sync backup:
 
 ```bash
 coding-agent-setups restore
@@ -64,18 +57,18 @@ coding-agent-setups restore
 If shell commands were not enabled, use the repo-local entrypoint:
 
 ```bash
-bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync download
+bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync
 ```
 
 ## Notes
 
-- `coding-agent-setups` pulls the repo before running, so later sync runs use
+- `coding-agent-setups sync` pulls the repo before running, so sync uses
   the latest scripts.
-- `download` backs up folders it may touch under
+- `sync` backs up folders it may touch under
   `~/.config/coding-agent-setups/backups/` and keeps the latest three backups.
-- `upload` runs the secret check, lists changed files, and can commit/push.
+- `publish` runs the secret check, lists changed files, and can commit/push.
 - API keys stay in local env files. Tracked config should reference env vars.
-- Moshi hook state is local-only and is preserved across download/upload.
+- Moshi hook state is local-only and is preserved across sync/publish.
 
 Before pushing manually:
 

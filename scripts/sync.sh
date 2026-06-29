@@ -3,11 +3,11 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/sync.sh [download|upload] [--yes]
+Usage: scripts/sync.sh [sync|publish] [--yes]
 
-  download  Copy enabled setup files from this repo into $HOME.
-  upload    Refresh this repo from enabled whitelisted files in $HOME.
-  --yes     Skip the confirmation prompt.
+  sync     Copy enabled setup files from this repo into $HOME.
+  publish  Refresh this repo from enabled whitelisted files in $HOME.
+  --yes    Skip the confirmation prompt.
 
 Run scripts/setup.sh first. Sync reads the local selection file written by setup.
 USAGE
@@ -17,19 +17,19 @@ mode=""
 assume_yes=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    download)
+    sync)
       if [[ -n "$mode" ]]; then
         usage
         exit 2
       fi
-      mode="download"
+      mode="sync"
       ;;
-    upload)
+    publish)
       if [[ -n "$mode" ]]; then
         usage
         exit 2
       fi
-      mode="upload"
+      mode="publish"
       ;;
     -y|--yes)
       assume_yes=1
@@ -178,10 +178,10 @@ sha1_text() {
 
 ensure_cmd rsync
 ensure_cmd jq
-if [[ "$mode" == "upload" ]]; then
+if [[ "$mode" == "publish" ]]; then
   ensure_cmd git
 fi
-if [[ "$mode" == "download" ]]; then
+if [[ "$mode" == "sync" ]]; then
   ensure_cmd git
   ensure_cmd npx
   ensure_cmd patch
@@ -377,12 +377,12 @@ confirm_sync() {
 
   echo "Sync action: $mode"
   case "$mode" in
-    download)
+    sync)
       echo "Direction: repo files -> $home_dir"
       echo "Local-only files are preserved."
       echo "Touched folders are backed up before changes."
       ;;
-    upload)
+    publish)
       echo "Direction: $home_dir -> repo files"
       echo "Stale files may be deleted inside $files_dir for enabled groups."
       echo "Secret check runs after copying."
@@ -449,7 +449,7 @@ cleanup_public_tree() {
 backup_keep_count=3
 backup_dir="$setup_dir/backups"
 
-download_backup_roots() {
+sync_backup_roots() {
   if shell_commands_enabled || agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.local/bin"
   fi
@@ -505,7 +505,7 @@ create_folder_backup() {
   echo "Backed up $root -> $archive"
 }
 
-create_download_backups() {
+create_sync_backups() {
   local root
   local backup_id
   local has_roots=0
@@ -513,11 +513,11 @@ create_download_backups() {
   backup_id="${CODING_AGENT_SETUPS_BACKUP_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
   while IFS= read -r root; do
     if [[ "$has_roots" == "0" ]]; then
-      echo "Creating download backups: $backup_id"
+      echo "Creating sync backups: $backup_id"
       has_roots=1
     fi
     create_folder_backup "$root" "$backup_id"
-  done < <(download_backup_roots)
+  done < <(sync_backup_roots)
   if [[ "$has_roots" == "1" ]]; then
     prune_folder_backups
   fi
@@ -878,7 +878,7 @@ prompt_commit_and_push() {
   git -C "$repo_root" push
 }
 
-finish_upload_review() {
+finish_publish_review() {
   echo "Running secret check."
   "$repo_root/scripts/check-public-safe.sh"
   if show_changed_files; then
@@ -886,7 +886,7 @@ finish_upload_review() {
   fi
 }
 
-upload_from_home() {
+publish_from_home() {
   mkdir -p "$files_dir"
   if [[ "${#shared_paths[@]}" -gt 0 ]]; then
     copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
@@ -913,16 +913,16 @@ upload_from_home() {
   prune_non_vendored_targets_from_repo
   cleanup_public_tree
   echo "Refreshed enabled repo files from $home_dir"
-  finish_upload_review
+  finish_publish_review
 }
 
-download_to_home() {
+sync_to_home() {
   local moshi_plugins_file=""
   local claude_moshi_hooks_file=""
   local codex_moshi_hooks_file=""
   local moshi_targets=()
 
-  create_download_backups
+  create_sync_backups
   if shell_commands_enabled; then
     install_coding_agent_shell_commands "$repo_root"
   fi
@@ -981,6 +981,6 @@ require_setup_flags
 confirm_sync
 
 case "$mode" in
-  upload) upload_from_home ;;
-  download) download_to_home ;;
+  publish) publish_from_home ;;
+  sync) sync_to_home ;;
 esac

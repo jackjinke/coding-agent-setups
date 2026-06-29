@@ -68,7 +68,7 @@ ensure_shell_path_for_local_bins() {
   startup_file="$(shell_startup_file "$shell_name" 2>/dev/null || true)"
   if [[ -z "$startup_file" ]]; then
     echo "Unsupported shell for automatic PATH setup: ${shell_name:-unknown}" >&2
-    echo "Add $bin_dir to PATH to run coding-agent-sync directly." >&2
+    echo "Add $bin_dir to PATH to run coding-agent-setups directly." >&2
     return 0
   fi
 
@@ -109,11 +109,10 @@ EOF
 install_coding_agent_local_bins() {
   local repo_root="$1"
   local bin_dir
-  local repo_root_quoted bin_dir_quoted
+  local repo_root_quoted
 
   bin_dir="$(coding_agent_bin_dir)"
   repo_root_quoted="$(printf '%q' "$repo_root")"
-  bin_dir_quoted="$(printf '%q' "$bin_dir")"
   mkdir -p "$bin_dir"
 
   cat > "$bin_dir/coding-agent-setups" <<EOF
@@ -129,28 +128,13 @@ if [[ ! -d "\$repo_dir/.git" ]]; then
   exit 1
 fi
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "Missing git; install git or rerun setup." >&2
-  exit 1
-fi
-
-git -C "\$repo_dir" pull --ff-only
 exec bash "\$repo_dir/scripts/coding-agent-setups.sh" "\$@"
 EOF
   chmod 755 "$bin_dir/coding-agent-setups"
-
-  cat > "$bin_dir/coding-agent-sync" <<EOF
-#!/usr/bin/env bash
-set -euo pipefail
-
-default_bin_dir=$bin_dir_quoted
-exec "\${CODING_AGENT_SETUPS_COMMAND:-\$default_bin_dir/coding-agent-setups}" sync download "\$@"
-EOF
-  chmod 755 "$bin_dir/coding-agent-sync"
+  rm -f "$bin_dir/coding-agent-sync"
 
   echo "Installed host commands:"
   echo "  $bin_dir/coding-agent-setups"
-  echo "  $bin_dir/coding-agent-sync"
 }
 
 install_coding_agent_shell_commands() {

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
 setup_dir="$config_home/coding-agent-setups"
@@ -13,8 +14,9 @@ Usage: scripts/coding-agent-setups.sh <command> [args]
 
 Commands:
   setup             Run interactive first-time setup.
-  sync <args>       Run sync. Example: sync download, sync upload.
-  restore           Restore a previous download backup.
+  sync              Apply enabled setup files to this machine.
+  publish           Refresh this repo from this machine.
+  restore           Restore a previous sync backup.
 
 Existing scripts/setup.sh and scripts/sync.sh remain available, but this is the
 preferred entry point.
@@ -28,6 +30,21 @@ lower() {
 make_temp_file() {
   local tmp_base="${TMPDIR:-/tmp}"
   mktemp "$tmp_base/coding-agent-setups.XXXXXX"
+}
+
+pull_repo_for_sync() {
+  if [[ "${CODING_AGENT_SETUPS_SKIP_REPO_PULL:-0}" == "1" ]]; then
+    return 0
+  fi
+  if ! command -v git >/dev/null 2>&1; then
+    echo "Missing git; install git or rerun setup." >&2
+    exit 1
+  fi
+  if [[ ! -d "$repo_root/.git" ]]; then
+    echo "Missing git checkout: $repo_root" >&2
+    exit 1
+  fi
+  git -C "$repo_root" pull --ff-only
 }
 
 backup_roots() {
@@ -217,7 +234,11 @@ case "$command" in
     exec "$script_dir/setup.sh" "$@"
     ;;
   sync)
-    exec "$script_dir/sync.sh" "$@"
+    pull_repo_for_sync
+    exec "$script_dir/sync.sh" sync "$@"
+    ;;
+  publish)
+    exec "$script_dir/sync.sh" publish "$@"
     ;;
   restore)
     if [[ $# -gt 0 ]]; then

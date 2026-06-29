@@ -5,26 +5,21 @@ home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
 repo_url="${CODING_AGENT_SETUPS_REPO_URL:-https://github.com/jackjinke/coding-agent-setups}"
 repo_dir="${CODING_AGENT_SETUPS_REPO:-$home_dir/Projects/coding-agent-setups}"
-run_sync=0
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/setup.sh [--sync] [--repo PATH]
+Usage: scripts/setup.sh [--repo PATH]
 
 Runs interactive local setup. When this script is downloaded and run outside the
 repo, it first clones or updates the repo, then runs the repo-local setup.
 
 Options:
-  --sync       Run sync download after setup.
   --repo PATH  Checkout path. Defaults to ~/Projects/coding-agent-setups.
 USAGE
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --sync)
-      run_sync=1
-      ;;
     --repo)
       if [[ $# -lt 2 ]]; then
         usage
@@ -45,7 +40,12 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_source="${BASH_SOURCE[0]:-}"
+if [[ -n "$script_source" ]]; then
+  script_dir="$(cd "$(dirname "$script_source")" && pwd)"
+else
+  script_dir="$(pwd)"
+fi
 repo_root="$(cd "$script_dir/.." && pwd)"
 
 install_git() {
@@ -114,9 +114,6 @@ checkout_repo() {
 if [[ ! -f "$repo_root/scripts/coding-agent-setups.sh" ]]; then
   ensure_git
   checkout_repo
-  if [[ "$run_sync" == "1" ]]; then
-    exec bash "$repo_dir/scripts/setup.sh" --sync
-  fi
   exec bash "$repo_dir/scripts/setup.sh"
 fi
 
@@ -280,7 +277,7 @@ EOF
   chmod 600 "$flag_file"
 }
 
-echo "Shared agent files are installed by sync download."
+echo "Shared agent files are installed by sync."
 
 detected_shell="$(detect_active_shell)"
 install_shell_commands="$(prompt_yes_no "Make coding-agent-setups available in your ${detected_shell:-current} shell?" "$(existing_yes_no INSTALL_SHELL_COMMANDS y)")"
@@ -306,16 +303,12 @@ write_flags "$sync_codex" "$sync_claude" "$sync_opencode" "$install_shell_comman
 echo "Wrote sync selection to $flag_file"
 
 echo "Setup complete."
-if [[ "$run_sync" == "0" && "${CODING_AGENT_SETUPS_SUPPRESS_NEXT_STEP:-0}" != "1" ]]; then
+if [[ "${CODING_AGENT_SETUPS_SUPPRESS_NEXT_STEP:-0}" != "1" ]]; then
   echo "Run this next to install dependencies and apply enabled setup files:"
   if [[ "$install_shell_commands" == "1" ]]; then
-    echo "  coding-agent-sync"
+    echo "  coding-agent-setups sync"
   else
-    echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+    echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync"
   fi
 fi
 echo "OAuth files are not synced; run each enabled agent's login flow on this machine."
-
-if [[ "$run_sync" == "1" ]]; then
-  bash "$repo_root/scripts/coding-agent-setups.sh" sync download --yes
-fi

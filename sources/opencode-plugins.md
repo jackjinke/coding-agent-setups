@@ -21,7 +21,7 @@ Its bundled `worktrees` skill is kept by following the upstream installer.
 ## Follow Upstream Git
 
 These are local plugin paths in OpenCode config, but their source of truth is an
-upstream repo. `scripts/sync.sh download` clones or fetches the upstream latest
+upstream repo. `scripts/sync.sh sync` clones or fetches the upstream latest
 version and installs it locally.
 
 - `opencode-pty`: `https://github.com/shekohex/opencode-pty.git`
@@ -33,7 +33,7 @@ Caveman is installed with its upstream OpenCode installer:
 npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force
 ```
 
-After install, `scripts/sync.sh download` removes the Caveman `cavecrew-*`
+After install, `scripts/sync.sh sync` removes the Caveman `cavecrew-*`
 OpenCode agents so the local agent list matches this setup.
 
 If a patch is needed for a Git source, add it to `patches/` and reference it from
@@ -43,12 +43,12 @@ If a patch is needed for a Git source, add it to `patches/` and reference it fro
 ## External Local Plugins
 
 These are installed and maintained outside this repo. They should not be
-vendored or uploaded.
+vendored or published.
 
 - Moshi hook: https://getmoshi.app/docs/hooks
 
-`sync download` installs and starts Moshi hook locally when it is missing.
-`upload` ignores it.
+`sync` installs and starts Moshi hook locally when it is missing.
+`publish` ignores it.
 
 The same rule applies across agents. `scripts/moshi-hooks.sh` treats hook
 commands whose command contains `moshi` as local-only state for Claude Code and

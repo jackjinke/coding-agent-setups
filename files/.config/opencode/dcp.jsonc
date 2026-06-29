@@ -6,16 +6,16 @@
   },
   "turnProtection": {
     "enabled": true,
-    "turns": 16
+    "turns": 5
   },
   "compress": {
     "mode": "range",
     "permission": "allow",
     "summaryBuffer": true,
-    "minContextLimit": "60%",
-    "maxContextLimit": "85%",
-    "nudgeFrequency": 15,
-    "iterationNudgeThreshold": 40,
+    "minContextLimit": "40%",
+    "maxContextLimit": "70%",
+    "nudgeFrequency": 10,
+    "iterationNudgeThreshold": 25,
     "nudgeForce": "soft",
     "protectUserMessages": false
   },
@@ -25,7 +25,7 @@
     },
     "purgeErrors": {
       "enabled": true,
-      "turns": 16
+      "turns": 5
     }
   }
 }

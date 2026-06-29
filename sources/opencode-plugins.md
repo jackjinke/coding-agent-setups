@@ -13,7 +13,7 @@ published installer. They should not be vendored in this repo:
 `oh-my-opencode-slim` is installed with:
 
 ```bash
-bunx oh-my-opencode-slim@latest install --no-tui --skills=yes --companion=no --background-subagents=no
+bunx oh-my-opencode-slim@latest install --no-tui --skills=yes --companion=no
 ```
 
 Its bundled `worktrees` skill is kept by following the upstream installer.

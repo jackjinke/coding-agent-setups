@@ -695,8 +695,7 @@ install_opencode_ohmy() {
   bunx oh-my-opencode-slim@latest install \
     --no-tui \
     --skills=yes \
-    --companion=no \
-    --background-subagents=no
+    --companion=no
 }
 
 install_opencode_caveman() {

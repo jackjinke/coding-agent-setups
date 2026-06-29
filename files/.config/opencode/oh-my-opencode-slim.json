@@ -4,8 +4,8 @@
   "presets": {
     "custom": {
       "orchestrator": {
-        "model": "litellm/claude-opus-latest",
-        "variant": "xhigh",
+        "model": "openai/gpt-5.5",
+        "variant": "high",
         "skills": [
           "*"
         ],
@@ -43,7 +43,7 @@
         "mcps": []
       },
       "fixer": {
-        "model": "litellm/gpt-latest",
+        "model": "openai/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"
@@ -58,7 +58,7 @@
         "mcps": []
       },
       "council": {
-        "model": "litellm/gpt-latest",
+        "model": "openai/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"

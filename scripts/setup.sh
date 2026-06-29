@@ -149,7 +149,7 @@ EOF
   chmod 600 "$flag_file"
 }
 
-echo "Shared agent files are always installed."
+echo "Shared agent files are installed by sync download."
 
 sync_codex="$(prompt_yes_no "Sync Codex setup on this machine?" "$(existing_yes_no SYNC_CODEX y)")"
 sync_claude="$(prompt_yes_no "Sync Claude Code setup on this machine?" "$(existing_yes_no SYNC_CLAUDE y)")"
@@ -169,6 +169,7 @@ fi
 write_flags "$sync_codex" "$sync_claude" "$sync_opencode"
 echo "Wrote sync selection to $flag_file"
 
-bash "$repo_root/scripts/coding-agent-setups.sh" sync download --yes
-
-echo "Setup complete. OAuth files are not synced; run each enabled agent's login flow on this machine."
+echo "Setup complete."
+echo "Run this next to install dependencies and apply enabled setup files:"
+echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+echo "OAuth files are not synced; run each enabled agent's login flow on this machine."

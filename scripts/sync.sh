@@ -46,14 +46,107 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+home_dir="${HOME:?HOME is not set}"
+PATH="$home_dir/.local/bin:$home_dir/.bun/bin:$PATH"
+export PATH
+
 if [[ -z "$mode" ]]; then
   usage
   exit 2
 fi
 
-require_cmd() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    echo "Missing required command: $1" >&2
+packages_for_command() {
+  local command_name="$1"
+
+  case "$(uname -s):$command_name" in
+    Darwin:npx) printf '%s\n' node ;;
+    Linux:npx) printf '%s\n' nodejs npm ;;
+    *:*) printf '%s\n' "$command_name" ;;
+  esac
+}
+
+install_packages() {
+  if [[ $# -eq 0 ]]; then
+    return 1
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      if ! command -v brew >/dev/null 2>&1; then
+        return 1
+      fi
+      brew install "$@"
+      ;;
+    Linux)
+      if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y "$@"
+      elif command -v dnf >/dev/null 2>&1; then
+        sudo dnf install -y "$@"
+      elif command -v yum >/dev/null 2>&1; then
+        sudo yum install -y "$@"
+      elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -Sy --needed --noconfirm "$@"
+      elif command -v zypper >/dev/null 2>&1; then
+        sudo zypper install -y "$@"
+      else
+        return 1
+      fi
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+ensure_cmd() {
+  local command_name="$1"
+  shift || true
+  local packages=("$@")
+
+  if command -v "$command_name" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [[ "${#packages[@]}" -eq 0 ]]; then
+    while IFS= read -r package_name; do
+      packages+=("$package_name")
+    done < <(packages_for_command "$command_name")
+  fi
+
+  echo "Missing required command: $command_name; attempting to install ${packages[*]}."
+  install_packages "${packages[@]}" || true
+
+  if ! command -v "$command_name" >/dev/null 2>&1; then
+    echo "Missing required command after install attempt: $command_name" >&2
+    exit 1
+  fi
+}
+
+ensure_bunx() {
+  if command -v bunx >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "Missing required command: bunx; attempting to install Bun."
+  case "$(uname -s)" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1; then
+        brew install bun
+      elif command -v curl >/dev/null 2>&1; then
+        curl -fsSL https://bun.sh/install | bash
+      fi
+      ;;
+    Linux)
+      ensure_cmd curl
+      curl -fsSL https://bun.sh/install | bash
+      ;;
+  esac
+
+  PATH="$home_dir/.bun/bin:$PATH"
+  export PATH
+  if ! command -v bunx >/dev/null 2>&1; then
+    echo "Missing required command after install attempt: bunx" >&2
     exit 1
   fi
 }
@@ -83,24 +176,23 @@ sha1_text() {
   fi
 }
 
-require_cmd rsync
-require_cmd jq
+ensure_cmd rsync
+ensure_cmd jq
 if [[ "$mode" == "upload" ]]; then
-  require_cmd git
+  ensure_cmd git
 fi
 if [[ "$mode" == "download" ]]; then
-  require_cmd git
-  require_cmd npx
-  require_cmd patch
+  ensure_cmd git
+  ensure_cmd npx
+  ensure_cmd patch
   require_sha1
-  require_cmd tar
+  ensure_cmd tar
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$repo_root/scripts/moshi-hooks.sh"
 
 files_dir="$repo_root/files"
-home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$config_home/coding-agent-setups/sync.env}"
 setup_dir="$config_home/coding-agent-setups"
@@ -195,8 +287,8 @@ require_setup_flags() {
 Missing setup selection file:
   $flag_file
 
-Run scripts/setup.sh first. It installs shared files, asks which coding agents to
-sync on this machine, and writes the selection file that sync uses.
+Run scripts/setup.sh first. It asks which coding agents to sync on this machine
+and writes the selection file that sync uses.
 EOF
     exit 1
   fi
@@ -573,7 +665,7 @@ install_opencode_ohmy() {
   if ! agent_enabled OPENCODE; then
     return 0
   fi
-  require_cmd bunx
+  ensure_bunx
   echo "Installing oh-my-opencode-slim"
   bunx oh-my-opencode-slim@latest install \
     --no-tui \
@@ -795,20 +887,24 @@ download_to_home() {
   local moshi_plugins_file=""
   local claude_moshi_hooks_file=""
   local codex_moshi_hooks_file=""
+  local moshi_targets=()
 
   create_download_backups
 
   if agent_enabled CODEX; then
     codex_moshi_hooks_file="$(make_temp_file)"
     capture_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
+    moshi_targets+=(codex)
   fi
   if agent_enabled CLAUDE; then
     claude_moshi_hooks_file="$(make_temp_file)"
     capture_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
+    moshi_targets+=(claude)
   fi
   if agent_enabled OPENCODE; then
     moshi_plugins_file="$(make_temp_file)"
     capture_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
+    moshi_targets+=(opencode)
   fi
 
   install_managed_skills
@@ -829,6 +925,7 @@ download_to_home() {
     restore_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
     rm -f "$moshi_plugins_file"
   fi
+  ensure_moshi_for_targets "${moshi_targets[@]}"
   remove_caveman_opencode_agents
   remove_retired_targets_from_home
   echo "Synced enabled repo files into $home_dir"

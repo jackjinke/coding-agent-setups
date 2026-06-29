@@ -43,12 +43,12 @@ If a patch is needed for a Git source, add it to `patches/` and reference it fro
 ## External Local Plugins
 
 These are installed and maintained outside this repo. They should not be
-vendored, uploaded, or installed by `scripts/sync.sh`.
+vendored or uploaded.
 
-- Moshi hook: https://getmoshi.app/docs/install
+- Moshi hook: https://getmoshi.app/docs/hooks
 
-If Moshi hook is installed on a machine, `download` preserves it and `upload`
-ignores it.
+`sync download` installs and starts Moshi hook locally when it is missing.
+`upload` ignores it.
 
 The same rule applies across agents. `scripts/moshi-hooks.sh` treats hook
 commands whose command contains `moshi` as local-only state for Claude Code and

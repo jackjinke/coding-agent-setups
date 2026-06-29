@@ -33,6 +33,8 @@ make_temp_file() {
 }
 
 pull_repo_for_sync() {
+  local before after
+
   if [[ "${CODING_AGENT_SETUPS_SKIP_REPO_PULL:-0}" == "1" ]]; then
     return 0
   fi
@@ -44,7 +46,13 @@ pull_repo_for_sync() {
     echo "Missing git checkout: $repo_root" >&2
     exit 1
   fi
+  before="$(git -C "$repo_root" rev-parse HEAD)"
   git -C "$repo_root" pull --ff-only
+  after="$(git -C "$repo_root" rev-parse HEAD)"
+  if [[ "$before" != "$after" ]]; then
+    echo "Repo updated; restarting sync with latest scripts."
+    exec "$repo_root/scripts/coding-agent-setups.sh" sync "$@"
+  fi
 }
 
 backup_roots() {
@@ -234,7 +242,7 @@ case "$command" in
     exec "$script_dir/setup.sh" "$@"
     ;;
   sync)
-    pull_repo_for_sync
+    pull_repo_for_sync "$@"
     exec "$script_dir/sync.sh" sync "$@"
     ;;
   publish)

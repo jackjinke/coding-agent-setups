@@ -6,9 +6,9 @@ These are declared in `opencode.json` or `package.json`, or installed by their
 published installer. They should not be vendored in this repo:
 
 - `@tarquinen/opencode-dcp@latest`
-- `opencode-see-image`
 - `oh-my-opencode-slim`
-- `opencode-goal-plugin` through `package.json` semver
+- `@prevalentware/opencode-goal-plugin` through `package.json` semver; source:
+  `https://github.com/prevalentWare/opencode-goal-plugin`
 
 `oh-my-opencode-slim` is installed with:
 

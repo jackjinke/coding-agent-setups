@@ -8,16 +8,15 @@
         "variant": "xhigh",
         "skills": [
           "*"
-	],
-        "mcps": [
-        ]
+        ],
+        "mcps": []
       },
       "oracle": {
         "model": "litellm/claude-opus-latest",
         "variant": "max",
         "skills": [
-	  "*"
-	],
+          "*"
+        ],
         "mcps": []
       },
       "librarian": {
@@ -32,13 +31,12 @@
       "explorer": {
         "model": "opencode-go/deepseek-v4-pro",
         "variant": "max",
-        "skills": [
-        ],
+        "skills": [],
         "mcps": []
       },
       "designer": {
         "model": "litellm/claude-opus-latest",
-	"variant": "xhigh",
+        "variant": "xhigh",
         "skills": [
           "*"
         ],
@@ -46,7 +44,7 @@
       },
       "fixer": {
         "model": "litellm/gpt-latest",
-	"variant": "high",
+        "variant": "high",
         "skills": [
           "*"
         ],
@@ -74,9 +72,8 @@
         "variant": "medium",
         "skills": [
           "*"
-	],
-        "mcps": [
-        ]
+        ],
+        "mcps": []
       },
       "oracle": {
         "model": "openai/gpt-5.5",
@@ -100,8 +97,7 @@
       "explorer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
-        "skills": [
-        ],
+        "skills": [],
         "mcps": []
       },
       "designer": {
@@ -126,9 +122,8 @@
         "model": "opencode-go/glm-5.2",
         "skills": [
           "*"
-	],
-        "mcps": [
-        ]
+        ],
+        "mcps": []
       },
       "oracle": {
         "model": "opencode-go/glm-5.2",
@@ -158,9 +153,8 @@
       },
       "explorer": {
         "model": "opencode-go/deepseek-v4-pro",
-	"variant": "max",
-        "skills": [
-        ],
+        "variant": "max",
+        "skills": [],
         "mcps": []
       },
       "designer": {
@@ -189,10 +183,22 @@
   "council": {
     "presets": {
       "default": {
-        "alpha": { "model": "litellm/claude-opus-latest", "variant": "xhigh" },
-        "beta": { "model": "litellm/gpt-latest", "variant": "xhigh" },
-        "gamma": { "model": "opencode-go/glm-latest", "variant": "max" },
-	"delta": { "model": "opencode-go/deepseek-pro-latest", "variant": "max" }
+        "alpha": {
+          "model": "litellm/claude-opus-latest",
+          "variant": "xhigh"
+        },
+        "beta": {
+          "model": "litellm/gpt-latest",
+          "variant": "xhigh"
+        },
+        "gamma": {
+          "model": "opencode-go/glm-5.2",
+          "variant": "max"
+        },
+        "delta": {
+          "model": "opencode-go/deepseek-v4-pro",
+          "variant": "max"
+        }
       }
     }
   },
@@ -210,5 +216,8 @@
     "layout": "main-horizontal",
     "main_pane_size": 60
   },
-  "disabled_mcps": ["websearch", "context7"]
+  "disabled_mcps": [
+    "websearch",
+    "context7"
+  ]
 }

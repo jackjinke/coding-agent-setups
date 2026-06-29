@@ -16,6 +16,16 @@
           "name": "GPT Latest",
           "reasoning": true,
           "tool_call": true,
+          "attachment": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "limit": {
             "context": 256000,
             "output": 128000
@@ -45,6 +55,16 @@
           "name": "Claude Opus Latest",
           "reasoning": true,
           "tool_call": true,
+          "attachment": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "limit": {
             "context": 500000,
             "output": 64000
@@ -74,6 +94,16 @@
           "name": "Claude Sonnet Latest",
           "reasoning": true,
           "tool_call": true,
+          "attachment": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "limit": {
             "context": 500000,
             "output": 64000
@@ -118,6 +148,16 @@
           "name": "Gemini Flash Latest",
           "reasoning": true,
           "tool_call": true,
+          "attachment": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "limit": {
             "context": 500000,
             "output": 64000
@@ -131,26 +171,21 @@
     "./plugins/caveman/plugin.js",
     "./plugins/opencode-pty/dist/index.js",
     [
-      "opencode-goal-plugin",
+      "@prevalentware/opencode-goal-plugin",
       {
-        "maxTurns": 20,
-        "maxDurationMs": 43200000,
-        "maxTokens": 100000000
+        "max_auto_turns": 20,
+        "max_goal_duration_seconds": 43200,
+        "default_token_budget": 100000000
       }
     ],
-    "opencode-see-image",
     "oh-my-opencode-slim"
   ],
-  "command": {
-    "goal": {
-      "description": "Set a session-scoped goal and auto-continue until complete.",
-      "template": "$ARGUMENTS",
-      "agent": "orchestrator"
-    }
-  },
   "permission": {},
   "agent": {
     "general": {
+      "disable": true
+    },
+    "explore": {
       "disable": true
     }
   },

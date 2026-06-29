@@ -33,6 +33,17 @@ if find files -type f \( \
   failed=1
 fi
 
+managed_sources_file="sources/managed-sources.tsv"
+if [[ -f "$managed_sources_file" ]]; then
+  while IFS=$'\t' read -r target _rest; do
+    [[ -z "${target:-}" || "$target" == \#* ]] && continue
+    if [[ -e "files/$target" || -L "files/$target" ]]; then
+      echo "Source-managed target should not be vendored: files/$target" >&2
+      failed=1
+    fi
+  done < "$managed_sources_file"
+fi
+
 if grep -rInE \
   '(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9_]{20,}|refresh_token|access_token|client_secret|BEGIN [A-Z ]*PRIVATE KEY)' \
   --exclude-dir=.git \

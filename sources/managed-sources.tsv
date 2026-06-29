@@ -1,0 +1,20 @@
+# target<TAB>repo<TAB>ref<TAB>source_path<TAB>patch<TAB>build
+#
+# target is relative to $HOME. ref=latest means the upstream default branch.
+# patch and build use "-" when not needed. Patches are applied after copying
+# upstream into target. Build commands run from inside target.
+.agents/skills/bilibili-cli	https://github.com/jackwener/bilibili-cli.git	latest	.	-	-
+.agents/skills/xiaohongshu-cli	https://github.com/jackwener/xiaohongshu-cli.git	latest	.	-	-
+.agents/skills/find-skills	https://github.com/vercel-labs/skills.git	latest	skills/find-skills	-	-
+.agents/skills/grill-with-docs	https://github.com/mattpocock/skills.git	latest	skills/engineering/grill-with-docs	-	-
+.agents/skills/improve-codebase-architecture	https://github.com/mattpocock/skills.git	latest	skills/engineering/improve-codebase-architecture	-	-
+.agents/skills/tdd	https://github.com/mattpocock/skills.git	latest	skills/engineering/tdd	-	-
+.config/opencode/skills/cavecrew	https://github.com/JuliusBrussee/caveman.git	latest	skills/cavecrew	-	-
+.config/opencode/skills/caveman	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman	-	-
+.config/opencode/skills/caveman-commit	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-commit	-	-
+.config/opencode/skills/caveman-compress	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-compress	-	-
+.config/opencode/skills/caveman-help	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-help	-	-
+.config/opencode/skills/caveman-review	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-review	-	-
+.config/opencode/skills/caveman-stats	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-stats	-	-
+.claude/skills/xiaohongshu-skills	https://github.com/autoclaw-cc/xiaohongshu-skills.git	latest	.	patches/claude-xiaohongshu-skills.patch	-
+.config/opencode/plugins/opencode-pty	https://github.com/shekohex/opencode-pty.git	latest	.	-	bun install && bun run build:prod

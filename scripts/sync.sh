@@ -60,12 +60,18 @@ require_cmd() {
 
 require_cmd rsync
 require_cmd jq
+require_cmd git
+require_cmd patch
+require_cmd sha1sum
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 files_dir="$repo_root/files"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$config_home/coding-agent-setups/sync.env}"
+setup_dir="$config_home/coding-agent-setups"
+git_cache_dir="$setup_dir/git"
+managed_sources_file="$repo_root/sources/managed-sources.tsv"
 
 shared_paths=(
   ".agents/.skill-lock.json"
@@ -292,6 +298,179 @@ cleanup_public_tree() {
   done < <(find "$files_dir" \( -xtype l -o -type l -lname '/*' \) -print)
 }
 
+source_target_enabled() {
+  local target="$1"
+  case "$target" in
+    .agents/skills/*) return 0 ;;
+    .codex/*)
+      agent_enabled CODEX
+      return
+      ;;
+    .claude/*)
+      agent_enabled CLAUDE
+      return
+      ;;
+    .config/opencode/*)
+      agent_enabled OPENCODE
+      return
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+cache_dir_for_repo() {
+  local repo="$1"
+  local key
+  key="$(printf '%s' "$repo" | sha1sum | awk '{ print $1 }')"
+  printf '%s/%s' "$git_cache_dir" "$key"
+}
+
+checkout_managed_repo() {
+  local repo="$1"
+  local ref="$2"
+  local cache_dir="$3"
+  local default_branch
+
+  mkdir -p "$git_cache_dir"
+  if [[ -d "$cache_dir/.git" ]]; then
+    git -C "$cache_dir" fetch --prune --tags origin
+  else
+    git clone "$repo" "$cache_dir"
+  fi
+
+  if [[ "$ref" == "latest" ]]; then
+    git -C "$cache_dir" remote set-head origin -a >/dev/null 2>&1 || true
+    default_branch="$(git -C "$cache_dir" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
+    if [[ -z "$default_branch" ]]; then
+      default_branch="main"
+    fi
+    git -C "$cache_dir" checkout --quiet --detach "origin/$default_branch"
+  elif git -C "$cache_dir" rev-parse --verify --quiet "origin/$ref" >/dev/null; then
+    git -C "$cache_dir" checkout --quiet --detach "origin/$ref"
+  else
+    git -C "$cache_dir" checkout --quiet --detach "$ref"
+  fi
+}
+
+apply_managed_patch() {
+  local target="$1"
+  local patch_rel="$2"
+  local patch_file="$repo_root/$patch_rel"
+  local answer
+
+  if [[ "$patch_rel" == "-" ]]; then
+    return 0
+  fi
+  if [[ ! -f "$patch_file" ]]; then
+    echo "Missing patch file: $patch_file" >&2
+    exit 1
+  fi
+
+  if patch --dry-run -p1 -d "$target" < "$patch_file" >/dev/null; then
+    patch -p1 -d "$target" < "$patch_file" >/dev/null
+    return 0
+  fi
+
+  echo "Patch no longer applies cleanly: $patch_rel" >&2
+  echo "Target: $target" >&2
+  if [[ ! -t 0 ]]; then
+    echo "Using upstream version without this patch." >&2
+    return 0
+  fi
+
+  read -r -p "Use upstream latest without applying this patch? [y/N]: " answer
+  case "${answer,,}" in
+    y|yes) return 0 ;;
+    *) echo "Cancelled."; exit 1 ;;
+  esac
+}
+
+run_managed_build() {
+  local target="$1"
+  local build_cmd="$2"
+  if [[ "$build_cmd" == "-" ]]; then
+    return 0
+  fi
+  (cd "$target" && bash -lc "$build_cmd")
+}
+
+install_managed_sources() {
+  local target_rel repo ref source_path patch_rel build_cmd
+  local cache_dir source_dir target
+
+  if [[ ! -f "$managed_sources_file" ]]; then
+    return 0
+  fi
+  if [[ "${CODING_AGENT_SETUPS_SKIP_MANAGED_SOURCES:-0}" == "1" ]]; then
+    echo "Skipping managed upstream sources."
+    return 0
+  fi
+
+  while IFS=$'\t' read -r target_rel repo ref source_path patch_rel build_cmd; do
+    [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
+    if ! source_target_enabled "$target_rel"; then
+      continue
+    fi
+
+    echo "Installing upstream source: $target_rel"
+    cache_dir="$(cache_dir_for_repo "$repo")"
+    checkout_managed_repo "$repo" "$ref" "$cache_dir"
+    source_dir="$cache_dir/$source_path"
+    target="$home_dir/$target_rel"
+    if [[ ! -d "$source_dir" ]]; then
+      echo "Managed source path not found: $source_dir" >&2
+      exit 1
+    fi
+    mkdir -p "$target"
+    rsync -a --delete "${rsync_excludes[@]}" "$source_dir"/ "$target"/
+    apply_managed_patch "$target" "$patch_rel"
+    run_managed_build "$target" "$build_cmd"
+  done < "$managed_sources_file"
+}
+
+ensure_claude_shared_skill_links() {
+  local skill_dir="$home_dir/.agents/skills"
+  local claude_skill_dir="$home_dir/.claude/skills"
+  local source_path name link_path
+
+  if ! agent_enabled CLAUDE; then
+    return 0
+  fi
+  if [[ ! -d "$skill_dir" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$claude_skill_dir"
+  while IFS= read -r source_path; do
+    name="$(basename "$source_path")"
+    link_path="$claude_skill_dir/$name"
+    if [[ -e "$link_path" || -L "$link_path" ]]; then
+      continue
+    fi
+    ln -s "../../.agents/skills/$name" "$link_path"
+  done < <(find "$skill_dir" -maxdepth 1 -mindepth 1 -type d -print)
+}
+
+prune_managed_sources_from_repo() {
+  local target_rel repo ref source_path patch_rel build_cmd
+  local target
+
+  if [[ ! -f "$managed_sources_file" ]]; then
+    return 0
+  fi
+
+  while IFS=$'\t' read -r target_rel repo ref source_path patch_rel build_cmd; do
+    [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
+    if ! source_target_enabled "$target_rel"; then
+      continue
+    fi
+    target="$files_dir/$target_rel"
+    if [[ -e "$target" || -L "$target" ]]; then
+      rm -rf "$target"
+    fi
+  done < "$managed_sources_file"
+}
+
 upload_from_home() {
   mkdir -p "$files_dir"
   copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
@@ -306,6 +485,7 @@ upload_from_home() {
   fi
   sanitize_opencode_config
   sanitize_codex_config
+  prune_managed_sources_from_repo
   cleanup_public_tree
   echo "Refreshed enabled repo files from $home_dir"
 }
@@ -321,6 +501,8 @@ download_to_home() {
   if agent_enabled OPENCODE; then
     copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
   fi
+  install_managed_sources
+  ensure_claude_shared_skill_links
   echo "Synced enabled repo files into $home_dir"
 }
 

@@ -16,6 +16,12 @@ browser profiles, or machine-specific runtime state.
 
 Hermes and Cursor are intentionally not synced.
 
+Some skills and plugins are source-managed instead of vendored. Their upstream
+repos are listed in `sources/managed-sources.tsv`; `scripts/sync.sh download`
+fetches the latest upstream version into the local machine. If a local change is
+needed on top of upstream, store it as a patch under `patches/` and reference it
+from the manifest.
+
 ## First-Time Setup
 
 From a cloned repo:
@@ -71,6 +77,17 @@ bash scripts/sync.sh upload
 enabled in `~/.config/coding-agent-setups/sync.env`. Manual sync runs ask for
 confirmation before copying. Re-run `scripts/setup.sh` to change the enabled
 agents for this machine.
+
+During `download`, source-managed skills/plugins are fetched from upstream after
+the repo files are copied. During `upload`, those source-managed directories are
+removed from `files/` so the repo keeps only source metadata and patches, not
+upstream copies.
+
+If an upstream change makes a local patch fail to apply, interactive runs ask
+whether to use the upstream latest version without that patch. `--yes` only skips
+the top-level sync confirmation; it does not suppress patch conflict prompts.
+
+OpenCode plugin policy is documented in `sources/opencode-plugins.md`.
 
 Before pushing, run:
 

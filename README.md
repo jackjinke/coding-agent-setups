@@ -91,6 +91,11 @@ then repo-managed config is copied into place. During `upload`, source-managed
 and retired targets are removed from `files/` so the repo keeps only source
 metadata and patches, not upstream copies.
 
+During `upload`, repo-side target paths are rebuilt from the current machine
+state, then the secret check runs automatically. The script lists changed files
+without printing full diffs and asks whether to commit and push the prepared
+snapshot.
+
 Before every `download`, the script backs up folders it may touch. Backups are
 stored inside each folder under `.coding-agent-setups-backups/`, and only the
 latest three backups are kept per folder.

@@ -60,6 +60,9 @@ require_cmd() {
 
 require_cmd rsync
 require_cmd jq
+if [[ "$mode" == "upload" ]]; then
+  require_cmd git
+fi
 if [[ "$mode" == "download" ]]; then
   require_cmd git
   require_cmd npx
@@ -186,17 +189,26 @@ copy_path() {
   fi
 
   if [[ ! -e "$src" ]]; then
+    if [[ "$delete_stale" == "1" && ( -e "$dst" || -L "$dst" ) ]]; then
+      rm -rf "$dst"
+    fi
     return 0
   fi
 
   mkdir -p "$(dirname "$dst")"
   if [[ -d "$src" ]]; then
+    if [[ "$delete_stale" == "1" && ( -e "$dst" || -L "$dst" ) ]]; then
+      rm -rf "$dst"
+    fi
     mkdir -p "$dst"
     if [[ "$delete_stale" == "1" ]]; then
       rsync_args+=(--delete)
     fi
     rsync "${rsync_args[@]}" "${rsync_excludes[@]}" "$src"/ "$dst"/
   else
+    if [[ "$delete_stale" == "1" && ( -e "$dst" || -L "$dst" ) ]]; then
+      rm -rf "$dst"
+    fi
     rsync "${rsync_args[@]}" "${rsync_excludes[@]}" "$src" "$dst"
   fi
 }
@@ -243,7 +255,8 @@ confirm_sync() {
     upload)
       echo "Direction: $home_dir -> repo files"
       echo "Stale files may be deleted inside $files_dir for enabled groups."
-      echo "Public-safe sanitizers run after copying."
+      echo "Secret check runs after copying."
+      echo "Changed files are listed before the commit/push prompt."
       ;;
   esac
   echo "Enabled groups:"
@@ -731,6 +744,55 @@ remove_retired_targets_from_home() {
   remove_target_file_from_home "$retired_targets_file"
 }
 
+show_changed_files() {
+  local changes
+
+  changes="$(git -C "$repo_root" status --short)"
+  if [[ -z "$changes" ]]; then
+    echo "No changed files."
+    return 1
+  fi
+
+  echo "Changed files:"
+  printf '%s\n' "$changes"
+}
+
+prompt_commit_and_push() {
+  local answer
+  local message="${CODING_AGENT_SETUPS_COMMIT_MESSAGE:-Refresh coding agent setup}"
+
+  if [[ ! -t 0 ]]; then
+    echo "Skipping commit/push prompt because stdin is not interactive."
+    return 0
+  fi
+
+  read -r -p "Commit and push these changes? [y/N]: " answer
+  case "${answer,,}" in
+    y|yes) ;;
+    *)
+      echo "Leaving changes uncommitted."
+      return 0
+      ;;
+  esac
+
+  git -C "$repo_root" add -A
+  if git -C "$repo_root" diff --cached --quiet; then
+    echo "No staged changes to commit."
+    return 0
+  fi
+
+  git -C "$repo_root" commit -m "$message"
+  git -C "$repo_root" push
+}
+
+finish_upload_review() {
+  echo "Running secret check."
+  "$repo_root/scripts/check-public-safe.sh"
+  if show_changed_files; then
+    prompt_commit_and_push
+  fi
+}
+
 upload_from_home() {
   mkdir -p "$files_dir"
   copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
@@ -748,6 +810,7 @@ upload_from_home() {
   prune_non_vendored_targets_from_repo
   cleanup_public_tree
   echo "Refreshed enabled repo files from $home_dir"
+  finish_upload_review
 }
 
 download_to_home() {

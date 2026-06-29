@@ -2,13 +2,21 @@
 
 ## Follow OpenCode/NPM Latest
 
-These are declared in `opencode.json` or `package.json` and should not be
-vendored in this repo:
+These are declared in `opencode.json` or `package.json`, or installed by their
+published installer. They should not be vendored in this repo:
 
 - `@tarquinen/opencode-dcp@latest`
 - `opencode-see-image`
 - `oh-my-opencode-slim`
 - `opencode-goal-plugin` through `package.json` semver
+
+`oh-my-opencode-slim` is installed with:
+
+```bash
+bunx oh-my-opencode-slim@latest install --no-tui --skills=yes --companion=no --background-subagents=no
+```
+
+Its bundled `worktrees` skill is kept by following the upstream installer.
 
 ## Follow Upstream Git
 
@@ -17,18 +25,32 @@ upstream repo. `scripts/sync.sh download` clones or fetches the upstream latest
 version and installs it locally.
 
 - `opencode-pty`: `https://github.com/shekohex/opencode-pty.git`
+- `caveman`: `https://github.com/JuliusBrussee/caveman`
 
-If a patch is needed for one of these, add it to `patches/` and reference it from
-`sources/managed-sources.tsv`.
+Caveman is installed with its upstream OpenCode installer:
 
-## Local Plugins
+```bash
+npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force
+```
 
-These are local custom plugins or helper modules. They stay vendored under
-`files/.config/opencode/plugins` until an upstream source is identified.
+After install, `scripts/sync.sh download` removes the Caveman `cavecrew-*`
+OpenCode agents so the local agent list matches this setup.
 
-- `background-agents.ts`
-- `caveman/`
-- `kdco-primitives/`
-- `moshi-hooks.ts`
-- `worktree.ts`
-- `worktree/`
+If a patch is needed for a Git source, add it to `patches/` and reference it from
+`sources/managed-sources.tsv`. Installer-managed targets are listed in
+`sources/managed-skills.tsv` and `sources/managed-targets.txt`.
+
+## External Local Plugins
+
+These are installed and maintained outside this repo. They should not be
+vendored, uploaded, or installed by `scripts/sync.sh`.
+
+- Moshi hook: https://getmoshi.app/docs/install
+
+If Moshi hook is installed on a machine, `download` preserves it and `upload`
+ignores it.
+
+The same rule applies to `opencode.json`: Moshi plugin entries are kept from the
+local machine during `download`, but filtered out of repo files during `upload`.
+
+There are currently no vendored local OpenCode plugins in this repo.

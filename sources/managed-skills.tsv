@@ -1,0 +1,24 @@
+# installer<TAB>source<TAB>skill<TAB>agents<TAB>notes
+#
+# agents uses skills CLI agent slugs where relevant. codex and opencode share
+# ~/.agents/skills; claude-code writes ~/.claude/skills. xiaohongshu-cli is not
+# installed for Claude Code.
+npx-skills	jackwener/bilibili-cli	bilibili-cli	codex,claude-code,opencode	root SKILL.md
+npx-skills	jackwener/xiaohongshu-cli	xiaohongshu-cli	codex,opencode	root SKILL.md
+npx-skills	vercel-labs/skills	find-skills	codex,claude-code,opencode	skills.sh helper
+npx-skills	upstash/context7	find-docs	codex,claude-code,opencode	Context7 docs lookup
+npx-skills	microsoft/playwright	playwright-cli	codex,claude-code,opencode	Playwright official repo
+npx-skills	mattpocock/skills	codebase-design	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	diagnosing-bugs	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	domain-modeling	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	grill-me	codex,claude-code,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	grilling	codex,claude-code,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	grill-with-docs	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	handoff	codex,claude-code,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	improve-codebase-architecture	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	tdd	codex,claude-code,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	teach	codex,claude-code,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	writing-great-skills	codex,claude-code,opencode	mattpocock productivity skill
+uipro	nextlevelbuilder/ui-ux-pro-max-skill	*	codex,claude-code,opencode	Use upstream ui-ux-pro-max-cli
+opencode-ohmy	alvinunreal/oh-my-opencode-slim	*	opencode	Use bunx oh-my-opencode-slim installer
+opencode-caveman	JuliusBrussee/caveman	*	opencode	Use upstream OpenCode installer, then remove cavecrew agents

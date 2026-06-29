@@ -60,9 +60,12 @@ require_cmd() {
 
 require_cmd rsync
 require_cmd jq
-require_cmd git
-require_cmd patch
-require_cmd sha1sum
+if [[ "$mode" == "download" ]]; then
+  require_cmd git
+  require_cmd npx
+  require_cmd patch
+  require_cmd sha1sum
+fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 files_dir="$repo_root/files"
@@ -72,18 +75,17 @@ flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$config_home/coding-agent-setups/syn
 setup_dir="$config_home/coding-agent-setups"
 git_cache_dir="$setup_dir/git"
 managed_sources_file="$repo_root/sources/managed-sources.tsv"
+managed_skills_file="$repo_root/sources/managed-skills.tsv"
+managed_targets_file="$repo_root/sources/managed-targets.txt"
+retired_targets_file="$repo_root/sources/retired-targets.txt"
 
-shared_paths=(
-  ".agents/.skill-lock.json"
-  ".agents/skills"
-)
+shared_paths=()
 
 codex_paths=(
   ".codex/AGENTS.md"
   ".codex/config.toml"
   ".codex/hooks.json"
   ".codex/rules"
-  ".codex/skills/frontend-design"
 )
 
 claude_paths=(
@@ -91,7 +93,6 @@ claude_paths=(
   ".claude/config.json"
   ".claude/rules"
   ".claude/settings.json"
-  ".claude/skills"
   ".claude/statusline-command.sh"
 )
 
@@ -99,20 +100,11 @@ opencode_paths=(
   ".config/opencode/AGENTS.md"
   ".config/opencode/agents"
   ".config/opencode/bun.lock"
-  ".config/opencode/commands"
   ".config/opencode/dcp.jsonc"
   ".config/opencode/oh-my-opencode-slim.json"
   ".config/opencode/opencode.json"
   ".config/opencode/package-lock.json"
   ".config/opencode/package.json"
-  ".config/opencode/plugins/background-agents.ts"
-  ".config/opencode/plugins/caveman"
-  ".config/opencode/plugins/kdco-primitives"
-  ".config/opencode/plugins/moshi-hooks.ts"
-  ".config/opencode/plugins/opencode-pty"
-  ".config/opencode/plugins/worktree"
-  ".config/opencode/plugins/worktree.ts"
-  ".config/opencode/skills"
   ".config/opencode/tui.json"
 )
 
@@ -137,6 +129,8 @@ rsync_excludes=(
   "--exclude=telemetry/"
   "--exclude=file-history/"
   "--exclude=.ocx/"
+  "--exclude=plugins/moshi-hooks.ts"
+  "--exclude=moshi-hooks.ts"
   "--exclude=.caveman-active"
   "--exclude=*.sqlite"
   "--exclude=*.sqlite-*"
@@ -269,8 +263,59 @@ sanitize_opencode_config() {
     return 0
   fi
   tmp="$(mktemp)"
-  jq '.provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"' "$path" > "$tmp"
+  jq '
+    def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
+    .provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"
+    | .plugin |= (
+        if type == "array" then
+          map(select(is_moshi_plugin | not))
+        else
+          .
+        end
+      )
+  ' "$path" > "$tmp"
   mv "$tmp" "$path"
+}
+
+capture_moshi_opencode_plugins() {
+  local config="$1"
+  local output="$2"
+
+  if [[ ! -f "$config" ]]; then
+    printf '[]\n' > "$output"
+    return 0
+  fi
+
+  if ! jq '[.plugin[]? | select(tostring | ascii_downcase | contains("moshi"))]' "$config" > "$output"; then
+    printf '[]\n' > "$output"
+  fi
+}
+
+restore_moshi_opencode_plugins() {
+  local config="$1"
+  local saved_plugins="$2"
+  local tmp
+
+  if [[ ! -f "$config" || ! -f "$saved_plugins" ]]; then
+    return 0
+  fi
+
+  tmp="$(mktemp)"
+  jq --slurpfile moshi "$saved_plugins" '
+    def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
+    .plugin = (
+      (
+        if (.plugin | type) == "array" then
+          .plugin
+        else
+          []
+        end
+        | map(select(is_moshi_plugin | not))
+      )
+      + ($moshi[0] // [])
+    )
+  ' "$config" > "$tmp"
+  mv "$tmp" "$config"
 }
 
 sanitize_codex_config() {
@@ -301,7 +346,7 @@ cleanup_public_tree() {
 source_target_enabled() {
   local target="$1"
   case "$target" in
-    .agents/skills/*) return 0 ;;
+    .agents/*) return 0 ;;
     .codex/*)
       agent_enabled CODEX
       return
@@ -314,8 +359,37 @@ source_target_enabled() {
       agent_enabled OPENCODE
       return
       ;;
+    .opencode/*)
+      agent_enabled OPENCODE
+      return
+      ;;
     *) return 1 ;;
   esac
+}
+
+csv_contains() {
+  local csv="$1"
+  local value="$2"
+  case ",$csv," in
+    *",$value,"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+enabled_agent_args() {
+  local allowed="$1"
+  local -n out="$2"
+
+  out=()
+  if agent_enabled CODEX && csv_contains "$allowed" codex; then
+    out+=(-a codex)
+  fi
+  if agent_enabled CLAUDE && csv_contains "$allowed" claude-code; then
+    out+=(-a claude-code)
+  fi
+  if agent_enabled OPENCODE && csv_contains "$allowed" opencode; then
+    out+=(-a opencode)
+  fi
 }
 
 cache_dir_for_repo() {
@@ -394,6 +468,104 @@ run_managed_build() {
   (cd "$target" && bash -lc "$build_cmd")
 }
 
+remove_caveman_opencode_agents() {
+  if ! agent_enabled OPENCODE; then
+    return 0
+  fi
+  rm -f \
+    "$config_home/opencode/agents/cavecrew-builder.md" \
+    "$config_home/opencode/agents/cavecrew-investigator.md" \
+    "$config_home/opencode/agents/cavecrew-reviewer.md"
+}
+
+install_npx_skill() {
+  local source="$1"
+  local skill="$2"
+  local allowed_agents="$3"
+  local agent_args=()
+
+  enabled_agent_args "$allowed_agents" agent_args
+  if [[ "${#agent_args[@]}" -eq 0 ]]; then
+    return 0
+  fi
+
+  echo "Installing skill via npx skills: $source@$skill"
+  npx skills@latest add "$source" -g --copy -y "${agent_args[@]}" -s "$skill"
+}
+
+install_uipro() {
+  local allowed_agents="$1"
+
+  if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
+    echo "Installing UI UX Pro Max for Codex"
+    npx ui-ux-pro-max-cli@latest init --ai codex --global --force
+  fi
+  if agent_enabled CLAUDE && csv_contains "$allowed_agents" claude-code; then
+    echo "Installing UI UX Pro Max for Claude Code"
+    npx ui-ux-pro-max-cli@latest init --ai claude --global --force
+  fi
+  if agent_enabled OPENCODE && csv_contains "$allowed_agents" opencode; then
+    echo "Installing UI UX Pro Max for OpenCode"
+    npx ui-ux-pro-max-cli@latest init --ai opencode --global --force
+  fi
+}
+
+install_opencode_ohmy() {
+  if ! agent_enabled OPENCODE; then
+    return 0
+  fi
+  require_cmd bunx
+  echo "Installing oh-my-opencode-slim"
+  bunx oh-my-opencode-slim@latest install \
+    --no-tui \
+    --skills=yes \
+    --companion=no \
+    --background-subagents=no
+}
+
+install_opencode_caveman() {
+  if ! agent_enabled OPENCODE; then
+    return 0
+  fi
+  echo "Installing Caveman for OpenCode"
+  npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force
+  remove_caveman_opencode_agents
+}
+
+install_managed_skills() {
+  local installer source skill allowed_agents notes
+
+  if [[ ! -f "$managed_skills_file" ]]; then
+    return 0
+  fi
+  if [[ "${CODING_AGENT_SETUPS_SKIP_MANAGED_SOURCES:-0}" == "1" ]]; then
+    echo "Skipping managed upstream skills."
+    return 0
+  fi
+
+  while IFS=$'\t' read -r installer source skill allowed_agents notes; do
+    [[ -z "${installer:-}" || "$installer" == \#* ]] && continue
+    case "$installer" in
+      npx-skills)
+        install_npx_skill "$source" "$skill" "$allowed_agents"
+        ;;
+      uipro)
+        install_uipro "$allowed_agents"
+        ;;
+      opencode-ohmy)
+        install_opencode_ohmy
+        ;;
+      opencode-caveman)
+        install_opencode_caveman
+        ;;
+      *)
+        echo "Unknown managed skill installer: $installer" >&2
+        exit 1
+        ;;
+    esac
+  done < "$managed_skills_file"
+}
+
 install_managed_sources() {
   local target_rel repo ref source_path patch_rel build_cmd
   local cache_dir source_dir target
@@ -428,47 +600,49 @@ install_managed_sources() {
   done < "$managed_sources_file"
 }
 
-claude_shared_skill_link_excluded() {
-  case "$1" in
-    xiaohongshu-cli) return 0 ;;
-    *) return 1 ;;
-  esac
-}
+prune_target_file_from_repo() {
+  local target_file="$1"
+  local target_rel target
 
-ensure_claude_shared_skill_links() {
-  local skill_dir="$home_dir/.agents/skills"
-  local claude_skill_dir="$home_dir/.claude/skills"
-  local source_path name link_path excluded_link
-
-  if ! agent_enabled CLAUDE; then
-    return 0
-  fi
-  if [[ ! -d "$skill_dir" ]]; then
+  if [[ ! -f "$target_file" ]]; then
     return 0
   fi
 
-  mkdir -p "$claude_skill_dir"
-  excluded_link="$claude_skill_dir/xiaohongshu-cli"
-  if [[ -L "$excluded_link" ]]; then
-    rm "$excluded_link"
-  fi
-
-  while IFS= read -r source_path; do
-    name="$(basename "$source_path")"
-    if claude_shared_skill_link_excluded "$name"; then
-      continue
+  while IFS= read -r target_rel; do
+    [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
+    target="$files_dir/$target_rel"
+    if [[ -e "$target" || -L "$target" ]]; then
+      rm -rf "$target"
     fi
-    link_path="$claude_skill_dir/$name"
-    if [[ -e "$link_path" || -L "$link_path" ]]; then
-      continue
-    fi
-    ln -s "../../.agents/skills/$name" "$link_path"
-  done < <(find "$skill_dir" -maxdepth 1 -mindepth 1 -type d -print)
+  done < "$target_file"
 }
 
-prune_managed_sources_from_repo() {
+remove_target_file_from_home() {
+  local target_file="$1"
+  local target_rel target
+
+  if [[ ! -f "$target_file" ]]; then
+    return 0
+  fi
+
+  while IFS= read -r target_rel; do
+    [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
+    if ! source_target_enabled "$target_rel"; then
+      continue
+    fi
+    target="$home_dir/$target_rel"
+    if [[ -e "$target" || -L "$target" ]]; then
+      rm -rf "$target"
+    fi
+  done < "$target_file"
+}
+
+prune_non_vendored_targets_from_repo() {
   local target_rel repo ref source_path patch_rel build_cmd
   local target
+
+  prune_target_file_from_repo "$managed_targets_file"
+  prune_target_file_from_repo "$retired_targets_file"
 
   if [[ ! -f "$managed_sources_file" ]]; then
     return 0
@@ -476,14 +650,15 @@ prune_managed_sources_from_repo() {
 
   while IFS=$'\t' read -r target_rel repo ref source_path patch_rel build_cmd; do
     [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
-    if ! source_target_enabled "$target_rel"; then
-      continue
-    fi
     target="$files_dir/$target_rel"
     if [[ -e "$target" || -L "$target" ]]; then
       rm -rf "$target"
     fi
   done < "$managed_sources_file"
+}
+
+remove_retired_targets_from_home() {
+  remove_target_file_from_home "$retired_targets_file"
 }
 
 upload_from_home() {
@@ -500,12 +675,21 @@ upload_from_home() {
   fi
   sanitize_opencode_config
   sanitize_codex_config
-  prune_managed_sources_from_repo
+  prune_non_vendored_targets_from_repo
   cleanup_public_tree
   echo "Refreshed enabled repo files from $home_dir"
 }
 
 download_to_home() {
+  local moshi_plugins_file=""
+
+  if agent_enabled OPENCODE; then
+    moshi_plugins_file="$(mktemp)"
+    capture_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
+  fi
+
+  install_managed_skills
+  install_managed_sources
   copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
   if agent_enabled CODEX; then
     copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
@@ -515,9 +699,11 @@ download_to_home() {
   fi
   if agent_enabled OPENCODE; then
     copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
+    restore_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
+    rm -f "$moshi_plugins_file"
   fi
-  install_managed_sources
-  ensure_claude_shared_skill_links
+  remove_caveman_opencode_agents
+  remove_retired_targets_from_home
   echo "Synced enabled repo files into $home_dir"
 }
 

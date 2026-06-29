@@ -2,25 +2,33 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks declarative setup only: agent instructions, skills, prompts,
-plugin source, and config that refers to environment variables. It deliberately
+This repo tracks declarative setup only: agent instructions, prompts, selected
+local plugin source, upstream source manifests, and config that refers to
+environment variables. It deliberately
 does not track OAuth files, API keys, histories, caches, logs, local databases,
 browser profiles, or machine-specific runtime state.
 
 ## Included
 
-- Codex: `AGENTS.md`, rules, hooks, selected local skills, and a sanitized config.
-- Claude Code: global instructions, settings, rules, status line, and skills.
-- OpenCode: config, agents, commands, skills, and plugin source.
-- Shared agent skills under `.agents/skills`.
+- Codex: `AGENTS.md`, rules, hooks, and a sanitized config.
+- Claude Code: global instructions, settings, rules, and status line.
+- OpenCode: config, agents, and selected local plugin source.
+- Skills installed from their upstream sources during setup/download.
 
 Hermes and Cursor are intentionally not synced.
 
-Some skills and plugins are source-managed instead of vendored. Their upstream
-repos are listed in `sources/managed-sources.tsv`; `scripts/sync.sh download`
-fetches the latest upstream version into the local machine. If a local change is
-needed on top of upstream, store it as a patch under `patches/` and reference it
-from the manifest.
+Skills and some OpenCode plugins are source-managed instead of vendored:
+
+- `sources/managed-skills.tsv` lists skills and upstream installers such as
+  `npx skills`, `ui-ux-pro-max-cli`, `oh-my-opencode-slim`, and Caveman.
+- `sources/managed-sources.tsv` lists source trees copied from upstream Git.
+- `sources/managed-targets.txt` keeps generated upstream installs out of
+  `files/`.
+- `sources/retired-targets.txt` removes setup entries that should no longer be
+  installed.
+
+If a local change is needed on top of upstream, store it as a patch under
+`patches/` and reference it from the manifest.
 
 ## First-Time Setup
 
@@ -78,10 +86,14 @@ enabled in `~/.config/coding-agent-setups/sync.env`. Manual sync runs ask for
 confirmation before copying. Re-run `scripts/setup.sh` to change the enabled
 agents for this machine.
 
-During `download`, source-managed skills/plugins are fetched from upstream after
-the repo files are copied. During `upload`, those source-managed directories are
-removed from `files/` so the repo keeps only source metadata and patches, not
-upstream copies.
+During `download`, source-managed skills/plugins are installed from upstream,
+then repo-managed config is copied into place. During `upload`, source-managed
+and retired targets are removed from `files/` so the repo keeps only source
+metadata and patches, not upstream copies.
+
+Moshi hook is managed outside this repo. If it is installed locally, sync
+preserves its OpenCode plugin file and `opencode.json` plugin entry on
+`download`, and filters both out on `upload`.
 
 If an upstream change makes a local patch fail to apply, interactive runs ask
 whether to use the upstream latest version without that patch. `--yes` only skips

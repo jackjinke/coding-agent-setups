@@ -704,8 +704,73 @@ install_opencode_caveman() {
     return 0
   fi
   echo "Installing Caveman for OpenCode"
-  npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force
+  if ! npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force; then
+    echo "Caveman installer failed." >&2
+    return 1
+  fi
   remove_caveman_opencode_agents
+}
+
+resolve_opencode_plugin_ref() {
+  local ref="$1"
+
+  case "$ref" in
+    /*) printf '%s' "$ref" ;;
+    ./*) printf '%s/%s' "$config_home/opencode" "${ref#./}" ;;
+    ../*) printf '%s/%s' "$config_home/opencode" "$ref" ;;
+    *) return 1 ;;
+  esac
+}
+
+remove_opencode_plugin_ref() {
+  local config="$1"
+  local ref="$2"
+  local tmp
+
+  tmp="$(make_temp_file)"
+  jq --arg ref "$ref" '
+    if (.plugin? | type) == "array" then
+      .plugin |= map(select(. != $ref))
+    else
+      .
+    end
+  ' "$config" > "$tmp"
+  mv "$tmp" "$config"
+}
+
+repair_missing_opencode_file_plugins() {
+  local config="$config_home/opencode/opencode.json"
+  local refs_file ref plugin_path
+
+  if ! agent_enabled OPENCODE || [[ ! -f "$config" ]]; then
+    return 0
+  fi
+
+  refs_file="$(make_temp_file)"
+  jq -r '
+    .plugin[]?
+    | select(type == "string")
+    | select(startswith("./") or startswith("../") or startswith("/"))
+  ' "$config" > "$refs_file"
+
+  while IFS= read -r ref; do
+    plugin_path="$(resolve_opencode_plugin_ref "$ref" || true)"
+    [[ -n "$plugin_path" ]] || continue
+
+    if [[ "$ref" == "./plugins/caveman/plugin.js" && ! -e "$plugin_path" && "${CODING_AGENT_SETUPS_SKIP_MANAGED_SOURCES:-0}" != "1" ]]; then
+      echo "Caveman plugin file is missing; reinstalling Caveman for OpenCode."
+      if install_opencode_caveman && [[ -e "$plugin_path" ]]; then
+        continue
+      fi
+    fi
+
+    if [[ ! -e "$plugin_path" ]]; then
+      echo "Removing missing OpenCode plugin reference: $ref" >&2
+      remove_opencode_plugin_ref "$config" "$ref"
+    fi
+  done < "$refs_file"
+
+  rm -f "$refs_file"
 }
 
 install_managed_skills() {
@@ -968,6 +1033,7 @@ sync_to_home() {
     fi
     restore_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
     rm -f "$moshi_plugins_file"
+    repair_missing_opencode_file_plugins
   fi
   if [[ "${#moshi_targets[@]}" -gt 0 ]]; then
     ensure_moshi_for_targets "${moshi_targets[@]}"

@@ -35,7 +35,7 @@ If a local change is needed on top of upstream, store it as a patch under
 From a cloned repo:
 
 ```bash
-bash scripts/setup.sh
+bash scripts/coding-agent-setups.sh setup
 ```
 
 The setup script is interactive. It always installs shared agent files, then asks
@@ -62,7 +62,7 @@ For a private GitHub repo, a typical bootstrap is:
 
 ```bash
 gh repo clone OWNER/coding-agent-setups ~/Projects/coding-agent-setups
-bash ~/Projects/coding-agent-setups/scripts/setup.sh
+bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh setup
 ```
 
 For a public repo, replace the `gh repo clone` command with a normal HTTPS clone.
@@ -72,13 +72,13 @@ For a public repo, replace the `gh repo clone` command with a normal HTTPS clone
 Apply repo files to this machine:
 
 ```bash
-bash scripts/sync.sh download
+bash scripts/coding-agent-setups.sh sync download
 ```
 
 Refresh the repo from this machine:
 
 ```bash
-bash scripts/sync.sh upload
+bash scripts/coding-agent-setups.sh sync upload
 ```
 
 `sync.sh` always syncs shared files, then syncs only the agent-specific groups
@@ -90,6 +90,19 @@ During `download`, source-managed skills/plugins are installed from upstream,
 then repo-managed config is copied into place. During `upload`, source-managed
 and retired targets are removed from `files/` so the repo keeps only source
 metadata and patches, not upstream copies.
+
+Before every `download`, the script backs up folders it may touch. Backups are
+stored inside each folder under `.coding-agent-setups-backups/`, and only the
+latest three backups are kept per folder.
+
+Restore from a download backup:
+
+```bash
+bash scripts/coding-agent-setups.sh restore
+```
+
+Restore lists the current recoverable versions, lets you choose one, then
+restores every folder that has a backup for that version.
 
 Moshi hook is managed outside this repo. If it is installed locally, sync
 preserves its OpenCode plugin file and `opencode.json` plugin entry on

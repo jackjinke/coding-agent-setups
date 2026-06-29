@@ -65,6 +65,7 @@ if [[ "$mode" == "download" ]]; then
   require_cmd npx
   require_cmd patch
   require_cmd sha1sum
+  require_cmd tar
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -110,6 +111,7 @@ opencode_paths=(
 
 rsync_excludes=(
   "--exclude=.git/"
+  "--exclude=.coding-agent-setups-backups/"
   "--exclude=.agents/"
   "--exclude=.roo/"
   "--exclude=.venv/"
@@ -236,6 +238,7 @@ confirm_sync() {
     download)
       echo "Direction: repo files -> $home_dir"
       echo "Local-only files are preserved."
+      echo "Touched folders are backed up before changes."
       ;;
     upload)
       echo "Direction: $home_dir -> repo files"
@@ -341,6 +344,73 @@ cleanup_public_tree() {
   while IFS= read -r link_path; do
     rm "$link_path"
   done < <(find "$files_dir" \( -xtype l -o -type l -lname '/*' \) -print)
+}
+
+backup_dir_name=".coding-agent-setups-backups"
+backup_keep_count=3
+
+download_backup_roots() {
+  local -n out="$1"
+  out=()
+
+  if agent_enabled CODEX || agent_enabled OPENCODE; then
+    out+=("$home_dir/.agents")
+  fi
+  if agent_enabled CODEX; then
+    out+=("$home_dir/.codex")
+  fi
+  if agent_enabled CLAUDE; then
+    out+=("$home_dir/.claude")
+  fi
+  if agent_enabled OPENCODE; then
+    out+=("$config_home/opencode" "$home_dir/.opencode")
+  fi
+}
+
+prune_folder_backups() {
+  local backup_dir="$1"
+  local count=0
+  local backup
+
+  if [[ ! -d "$backup_dir" ]]; then
+    return 0
+  fi
+
+  while IFS= read -r backup; do
+    count=$((count + 1))
+    if (( count > backup_keep_count )); then
+      rm -f "$backup"
+    fi
+  done < <(find "$backup_dir" -maxdepth 1 -type f -name '*.tar.gz' -print | sort -r)
+}
+
+create_folder_backup() {
+  local root="$1"
+  local backup_id="$2"
+  local backup_dir="$root/$backup_dir_name"
+  local archive="$backup_dir/$backup_id.tar.gz"
+
+  mkdir -p "$backup_dir"
+  tar -czf "$archive" --exclude="./$backup_dir_name" -C "$root" .
+  prune_folder_backups "$backup_dir"
+  echo "Backed up $root -> $archive"
+}
+
+create_download_backups() {
+  local roots=()
+  local root
+  local backup_id
+
+  download_backup_roots roots
+  if [[ "${#roots[@]}" -eq 0 ]]; then
+    return 0
+  fi
+
+  backup_id="${CODING_AGENT_SETUPS_BACKUP_ID:-$(date -u +%Y%m%dT%H%M%S%NZ)}"
+  echo "Creating download backups: $backup_id"
+  for root in "${roots[@]}"; do
+    create_folder_backup "$root" "$backup_id"
+  done
 }
 
 source_target_enabled() {
@@ -682,6 +752,8 @@ upload_from_home() {
 
 download_to_home() {
   local moshi_plugins_file=""
+
+  create_download_backups
 
   if agent_enabled OPENCODE; then
     moshi_plugins_file="$(mktemp)"

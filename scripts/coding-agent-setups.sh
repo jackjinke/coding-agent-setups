@@ -20,6 +20,15 @@ preferred entry point.
 USAGE
 }
 
+lower() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+make_temp_file() {
+  local tmp_base="${TMPDIR:-/tmp}"
+  mktemp "$tmp_base/coding-agent-setups.XXXXXX"
+}
+
 backup_roots() {
   printf '%s\n' \
     "$home_dir/.agents" \
@@ -45,23 +54,20 @@ archive_for() {
 }
 
 list_restore_versions() {
-  local root backup_dir archive version
-  declare -A seen=()
+  local root backup_dir archive
 
   while IFS= read -r root; do
     backup_dir="$root/$backup_dir_name"
     [[ -d "$backup_dir" ]] || continue
     while IFS= read -r archive; do
-      version="$(basename "$archive" .tar.gz)"
-      seen["$version"]=1
-    done < <(find "$backup_dir" -maxdepth 1 -type f -name '*.tar.gz' -print)
-  done < <(backup_roots)
-
-  if [[ "${#seen[@]}" -eq 0 ]]; then
-    return 0
-  fi
-
-  printf '%s\n' "${!seen[@]}" | sort -r | head -n 3
+      basename "$archive" .tar.gz
+    done < <(
+      for archive in "$backup_dir"/*.tar.gz; do
+        [[ -f "$archive" ]] || continue
+        printf '%s\n' "$archive"
+      done
+    )
+  done < <(backup_roots) | sort -r | awk '!seen[$0]++' | head -n 3
 }
 
 folders_for_version() {
@@ -85,38 +91,43 @@ folders_for_version() {
 
 format_backup_version_time() {
   local version="$1"
-  local readable
+  local year month day hour minute second
 
-  if [[ "$version" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2}) ]]; then
-    readable="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]} ${BASH_REMATCH[4]}:${BASH_REMATCH[5]}:${BASH_REMATCH[6]} UTC"
-    if date -d "$readable" '+%Y-%m-%d %H:%M:%S %Z' >/dev/null 2>&1; then
-      date -d "$readable" '+%Y-%m-%d %H:%M:%S %Z'
-    else
-      printf '%s' "$readable"
-    fi
-  else
-    printf 'unknown time'
-  fi
+  case "$version" in
+    [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]T[0-9][0-9][0-9][0-9][0-9][0-9]*)
+      year="${version:0:4}"
+      month="${version:4:2}"
+      day="${version:6:2}"
+      hour="${version:9:2}"
+      minute="${version:11:2}"
+      second="${version:13:2}"
+      printf '%s-%s-%s %s:%s:%s UTC' "$year" "$month" "$day" "$hour" "$minute" "$second"
+      ;;
+    *)
+      printf 'unknown time'
+      ;;
+  esac
 }
 
 choose_restore_version() {
-  local -n versions_ref="$1"
+  local versions_file="$1"
+  local version_count="$2"
   local answer
   local index
 
   while true; do
-    read -r -p "Restore which version? [1-${#versions_ref[@]}]: " answer
+    read -r -p "Restore which version? [1-$version_count]: " answer
     case "$answer" in
       ''|*[!0-9]*)
-        echo "Please enter a number."
+        echo "Please enter a number." >&2
         ;;
       *)
-        index=$((answer - 1))
-        if (( index >= 0 && index < ${#versions_ref[@]} )); then
-          printf '%s' "${versions_ref[$index]}"
+        index=$((10#$answer - 1))
+        if (( index >= 0 && index < version_count )); then
+          sed -n "$((index + 1))p" "$versions_file"
           return 0
         fi
-        echo "Please choose a number from 1 to ${#versions_ref[@]}."
+        echo "Please choose a number from 1 to $version_count." >&2
         ;;
     esac
   done
@@ -126,6 +137,7 @@ restore_folder() {
   local root="$1"
   local version="$2"
   local archive backup_dir
+  local entry
 
   archive="$(archive_for "$root" "$version")"
   [[ -f "$archive" ]] || return 0
@@ -137,41 +149,52 @@ restore_folder() {
 
   backup_dir="$root/$backup_dir_name"
   mkdir -p "$backup_dir"
-  find "$root" -mindepth 1 -maxdepth 1 ! -name "$backup_dir_name" -exec rm -rf {} +
+  for entry in "$root"/.[!.]* "$root"/..?* "$root"/*; do
+    [[ -e "$entry" || -L "$entry" ]] || continue
+    [[ "$(basename "$entry")" == "$backup_dir_name" ]] && continue
+    rm -rf "$entry"
+  done
   tar -xzf "$archive" -C "$root"
   echo "Restored $(display_path "$root")"
 }
 
 restore_backups() {
-  local versions=()
-  local i selected answer root
+  local versions_file version_count
+  local i version selected answer root
 
-  mapfile -t versions < <(list_restore_versions)
-  if [[ "${#versions[@]}" -eq 0 ]]; then
+  versions_file="$(make_temp_file)"
+  list_restore_versions > "$versions_file"
+  version_count="$(wc -l < "$versions_file" | tr -d '[:space:]')"
+  if [[ "$version_count" == "0" ]]; then
     echo "No backups found."
+    rm -f "$versions_file"
     return 1
   fi
 
   echo "Available restore versions:"
-  for i in "${!versions[@]}"; do
+  i=1
+  while IFS= read -r version; do
     printf '  %d. %s [%s] (%s)\n' \
-      "$((i + 1))" \
-      "$(format_backup_version_time "${versions[$i]}")" \
-      "${versions[$i]}" \
-      "$(folders_for_version "${versions[$i]}")"
-  done
+      "$i" \
+      "$(format_backup_version_time "$version")" \
+      "$version" \
+      "$(folders_for_version "$version")"
+    i=$((i + 1))
+  done < "$versions_file"
 
-  selected="$(choose_restore_version versions)"
+  selected="$(choose_restore_version "$versions_file" "$version_count")"
   echo "Selected: $selected"
   echo "Folders: $(folders_for_version "$selected")"
   read -r -p "Restore this version? Current files in those folders will be replaced. [y/N]: " answer
-  case "${answer,,}" in
+  case "$(lower "$answer")" in
     y|yes) ;;
     *)
       echo "Cancelled."
+      rm -f "$versions_file"
       return 1
       ;;
   esac
+  rm -f "$versions_file"
 
   while IFS= read -r root; do
     restore_folder "$root" "$selected"

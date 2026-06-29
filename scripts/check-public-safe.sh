@@ -4,7 +4,12 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-scan_output="$(mktemp)"
+make_temp_file() {
+  local tmp_base="${TMPDIR:-/tmp}"
+  mktemp "$tmp_base/coding-agent-setups.XXXXXX"
+}
+
+scan_output="$(make_temp_file)"
 trap 'rm -f "$scan_output"' EXIT
 
 if grep -rInE \

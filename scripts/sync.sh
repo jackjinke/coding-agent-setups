@@ -58,6 +58,31 @@ require_cmd() {
   fi
 }
 
+require_sha1() {
+  if command -v sha1sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "Missing required command: sha1sum or shasum" >&2
+  exit 1
+}
+
+lower() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+make_temp_file() {
+  local tmp_base="${TMPDIR:-/tmp}"
+  mktemp "$tmp_base/coding-agent-setups.XXXXXX"
+}
+
+sha1_text() {
+  if command -v sha1sum >/dev/null 2>&1; then
+    sha1sum | awk '{ print $1 }'
+  else
+    shasum -a 1 | awk '{ print $1 }'
+  fi
+}
+
 require_cmd rsync
 require_cmd jq
 if [[ "$mode" == "upload" ]]; then
@@ -67,7 +92,7 @@ if [[ "$mode" == "download" ]]; then
   require_cmd git
   require_cmd npx
   require_cmd patch
-  require_cmd sha1sum
+  require_sha1
   require_cmd tar
 fi
 
@@ -156,7 +181,7 @@ agent_enabled() {
   local key="SYNC_$1"
   local value
   value="$(read_flag "$key")"
-  case "${value,,}" in
+  case "$(lower "$value")" in
     1|true|yes|on) return 0 ;;
     *) return 1 ;;
   esac
@@ -263,7 +288,7 @@ confirm_sync() {
   print_enabled_groups
 
   read -r -p "Proceed? [y/N]: " answer
-  case "${answer,,}" in
+  case "$(lower "$answer")" in
     y|yes) ;;
     *)
       echo "Cancelled."
@@ -278,7 +303,7 @@ sanitize_opencode_config() {
   if [[ ! -f "$path" ]]; then
     return 0
   fi
-  tmp="$(mktemp)"
+  tmp="$(make_temp_file)"
   jq '
     def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
     .provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"
@@ -316,7 +341,7 @@ restore_moshi_opencode_plugins() {
     return 0
   fi
 
-  tmp="$(mktemp)"
+  tmp="$(make_temp_file)"
   jq --slurpfile moshi "$saved_plugins" '
     def is_moshi_plugin: tostring | ascii_downcase | contains("moshi");
     .plugin = (
@@ -340,7 +365,7 @@ sanitize_codex_config() {
   if [[ ! -f "$path" ]]; then
     return 0
   fi
-  tmp="$(mktemp)"
+  tmp="$(make_temp_file)"
   awk '
     /^\[projects\./ { skip = 1; next }
     /^\[hooks\.state/ { skip = 1; next }
@@ -351,32 +376,34 @@ sanitize_codex_config() {
 }
 
 cleanup_public_tree() {
+  local link_path link_target
+
   if [[ ! -d "$files_dir" ]]; then
     return 0
   fi
   while IFS= read -r link_path; do
-    rm "$link_path"
-  done < <(find "$files_dir" \( -xtype l -o -type l -lname '/*' \) -print)
+    link_target="$(readlink "$link_path" 2>/dev/null || true)"
+    if [[ ! -e "$link_path" || "$link_target" == /* ]]; then
+      rm "$link_path"
+    fi
+  done < <(find "$files_dir" -type l -print)
 }
 
 backup_dir_name=".coding-agent-setups-backups"
 backup_keep_count=3
 
 download_backup_roots() {
-  local -n out="$1"
-  out=()
-
   if agent_enabled CODEX || agent_enabled OPENCODE; then
-    out+=("$home_dir/.agents")
+    printf '%s\n' "$home_dir/.agents"
   fi
   if agent_enabled CODEX; then
-    out+=("$home_dir/.codex")
+    printf '%s\n' "$home_dir/.codex"
   fi
   if agent_enabled CLAUDE; then
-    out+=("$home_dir/.claude")
+    printf '%s\n' "$home_dir/.claude"
   fi
   if agent_enabled OPENCODE; then
-    out+=("$config_home/opencode" "$home_dir/.opencode")
+    printf '%s\n' "$config_home/opencode" "$home_dir/.opencode"
   fi
 }
 
@@ -394,7 +421,12 @@ prune_folder_backups() {
     if (( count > backup_keep_count )); then
       rm -f "$backup"
     fi
-  done < <(find "$backup_dir" -maxdepth 1 -type f -name '*.tar.gz' -print | sort -r)
+  done < <(
+    for backup in "$backup_dir"/*.tar.gz; do
+      [[ -f "$backup" ]] || continue
+      printf '%s\n' "$backup"
+    done | sort -r
+  )
 }
 
 create_folder_backup() {
@@ -410,20 +442,18 @@ create_folder_backup() {
 }
 
 create_download_backups() {
-  local roots=()
   local root
   local backup_id
+  local has_roots=0
 
-  download_backup_roots roots
-  if [[ "${#roots[@]}" -eq 0 ]]; then
-    return 0
-  fi
-
-  backup_id="${CODING_AGENT_SETUPS_BACKUP_ID:-$(date -u +%Y%m%dT%H%M%S%NZ)}"
-  echo "Creating download backups: $backup_id"
-  for root in "${roots[@]}"; do
+  backup_id="${CODING_AGENT_SETUPS_BACKUP_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
+  while IFS= read -r root; do
+    if [[ "$has_roots" == "0" ]]; then
+      echo "Creating download backups: $backup_id"
+      has_roots=1
+    fi
     create_folder_backup "$root" "$backup_id"
-  done
+  done < <(download_backup_roots)
 }
 
 source_target_enabled() {
@@ -459,26 +489,10 @@ csv_contains() {
   esac
 }
 
-enabled_agent_args() {
-  local allowed="$1"
-  local -n out="$2"
-
-  out=()
-  if agent_enabled CODEX && csv_contains "$allowed" codex; then
-    out+=(-a codex)
-  fi
-  if agent_enabled CLAUDE && csv_contains "$allowed" claude-code; then
-    out+=(-a claude-code)
-  fi
-  if agent_enabled OPENCODE && csv_contains "$allowed" opencode; then
-    out+=(-a opencode)
-  fi
-}
-
 cache_dir_for_repo() {
   local repo="$1"
   local key
-  key="$(printf '%s' "$repo" | sha1sum | awk '{ print $1 }')"
+  key="$(printf '%s' "$repo" | sha1_text)"
   printf '%s/%s' "$git_cache_dir" "$key"
 }
 
@@ -536,7 +550,7 @@ apply_managed_patch() {
   fi
 
   read -r -p "Use upstream latest without applying this patch? [y/N]: " answer
-  case "${answer,,}" in
+  case "$(lower "$answer")" in
     y|yes) return 0 ;;
     *) echo "Cancelled."; exit 1 ;;
   esac
@@ -567,7 +581,15 @@ install_npx_skill() {
   local allowed_agents="$3"
   local agent_args=()
 
-  enabled_agent_args "$allowed_agents" agent_args
+  if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
+    agent_args+=(-a codex)
+  fi
+  if agent_enabled CLAUDE && csv_contains "$allowed_agents" claude-code; then
+    agent_args+=(-a claude-code)
+  fi
+  if agent_enabled OPENCODE && csv_contains "$allowed_agents" opencode; then
+    agent_args+=(-a opencode)
+  fi
   if [[ "${#agent_args[@]}" -eq 0 ]]; then
     return 0
   fi
@@ -767,7 +789,7 @@ prompt_commit_and_push() {
   fi
 
   read -r -p "Commit and push these changes? [y/N]: " answer
-  case "${answer,,}" in
+  case "$(lower "$answer")" in
     y|yes) ;;
     *)
       echo "Leaving changes uncommitted."
@@ -819,7 +841,7 @@ download_to_home() {
   create_download_backups
 
   if agent_enabled OPENCODE; then
-    moshi_plugins_file="$(mktemp)"
+    moshi_plugins_file="$(make_temp_file)"
     capture_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
   fi
 

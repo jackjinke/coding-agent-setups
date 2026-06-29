@@ -428,10 +428,17 @@ install_managed_sources() {
   done < "$managed_sources_file"
 }
 
+claude_shared_skill_link_excluded() {
+  case "$1" in
+    xiaohongshu-cli) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 ensure_claude_shared_skill_links() {
   local skill_dir="$home_dir/.agents/skills"
   local claude_skill_dir="$home_dir/.claude/skills"
-  local source_path name link_path
+  local source_path name link_path excluded_link
 
   if ! agent_enabled CLAUDE; then
     return 0
@@ -441,8 +448,16 @@ ensure_claude_shared_skill_links() {
   fi
 
   mkdir -p "$claude_skill_dir"
+  excluded_link="$claude_skill_dir/xiaohongshu-cli"
+  if [[ -L "$excluded_link" ]]; then
+    rm "$excluded_link"
+  fi
+
   while IFS= read -r source_path; do
     name="$(basename "$source_path")"
+    if claude_shared_skill_link_excluded "$name"; then
+      continue
+    fi
     link_path="$claude_skill_dir/$name"
     if [[ -e "$link_path" || -L "$link_path" ]]; then
       continue

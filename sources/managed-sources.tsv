@@ -16,5 +16,4 @@
 .config/opencode/skills/caveman-help	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-help	-	-
 .config/opencode/skills/caveman-review	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-review	-	-
 .config/opencode/skills/caveman-stats	https://github.com/JuliusBrussee/caveman.git	latest	skills/caveman-stats	-	-
-.claude/skills/xiaohongshu-skills	https://github.com/autoclaw-cc/xiaohongshu-skills.git	latest	.	patches/claude-xiaohongshu-skills.patch	-
 .config/opencode/plugins/opencode-pty	https://github.com/shekohex/opencode-pty.git	latest	.	-	bun install && bun run build:prod

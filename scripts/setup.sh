@@ -207,12 +207,12 @@ prompt_secret() {
   current="$(read_existing_key "$file" "$key")"
   if [[ -n "$current" ]]; then
     read -r -s -p "$prompt [keep existing]: " value
-    echo
+    echo >&2
     value="${value:-$current}"
   else
     while [[ -z "${value:-}" ]]; do
       read -r -s -p "$prompt: " value
-      echo
+      echo >&2
     done
   fi
   printf '%s' "$value"
@@ -222,26 +222,37 @@ set_env_var() {
   local file="$1"
   local key="$2"
   local value="$3"
-  local tmp
+  local tmp line wrote
 
   mkdir -p "$(dirname "$file")"
   touch "$file"
   chmod 600 "$file"
+
+  case "$value" in
+    *$'\n'*|*$'\r'*)
+      echo "Refusing to write multiline value for $key." >&2
+      return 1
+      ;;
+  esac
+
   tmp="$(make_temp_file)"
-  awk -v key="$key" -v value="$value" '
-    BEGIN { done = 0 }
-    $0 ~ "^" key "=" {
-      print key "=" value
-      done = 1
-      next
-    }
-    { print }
-    END {
-      if (done == 0) {
-        print key "=" value
-      }
-    }
-  ' "$file" > "$tmp"
+  wrote=0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    case "$line" in
+      "$key="*)
+        if [[ "$wrote" == "0" ]]; then
+          printf '%s=%s\n' "$key" "$value"
+          wrote=1
+        fi
+        ;;
+      *)
+        printf '%s\n' "$line"
+        ;;
+    esac
+  done < "$file" > "$tmp"
+  if [[ "$wrote" == "0" ]]; then
+    printf '%s=%s\n' "$key" "$value" >> "$tmp"
+  fi
   mv "$tmp" "$file"
   chmod 600 "$file"
 }

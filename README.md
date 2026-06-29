@@ -58,18 +58,19 @@ For a public repo, replace the `gh repo clone` command with a normal HTTPS clone
 Apply repo files to this machine:
 
 ```bash
-bash scripts/sync.sh --to-home
+bash scripts/sync.sh download
 ```
 
 Refresh the repo from this machine:
 
 ```bash
-bash scripts/sync.sh --from-home
+bash scripts/sync.sh upload
 ```
 
 `sync.sh` always syncs shared files, then syncs only the agent-specific groups
-enabled in `~/.config/coding-agent-setups/sync.env`. Re-run `scripts/setup.sh` to
-change the enabled agents for this machine.
+enabled in `~/.config/coding-agent-setups/sync.env`. Manual sync runs ask for
+confirmation before copying. Re-run `scripts/setup.sh` to change the enabled
+agents for this machine.
 
 Before pushing, run:
 

@@ -3,25 +3,37 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/sync.sh [--to-home|--from-home]
+Usage: scripts/sync.sh [download|upload] [--yes]
 
-  --to-home    Copy enabled setup files from this repo into $HOME. Default.
-  --from-home  Refresh this repo from enabled whitelisted files in $HOME.
+  download  Copy enabled setup files from this repo into $HOME.
+  upload    Refresh this repo from enabled whitelisted files in $HOME.
+  --yes     Skip the confirmation prompt.
 
 Run scripts/setup.sh first. Sync reads the local selection file written by setup.
 USAGE
 }
 
-mode="to-home"
-if [[ $# -gt 1 ]]; then
-  usage
-  exit 2
-fi
-
-if [[ $# -eq 1 ]]; then
+mode=""
+assume_yes=0
+while [[ $# -gt 0 ]]; do
   case "$1" in
-    --to-home) mode="to-home" ;;
-    --from-home) mode="from-home" ;;
+    download)
+      if [[ -n "$mode" ]]; then
+        usage
+        exit 2
+      fi
+      mode="download"
+      ;;
+    upload)
+      if [[ -n "$mode" ]]; then
+        usage
+        exit 2
+      fi
+      mode="upload"
+      ;;
+    -y|--yes)
+      assume_yes=1
+      ;;
     -h|--help)
       usage
       exit 0
@@ -31,6 +43,12 @@ if [[ $# -eq 1 ]]; then
       exit 2
       ;;
   esac
+  shift
+done
+
+if [[ -z "$mode" ]]; then
+  usage
+  exit 2
 fi
 
 require_cmd() {
@@ -194,6 +212,50 @@ copy_group() {
   done
 }
 
+print_enabled_groups() {
+  echo "  - shared files"
+  if agent_enabled CODEX; then
+    echo "  - Codex"
+  fi
+  if agent_enabled CLAUDE; then
+    echo "  - Claude Code"
+  fi
+  if agent_enabled OPENCODE; then
+    echo "  - OpenCode"
+  fi
+}
+
+confirm_sync() {
+  local answer
+  if [[ "$assume_yes" == "1" ]]; then
+    return 0
+  fi
+
+  echo "Sync action: $mode"
+  case "$mode" in
+    download)
+      echo "Direction: repo files -> $home_dir"
+      echo "Local-only files are preserved."
+      ;;
+    upload)
+      echo "Direction: $home_dir -> repo files"
+      echo "Stale files may be deleted inside $files_dir for enabled groups."
+      echo "Public-safe sanitizers run after copying."
+      ;;
+  esac
+  echo "Enabled groups:"
+  print_enabled_groups
+
+  read -r -p "Proceed? [y/N]: " answer
+  case "${answer,,}" in
+    y|yes) ;;
+    *)
+      echo "Cancelled."
+      exit 1
+      ;;
+  esac
+}
+
 sanitize_opencode_config() {
   local path="$files_dir/.config/opencode/opencode.json"
   local tmp
@@ -230,7 +292,7 @@ cleanup_public_tree() {
   done < <(find "$files_dir" \( -xtype l -o -type l -lname '/*' \) -print)
 }
 
-sync_from_home() {
+upload_from_home() {
   mkdir -p "$files_dir"
   copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
   if agent_enabled CODEX; then
@@ -248,7 +310,7 @@ sync_from_home() {
   echo "Refreshed enabled repo files from $home_dir"
 }
 
-sync_to_home() {
+download_to_home() {
   copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
   if agent_enabled CODEX; then
     copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
@@ -263,8 +325,9 @@ sync_to_home() {
 }
 
 require_setup_flags
+confirm_sync
 
 case "$mode" in
-  from-home) sync_from_home ;;
-  to-home) sync_to_home ;;
+  upload) upload_from_home ;;
+  download) download_to_home ;;
 esac

@@ -160,7 +160,6 @@ fi
 write_flags "$sync_codex" "$sync_claude" "$sync_opencode"
 echo "Wrote sync selection to $flag_file"
 
-bash "$repo_root/scripts/sync.sh" --to-home
+bash "$repo_root/scripts/sync.sh" download --yes
 
 echo "Setup complete. OAuth files are not synced; run each enabled agent's login flow on this machine."
-

@@ -29,3 +29,4 @@ status_line_use_colors = true
 
 [notice]
 hide_rate_limit_model_nudge = true
+

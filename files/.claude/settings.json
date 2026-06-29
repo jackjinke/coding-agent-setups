@@ -28,6 +28,18 @@
         "matcher": "permission_prompt|idle_prompt"
       }
     ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "async": false,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "timeout": 300,
+            "type": "command"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "hooks": [
@@ -37,6 +49,26 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "AskUserQuestion"
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "ExitPlanMode"
       }
     ],
     "PreToolUse": [
@@ -45,6 +77,37 @@
           {
             "async": true,
             "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "AskUserQuestion"
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "ExitPlanMode"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]
@@ -59,6 +122,15 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -70,6 +142,15 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ]
       }
     ],
     "SubagentStop": [
@@ -78,6 +159,17 @@
           {
             "async": true,
             "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]

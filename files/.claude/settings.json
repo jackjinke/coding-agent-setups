@@ -1,0 +1,99 @@
+{
+  "alwaysThinkingEnabled": true,
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "env": {
+    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_NO_FLICKER": "1",
+    "DISABLE_TELEMETRY": "1"
+  },
+  "extraKnownMarketplaces": {},
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ],
+        "matcher": "permission_prompt|idle_prompt"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "bun /tmp/bunx-1000-moshi-hooks@latest/node_modules/moshi-hooks/src/index.ts # moshi-hooks",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "model": "opus[1m]",
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "bash /home/kjin/.claude/statusline-command.sh",
+    "type": "command"
+  }
+}

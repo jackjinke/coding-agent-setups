@@ -1,0 +1,5 @@
+prefix_rule(pattern=["npx", "ctx7@latest"], decision="allow")
+prefix_rule(pattern=["python", "strategies/diverse_portfolio_cta/backtest.py"], decision="allow")
+prefix_rule(pattern=["git", "rm", "--cached", "backend/src/bid_assistant/__pycache__/__init__.cpython-313.pyc", "backend/src/bid_assistant/core/__pycache__/__init__.cpython-313.pyc", "backend/src/bid_assistant/core/__pycache__/enums.cpython-313.pyc", "backend/src/bid_assistant/core/__pycache__/models.cpython-313.pyc"], decision="allow")
+prefix_rule(pattern=["playwright-cli"], decision="allow")
+prefix_rule(pattern=["docker", "compose"], decision="allow")

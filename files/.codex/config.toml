@@ -1,0 +1,31 @@
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+approvals_reviewer = "auto_review"
+plan_mode_reasoning_effort = "xhigh"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+
+[sandbox_workspace_write]
+writable_roots = []
+network_access = true
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+[features]
+apps = false
+hooks = true
+multi_agent = true
+
+[mcp_servers.exa]
+enabled = true
+url = "https://mcp.exa.ai/mcp"
+
+[tui]
+status_line = ["project-name", "context-remaining", "five-hour-limit", "weekly-limit"]
+status_line_use_colors = true
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
+[notice]
+hide_rate_limit_model_nudge = true

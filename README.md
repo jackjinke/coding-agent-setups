@@ -35,13 +35,13 @@ If a local change is needed on top of upstream, store it as a patch under
 Bootstrap setup from anywhere:
 
 ```bash
-tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://raw.githubusercontent.com/jackjinke/coding-agent-setups/main/scripts/setup.sh -o "$tmp" && bash "$tmp"
+tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp"
 ```
 
 Bootstrap setup and apply the enabled sync in one line:
 
 ```bash
-tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://raw.githubusercontent.com/jackjinke/coding-agent-setups/main/scripts/setup.sh -o "$tmp" && bash "$tmp" --sync
+tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp" --sync
 ```
 
 The setup script is interactive. It writes local setup state needed by sync, then

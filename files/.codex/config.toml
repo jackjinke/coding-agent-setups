@@ -22,7 +22,7 @@ enabled = true
 url = "https://mcp.exa.ai/mcp"
 
 [tui]
-status_line = ["project-name", "context-remaining", "five-hour-limit", "weekly-limit"]
+status_line = ["model-with-reasoning", "project-name", "context-remaining", "five-hour-limit", "weekly-limit", "approval-mode"]
 status_line_use_colors = true
 
 [tui.model_availability_nux]

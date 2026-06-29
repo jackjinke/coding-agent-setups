@@ -5,8 +5,10 @@ usage() {
   cat <<'USAGE'
 Usage: scripts/sync.sh [--to-home|--from-home]
 
-  --to-home    Copy tracked setup files from this repo into $HOME. Default.
-  --from-home  Refresh this repo from the whitelisted files in $HOME.
+  --to-home    Copy enabled setup files from this repo into $HOME. Default.
+  --from-home  Refresh this repo from enabled whitelisted files in $HOME.
+
+Run scripts/setup.sh first. Sync reads the local selection file written by setup.
 USAGE
 }
 
@@ -44,21 +46,32 @@ require_cmd jq
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 files_dir="$repo_root/files"
 home_dir="${HOME:?HOME is not set}"
+config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
+flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$config_home/coding-agent-setups/sync.env}"
 
-paths=(
+shared_paths=(
   ".agents/.skill-lock.json"
   ".agents/skills"
+)
+
+codex_paths=(
   ".codex/AGENTS.md"
   ".codex/config.toml"
   ".codex/hooks.json"
   ".codex/rules"
   ".codex/skills/frontend-design"
+)
+
+claude_paths=(
   ".claude/CLAUDE.md"
   ".claude/config.json"
   ".claude/rules"
   ".claude/settings.json"
   ".claude/skills"
   ".claude/statusline-command.sh"
+)
+
+opencode_paths=(
   ".config/opencode/AGENTS.md"
   ".config/opencode/agents"
   ".config/opencode/bun.lock"
@@ -109,12 +122,48 @@ rsync_excludes=(
   "--exclude=*.lock"
 )
 
+read_flag() {
+  local key="$1"
+  if [[ -f "$flag_file" ]]; then
+    awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$flag_file"
+  fi
+}
+
+agent_enabled() {
+  local key="SYNC_$1"
+  local value
+  value="$(read_flag "$key")"
+  case "${value,,}" in
+    1|true|yes|on) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+require_setup_flags() {
+  if [[ ! -f "$flag_file" ]]; then
+    cat >&2 <<EOF
+Missing setup selection file:
+  $flag_file
+
+Run scripts/setup.sh first. It installs shared files, asks which coding agents to
+sync on this machine, and writes the selection file that sync uses.
+EOF
+    exit 1
+  fi
+}
+
 copy_path() {
   local src_root="$1"
   local dst_root="$2"
   local rel="$3"
+  local delete_stale="$4"
   local src="$src_root/$rel"
   local dst="$dst_root/$rel"
+  local rsync_args=(-a)
+
+  if [[ "$delete_stale" == "0" ]]; then
+    rsync_args+=(--omit-dir-times)
+  fi
 
   if [[ ! -e "$src" ]]; then
     return 0
@@ -123,10 +172,26 @@ copy_path() {
   mkdir -p "$(dirname "$dst")"
   if [[ -d "$src" ]]; then
     mkdir -p "$dst"
-    rsync -a --delete "${rsync_excludes[@]}" "$src"/ "$dst"/
+    if [[ "$delete_stale" == "1" ]]; then
+      rsync_args+=(--delete)
+    fi
+    rsync "${rsync_args[@]}" "${rsync_excludes[@]}" "$src"/ "$dst"/
   else
-    rsync -a "${rsync_excludes[@]}" "$src" "$dst"
+    rsync "${rsync_args[@]}" "${rsync_excludes[@]}" "$src" "$dst"
   fi
+}
+
+copy_group() {
+  local label="$1"
+  local src_root="$2"
+  local dst_root="$3"
+  local delete_stale="$4"
+  shift 4
+
+  echo "Syncing $label"
+  for rel in "$@"; do
+    copy_path "$src_root" "$dst_root" "$rel" "$delete_stale"
+  done
 }
 
 sanitize_opencode_config() {
@@ -167,21 +232,37 @@ cleanup_public_tree() {
 
 sync_from_home() {
   mkdir -p "$files_dir"
-  for rel in "${paths[@]}"; do
-    copy_path "$home_dir" "$files_dir" "$rel"
-  done
+  copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
+  if agent_enabled CODEX; then
+    copy_group "Codex" "$home_dir" "$files_dir" 1 "${codex_paths[@]}"
+  fi
+  if agent_enabled CLAUDE; then
+    copy_group "Claude Code" "$home_dir" "$files_dir" 1 "${claude_paths[@]}"
+  fi
+  if agent_enabled OPENCODE; then
+    copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
+  fi
   sanitize_opencode_config
   sanitize_codex_config
   cleanup_public_tree
-  echo "Refreshed repo files from $home_dir"
+  echo "Refreshed enabled repo files from $home_dir"
 }
 
 sync_to_home() {
-  for rel in "${paths[@]}"; do
-    copy_path "$files_dir" "$home_dir" "$rel"
-  done
-  echo "Synced repo files into $home_dir"
+  copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
+  if agent_enabled CODEX; then
+    copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
+  fi
+  if agent_enabled CLAUDE; then
+    copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
+  fi
+  if agent_enabled OPENCODE; then
+    copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
+  fi
+  echo "Synced enabled repo files into $home_dir"
 }
+
+require_setup_flags
 
 case "$mode" in
   from-home) sync_from_home ;;

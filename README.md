@@ -24,8 +24,25 @@ From a cloned repo:
 bash scripts/setup.sh
 ```
 
-The setup script prompts for local environment variables, writes them to local
-`.env` files with restrictive permissions, then runs `scripts/sync.sh --to-home`.
+The setup script is interactive. It always installs shared agent files, then asks
+which coding agent setups to sync on this machine:
+
+- Codex
+- Claude Code
+- OpenCode
+
+If an enabled agent needs local inputs, setup prompts for them. OpenCode currently
+prompts for the LiteLLM base URL and API key, writes them to
+`~/.config/opencode/.env` with restrictive permissions, and keeps the tracked
+`opencode.json` pointed at `{env:OPENCODE_LITELLM_API_KEY}`.
+
+Setup writes the machine-local sync selection to:
+
+```text
+~/.config/coding-agent-setups/sync.env
+```
+
+That file is not tracked. Later sync runs read it and do not prompt.
 
 For a private GitHub repo, a typical bootstrap is:
 
@@ -50,6 +67,10 @@ Refresh the repo from this machine:
 bash scripts/sync.sh --from-home
 ```
 
+`sync.sh` always syncs shared files, then syncs only the agent-specific groups
+enabled in `~/.config/coding-agent-setups/sync.env`. Re-run `scripts/setup.sh` to
+change the enabled agents for this machine.
+
 Before pushing, run:
 
 ```bash
@@ -61,4 +82,3 @@ bash scripts/check-public-safe.sh
 OAuth and API credentials are intentionally local. Re-authenticate each tool on a
 new machine using the tool's own login command, and keep API keys in local env
 files rather than in tracked JSON/TOML config.
-

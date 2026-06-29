@@ -124,6 +124,8 @@ setup_dir="$config_home/coding-agent-setups"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$setup_dir/sync.env}"
 opencode_env="$home_dir/.config/opencode/.env"
 
+source "$repo_root/scripts/local-bin.sh"
+
 lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
@@ -261,6 +263,7 @@ write_flags() {
   local codex="$1"
   local claude="$2"
   local opencode="$3"
+  local shell_commands="$4"
   local tmp
 
   mkdir -p "$setup_dir"
@@ -271,6 +274,7 @@ write_flags() {
 SYNC_CODEX=$codex
 SYNC_CLAUDE=$claude
 SYNC_OPENCODE=$opencode
+INSTALL_SHELL_COMMANDS=$shell_commands
 EOF
   mv "$tmp" "$flag_file"
   chmod 600 "$flag_file"
@@ -278,6 +282,11 @@ EOF
 
 echo "Shared agent files are installed by sync download."
 
+detected_shell="$(detect_active_shell)"
+install_shell_commands="$(prompt_yes_no "Make coding-agent-setups available in your ${detected_shell:-current} shell?" "$(existing_yes_no INSTALL_SHELL_COMMANDS y)")"
+if [[ "$install_shell_commands" == "1" ]]; then
+  install_coding_agent_shell_commands "$repo_root"
+fi
 sync_codex="$(prompt_yes_no "Sync Codex setup on this machine?" "$(existing_yes_no SYNC_CODEX y)")"
 sync_claude="$(prompt_yes_no "Sync Claude Code setup on this machine?" "$(existing_yes_no SYNC_CLAUDE y)")"
 sync_opencode="$(prompt_yes_no "Sync OpenCode setup on this machine?" "$(existing_yes_no SYNC_OPENCODE y)")"
@@ -293,13 +302,17 @@ if [[ "$sync_opencode" == "1" ]]; then
   set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
 fi
 
-write_flags "$sync_codex" "$sync_claude" "$sync_opencode"
+write_flags "$sync_codex" "$sync_claude" "$sync_opencode" "$install_shell_commands"
 echo "Wrote sync selection to $flag_file"
 
 echo "Setup complete."
 if [[ "$run_sync" == "0" && "${CODING_AGENT_SETUPS_SUPPRESS_NEXT_STEP:-0}" != "1" ]]; then
   echo "Run this next to install dependencies and apply enabled setup files:"
-  echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+  if [[ "$install_shell_commands" == "1" ]]; then
+    echo "  coding-agent-sync"
+  else
+    echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+  fi
 fi
 echo "OAuth files are not synced; run each enabled agent's login flow on this machine."
 

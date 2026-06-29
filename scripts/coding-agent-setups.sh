@@ -36,6 +36,7 @@ backup_roots() {
     "$home_dir/.codex" \
     "$home_dir/.claude" \
     "$home_dir/.opencode" \
+    "$home_dir/.local/bin" \
     "$config_home/opencode"
 }
 

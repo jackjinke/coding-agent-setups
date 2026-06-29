@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for arg in "$@"; do
+  case "$arg" in
+    --port|--port=*)
+      printf 'omo chooses a random high port; pass other opencode arguments only.\n' >&2
+      exit 2
+      ;;
+  esac
+done
+
+env_file="${OPENCODE_ENV_FILE:-$HOME/.config/opencode/.env}"
+if [[ -f "$env_file" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$env_file"
+  set +a
+fi
+
+if command -v shuf >/dev/null 2>&1; then
+  port="$(shuf -i 49152-65535 -n 1)"
+else
+  port="$((49152 + (((RANDOM << 15) | RANDOM) % 16384)))"
+fi
+
+export OPENCODE_PORT="$port"
+exec opencode --port "$port" "$@"

@@ -190,6 +190,7 @@ if [[ "$mode" == "download" ]]; then
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$repo_root/scripts/local-bin.sh"
 source "$repo_root/scripts/moshi-hooks.sh"
 
 files_dir="$repo_root/files"
@@ -220,6 +221,7 @@ claude_paths=(
 )
 
 opencode_paths=(
+  ".local/bin/omo"
   ".config/opencode/AGENTS.md"
   ".config/opencode/agents"
   ".config/opencode/bun.lock"
@@ -278,6 +280,15 @@ agent_enabled() {
   case "$(lower "$value")" in
     1|true|yes|on) return 0 ;;
     *) return 1 ;;
+  esac
+}
+
+shell_commands_enabled() {
+  local value
+  value="$(read_flag INSTALL_SHELL_COMMANDS)"
+  case "$(lower "$value")" in
+    0|false|no|off) return 1 ;;
+    *) return 0 ;;
   esac
 }
 
@@ -439,6 +450,9 @@ backup_keep_count=3
 backup_dir="$setup_dir/backups"
 
 download_backup_roots() {
+  if shell_commands_enabled || agent_enabled OPENCODE; then
+    printf '%s\n' "$home_dir/.local/bin"
+  fi
   if agent_enabled CODEX || agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.agents"
   fi
@@ -526,6 +540,10 @@ source_target_enabled() {
       return
       ;;
     .opencode/*)
+      agent_enabled OPENCODE
+      return
+      ;;
+    .local/bin/omo)
       agent_enabled OPENCODE
       return
       ;;
@@ -905,6 +923,9 @@ download_to_home() {
   local moshi_targets=()
 
   create_download_backups
+  if shell_commands_enabled; then
+    install_coding_agent_shell_commands "$repo_root"
+  fi
 
   if agent_enabled CODEX; then
     codex_moshi_hooks_file="$(make_temp_file)"

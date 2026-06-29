@@ -2,145 +2,83 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks declarative setup only: agent instructions, prompts, selected
-local plugin source, upstream source manifests, and config that refers to
-environment variables. It deliberately
-does not track OAuth files, API keys, histories, caches, logs, local databases,
-browser profiles, or machine-specific runtime state.
+This repo tracks Codex, Claude Code, OpenCode, selected wrappers like `omo`,
+and source manifests for upstream skills/plugins. It does not track OAuth files,
+API keys, histories, caches, logs, local databases, browser profiles, or other
+machine-specific runtime state. Hermes and Cursor are intentionally not synced.
 
-## Included
+## Bootstrap
 
-- Codex: `AGENTS.md`, rules, hooks, and a sanitized config.
-- Claude Code: global instructions, settings, rules, and status line.
-- OpenCode: config, agents, and selected local plugin source.
-- Skills installed from their upstream sources during download.
-
-Hermes and Cursor are intentionally not synced.
-
-Skills and some OpenCode plugins are source-managed instead of vendored:
-
-- `sources/managed-skills.tsv` lists skills and upstream installers such as
-  `npx skills`, `ui-ux-pro-max-cli`, `oh-my-opencode-slim`, and Caveman.
-- `sources/managed-sources.tsv` lists source trees copied from upstream Git.
-- `sources/managed-targets.txt` keeps generated upstream installs out of
-  `files/`.
-- `sources/retired-targets.txt` removes setup entries that should no longer be
-  installed.
-
-If a local change is needed on top of upstream, store it as a patch under
-`patches/` and reference it from the manifest.
-
-## First-Time Setup
-
-Bootstrap setup from anywhere:
+Setup from anywhere:
 
 ```bash
 tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp"
 ```
 
-Bootstrap setup and apply the enabled sync in one line:
+Setup and immediately download the enabled config:
 
 ```bash
 tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh -o "$tmp" && bash "$tmp" --sync
 ```
 
-The setup script is interactive. It writes local setup state needed by sync, then
-asks which coding agent setups to sync on this machine:
-
-- Codex
-- Claude Code
-- OpenCode
-
-If an enabled agent needs local setup inputs, setup prompts for them. OpenCode
-currently prompts for the LiteLLM base URL and API key, writes them to
-`~/.config/opencode/.env` with restrictive permissions, and keeps the tracked
-`opencode.json` pointed at `{env:OPENCODE_LITELLM_API_KEY}`.
-
-Setup writes the machine-local sync selection to:
+Setup is interactive. It asks which agents to sync and whether to install shell
+commands. Local choices are written to:
 
 ```text
 ~/.config/coding-agent-setups/sync.env
 ```
 
-That file is not tracked. Later sync runs read it and do not ask which agents to
-sync.
+If shell commands are enabled, setup installs:
 
-Run setup again from an existing checkout:
-
-```bash
-bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh setup
+```text
+coding-agent-setups
+coding-agent-sync
 ```
 
-## Sync
+## Use
 
-Apply repo files to this machine:
+Download the latest enabled setup to this machine:
+
+```bash
+coding-agent-sync
+```
+
+Upload this machine's enabled setup into the repo:
+
+```bash
+coding-agent-setups sync upload
+```
+
+Re-run setup:
+
+```bash
+coding-agent-setups setup
+```
+
+Restore from a download backup:
+
+```bash
+coding-agent-setups restore
+```
+
+If shell commands were not enabled, use the repo-local entrypoint:
 
 ```bash
 bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync download
 ```
 
-Refresh the repo from this machine:
+## Notes
 
-```bash
-bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync upload
-```
+- `coding-agent-setups` pulls the repo before running, so later sync runs use
+  the latest scripts.
+- `download` backs up folders it may touch under
+  `~/.config/coding-agent-setups/backups/` and keeps the latest three backups.
+- `upload` runs the secret check, lists changed files, and can commit/push.
+- API keys stay in local env files. Tracked config should reference env vars.
+- Moshi hook state is local-only and is preserved across download/upload.
 
-`sync.sh` always syncs shared files, then syncs only the agent-specific groups
-enabled in `~/.config/coding-agent-setups/sync.env`. Manual sync runs ask for
-confirmation before copying. Re-run `scripts/setup.sh` to change the enabled
-agents for this machine.
-
-During `download`, source-managed skills/plugins are installed from upstream,
-then repo-managed config is copied into place. `download` also installs and
-starts local dependencies it manages, including Moshi hook for enabled agents.
-During `upload`, source-managed and retired targets are removed from `files/` so
-the repo keeps only source metadata and patches, not upstream copies.
-
-During `upload`, repo-side target paths are rebuilt from the current machine
-state, then the secret check runs automatically. The script lists changed files
-without printing full diffs and asks whether to commit and push the prepared
-snapshot.
-
-Before every `download`, the script backs up folders it may touch. Backups are
-stored under `~/.config/coding-agent-setups/backups/`, and only the latest three
-download backups are kept.
-
-Restore from a download backup:
-
-```bash
-bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh restore
-```
-
-Restore lists the current recoverable versions, lets you choose one, then
-restores every folder that has a backup for that version.
-
-Moshi hook is installed and managed locally by `sync download`. If `moshi` or
-`moshi-hook` is missing, sync installs it using the platform's official install
-path. If Moshi is not paired, interactive sync prompts for a pairing token; set
-`MOSHI_PAIRING_TOKEN` for non-interactive runs. On macOS, sync starts Moshi with
-Homebrew services. On Linux, sync writes and starts a user systemd service when
-available, with a login-session background fallback otherwise.
-
-Moshi local state is not uploaded. `download` preserves local hook commands whose
-command contains `moshi` for Claude Code and Codex, and preserves local Moshi
-plugin entries for OpenCode. `upload` filters those local Moshi entries out of
-repo files. The Moshi-specific install, capture, restore, and filtering rules
-live in `scripts/moshi-hooks.sh`.
-
-If an upstream change makes a local patch fail to apply, interactive runs ask
-whether to use the upstream latest version without that patch. `--yes` only skips
-the top-level sync confirmation; it does not suppress patch conflict prompts.
-
-OpenCode plugin policy is documented in `sources/opencode-plugins.md`.
-
-Before pushing, run:
+Before pushing manually:
 
 ```bash
 bash scripts/check-public-safe.sh
 ```
-
-## Secrets
-
-OAuth and API credentials are intentionally local. Re-authenticate each tool on a
-new machine using the tool's own login command, and keep API keys in local env
-files rather than in tracked JSON/TOML config.

@@ -870,15 +870,23 @@ finish_upload_review() {
 
 upload_from_home() {
   mkdir -p "$files_dir"
-  copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
+  if [[ "${#shared_paths[@]}" -gt 0 ]]; then
+    copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
+  fi
   if agent_enabled CODEX; then
-    copy_group "Codex" "$home_dir" "$files_dir" 1 "${codex_paths[@]}"
+    if [[ "${#codex_paths[@]}" -gt 0 ]]; then
+      copy_group "Codex" "$home_dir" "$files_dir" 1 "${codex_paths[@]}"
+    fi
   fi
   if agent_enabled CLAUDE; then
-    copy_group "Claude Code" "$home_dir" "$files_dir" 1 "${claude_paths[@]}"
+    if [[ "${#claude_paths[@]}" -gt 0 ]]; then
+      copy_group "Claude Code" "$home_dir" "$files_dir" 1 "${claude_paths[@]}"
+    fi
   fi
   if agent_enabled OPENCODE; then
-    copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
+    if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
+      copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
+    fi
   fi
   sanitize_moshi_command_hooks "$files_dir/.claude/settings.json"
   sanitize_moshi_command_hooks "$files_dir/.codex/hooks.json"
@@ -916,23 +924,33 @@ download_to_home() {
 
   install_managed_skills
   install_managed_sources
-  copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
+  if [[ "${#shared_paths[@]}" -gt 0 ]]; then
+    copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
+  fi
   if agent_enabled CODEX; then
-    copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
+    if [[ "${#codex_paths[@]}" -gt 0 ]]; then
+      copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
+    fi
     restore_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
     rm -f "$codex_moshi_hooks_file"
   fi
   if agent_enabled CLAUDE; then
-    copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
+    if [[ "${#claude_paths[@]}" -gt 0 ]]; then
+      copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
+    fi
     restore_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
     rm -f "$claude_moshi_hooks_file"
   fi
   if agent_enabled OPENCODE; then
-    copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
+    if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
+      copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
+    fi
     restore_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
     rm -f "$moshi_plugins_file"
   fi
-  ensure_moshi_for_targets "${moshi_targets[@]}"
+  if [[ "${#moshi_targets[@]}" -gt 0 ]]; then
+    ensure_moshi_for_targets "${moshi_targets[@]}"
+  fi
   remove_caveman_opencode_agents
   remove_retired_targets_from_home
   echo "Synced enabled repo files into $home_dir"

@@ -9,6 +9,10 @@ moshi_platform() {
   uname -s
 }
 
+moshi_configure_path() {
+  export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/opt/local/bin:$PATH"
+}
+
 moshi_missing() {
   ! command -v moshi-hook >/dev/null 2>&1 || ! command -v moshi >/dev/null 2>&1
 }
@@ -45,11 +49,11 @@ install_moshi_hook() {
 }
 
 ensure_moshi_installed() {
-  export PATH="$HOME/.local/bin:$PATH"
+  moshi_configure_path
 
   if moshi_missing; then
     install_moshi_hook
-    export PATH="$HOME/.local/bin:$PATH"
+    moshi_configure_path
   fi
 
   if moshi_missing; then
@@ -67,7 +71,6 @@ moshi_is_paired() {
 
 pair_moshi_if_needed() {
   local token="${MOSHI_PAIRING_TOKEN:-}"
-  local store_args=()
 
   if moshi_is_paired; then
     return 0
@@ -85,10 +88,9 @@ pair_moshi_if_needed() {
   fi
 
   case "$(moshi_platform)" in
-    Linux) store_args=(--store file) ;;
+    Linux) moshi-hook pair --store file --token "$token" ;;
+    *) moshi-hook pair --token "$token" ;;
   esac
-
-  moshi-hook pair "${store_args[@]}" --token "$token"
 }
 
 install_moshi_agent_hooks() {

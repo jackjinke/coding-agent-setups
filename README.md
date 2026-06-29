@@ -32,10 +32,10 @@ If a local change is needed on top of upstream, store it as a patch under
 
 ## First-Time Setup
 
-From a cloned repo:
+Bootstrap from anywhere:
 
 ```bash
-bash scripts/coding-agent-setups.sh setup
+repo="$HOME/Projects/coding-agent-setups"; mkdir -p "${repo%/*}"; if [ -d "$repo/.git" ]; then git -C "$repo" pull --ff-only; else git clone https://github.com/jackjinke/coding-agent-setups "$repo"; fi; bash "$repo/scripts/coding-agent-setups.sh" setup
 ```
 
 The setup script is interactive. It always installs shared agent files, then asks
@@ -58,27 +58,24 @@ Setup writes the machine-local sync selection to:
 
 That file is not tracked. Later sync runs read it and do not prompt.
 
-For a private GitHub repo, a typical bootstrap is:
+Run setup again from an existing checkout:
 
 ```bash
-gh repo clone OWNER/coding-agent-setups ~/Projects/coding-agent-setups
 bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh setup
 ```
-
-For a public repo, replace the `gh repo clone` command with a normal HTTPS clone.
 
 ## Sync
 
 Apply repo files to this machine:
 
 ```bash
-bash scripts/coding-agent-setups.sh sync download
+bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync download
 ```
 
 Refresh the repo from this machine:
 
 ```bash
-bash scripts/coding-agent-setups.sh sync upload
+bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync upload
 ```
 
 `sync.sh` always syncs shared files, then syncs only the agent-specific groups
@@ -103,7 +100,7 @@ latest three backups are kept per folder.
 Restore from a download backup:
 
 ```bash
-bash scripts/coding-agent-setups.sh restore
+bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh restore
 ```
 
 Restore lists the current recoverable versions, lets you choose one, then

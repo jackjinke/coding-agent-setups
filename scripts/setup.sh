@@ -112,14 +112,12 @@ checkout_repo() {
 }
 
 if [[ ! -f "$repo_root/scripts/coding-agent-setups.sh" ]]; then
-  setup_args=()
-  if [[ "$run_sync" == "1" ]]; then
-    setup_args+=(--sync)
-  fi
-
   ensure_git
   checkout_repo
-  exec bash "$repo_dir/scripts/setup.sh" "${setup_args[@]}"
+  if [[ "$run_sync" == "1" ]]; then
+    exec bash "$repo_dir/scripts/setup.sh" --sync
+  fi
+  exec bash "$repo_dir/scripts/setup.sh"
 fi
 
 setup_dir="$config_home/coding-agent-setups"

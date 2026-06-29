@@ -4,7 +4,8 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
-backup_dir_name=".coding-agent-setups-backups"
+setup_dir="$config_home/coding-agent-setups"
+backup_dir="$setup_dir/backups"
 
 usage() {
   cat <<'USAGE'
@@ -50,24 +51,25 @@ display_path() {
 archive_for() {
   local root="$1"
   local version="$2"
-  printf '%s/%s/%s.tar.gz' "$root" "$backup_dir_name" "$version"
+  printf '%s/%s/%s.tar.gz' "$backup_dir" "$version" "$(backup_name_for_root "$root")"
+}
+
+backup_name_for_root() {
+  local root="$1"
+  printf '%s' "$root" | sed 's#^/##; s#[^A-Za-z0-9._-]#_#g'
 }
 
 list_restore_versions() {
-  local root backup_dir archive
+  local version_dir
 
-  while IFS= read -r root; do
-    backup_dir="$root/$backup_dir_name"
-    [[ -d "$backup_dir" ]] || continue
-    while IFS= read -r archive; do
-      basename "$archive" .tar.gz
-    done < <(
-      for archive in "$backup_dir"/*.tar.gz; do
-        [[ -f "$archive" ]] || continue
-        printf '%s\n' "$archive"
-      done
-    )
-  done < <(backup_roots) | sort -r | awk '!seen[$0]++' | head -n 3
+  if [[ ! -d "$backup_dir" ]]; then
+    return 0
+  fi
+
+  for version_dir in "$backup_dir"/*; do
+    [[ -d "$version_dir" ]] || continue
+    basename "$version_dir"
+  done | sort -r | head -n 3
 }
 
 folders_for_version() {
@@ -136,7 +138,7 @@ choose_restore_version() {
 restore_folder() {
   local root="$1"
   local version="$2"
-  local archive backup_dir
+  local archive
   local entry
 
   archive="$(archive_for "$root" "$version")"
@@ -147,11 +149,9 @@ restore_folder() {
     return 1
   fi
 
-  backup_dir="$root/$backup_dir_name"
-  mkdir -p "$backup_dir"
+  mkdir -p "$root"
   for entry in "$root"/.[!.]* "$root"/..?* "$root"/*; do
     [[ -e "$entry" || -L "$entry" ]] || continue
-    [[ "$(basename "$entry")" == "$backup_dir_name" ]] && continue
     rm -rf "$entry"
   done
   tar -xzf "$archive" -C "$root"

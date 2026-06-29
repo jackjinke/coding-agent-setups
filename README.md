@@ -35,13 +35,13 @@ If a local change is needed on top of upstream, store it as a patch under
 Bootstrap setup from anywhere:
 
 ```bash
-repo="$HOME/Projects/coding-agent-setups"; mkdir -p "${repo%/*}"; if [ -d "$repo/.git" ]; then git -C "$repo" pull --ff-only; else git clone https://github.com/jackjinke/coding-agent-setups "$repo"; fi; bash "$repo/scripts/coding-agent-setups.sh" setup
+tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://raw.githubusercontent.com/jackjinke/coding-agent-setups/main/scripts/setup.sh -o "$tmp" && bash "$tmp"
 ```
 
 Bootstrap setup and apply the enabled sync in one line:
 
 ```bash
-repo="$HOME/Projects/coding-agent-setups"; mkdir -p "${repo%/*}"; if [ -d "$repo/.git" ]; then git -C "$repo" pull --ff-only; else git clone https://github.com/jackjinke/coding-agent-setups "$repo"; fi; bash "$repo/scripts/coding-agent-setups.sh" setup && bash "$repo/scripts/coding-agent-setups.sh" sync download
+tmp="$(mktemp "${TMPDIR:-/tmp}/coding-agent-setups.XXXXXX")" && curl -fsSL https://raw.githubusercontent.com/jackjinke/coding-agent-setups/main/scripts/setup.sh -o "$tmp" && bash "$tmp" --sync
 ```
 
 The setup script is interactive. It writes local setup state needed by sync, then
@@ -102,8 +102,8 @@ without printing full diffs and asks whether to commit and push the prepared
 snapshot.
 
 Before every `download`, the script backs up folders it may touch. Backups are
-stored inside each folder under `.coding-agent-setups-backups/`, and only the
-latest three backups are kept per folder.
+stored under `~/.config/coding-agent-setups/backups/`, and only the latest three
+download backups are kept.
 
 Restore from a download backup:
 

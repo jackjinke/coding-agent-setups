@@ -435,8 +435,8 @@ cleanup_public_tree() {
   done < <(find "$files_dir" -type l -print)
 }
 
-backup_dir_name=".coding-agent-setups-backups"
 backup_keep_count=3
+backup_dir="$setup_dir/backups"
 
 download_backup_roots() {
   if agent_enabled CODEX || agent_enabled OPENCODE; then
@@ -454,36 +454,40 @@ download_backup_roots() {
 }
 
 prune_folder_backups() {
-  local backup_dir="$1"
   local count=0
-  local backup
+  local backup_path
 
   if [[ ! -d "$backup_dir" ]]; then
     return 0
   fi
 
-  while IFS= read -r backup; do
+  while IFS= read -r backup_path; do
     count=$((count + 1))
     if (( count > backup_keep_count )); then
-      rm -f "$backup"
+      rm -rf "$backup_path"
     fi
   done < <(
-    for backup in "$backup_dir"/*.tar.gz; do
-      [[ -f "$backup" ]] || continue
-      printf '%s\n' "$backup"
+    for backup_path in "$backup_dir"/*; do
+      [[ -d "$backup_path" ]] || continue
+      printf '%s\n' "$backup_path"
     done | sort -r
   )
+}
+
+backup_name_for_root() {
+  local root="$1"
+  printf '%s' "$root" | sed 's#^/##; s#[^A-Za-z0-9._-]#_#g'
 }
 
 create_folder_backup() {
   local root="$1"
   local backup_id="$2"
-  local backup_dir="$root/$backup_dir_name"
-  local archive="$backup_dir/$backup_id.tar.gz"
+  local backup_set_dir="$backup_dir/$backup_id"
+  local archive="$backup_set_dir/$(backup_name_for_root "$root").tar.gz"
 
-  mkdir -p "$backup_dir"
-  tar -czf "$archive" --exclude="./$backup_dir_name" -C "$root" .
-  prune_folder_backups "$backup_dir"
+  mkdir -p "$root"
+  mkdir -p "$backup_set_dir"
+  tar -czf "$archive" --exclude="./.coding-agent-setups-backups" -C "$root" .
   echo "Backed up $root -> $archive"
 }
 
@@ -500,6 +504,9 @@ create_download_backups() {
     fi
     create_folder_backup "$root" "$backup_id"
   done < <(download_backup_roots)
+  if [[ "$has_roots" == "1" ]]; then
+    prune_folder_backups
+  fi
 }
 
 source_target_enabled() {

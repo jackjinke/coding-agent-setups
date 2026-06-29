@@ -1,9 +1,127 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
+repo_url="${CODING_AGENT_SETUPS_REPO_URL:-https://github.com/jackjinke/coding-agent-setups}"
+repo_dir="${CODING_AGENT_SETUPS_REPO:-$home_dir/Projects/coding-agent-setups}"
+run_sync=0
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/setup.sh [--sync] [--repo PATH]
+
+Runs interactive local setup. When this script is downloaded and run outside the
+repo, it first clones or updates the repo, then runs the repo-local setup.
+
+Options:
+  --sync       Run sync download after setup.
+  --repo PATH  Checkout path. Defaults to ~/Projects/coding-agent-setups.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --sync)
+      run_sync=1
+      ;;
+    --repo)
+      if [[ $# -lt 2 ]]; then
+        usage
+        exit 2
+      fi
+      repo_dir="$2"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+
+install_git() {
+  case "$(uname -s)" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1; then
+        brew install git
+      else
+        echo "Missing git. Install Xcode Command Line Tools or Homebrew, then rerun setup." >&2
+        return 1
+      fi
+      ;;
+    Linux)
+      if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y git
+      elif command -v dnf >/dev/null 2>&1; then
+        sudo dnf install -y git
+      elif command -v yum >/dev/null 2>&1; then
+        sudo yum install -y git
+      elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -Sy --needed --noconfirm git
+      elif command -v zypper >/dev/null 2>&1; then
+        sudo zypper install -y git
+      else
+        echo "Missing git and no supported package manager was found." >&2
+        return 1
+      fi
+      ;;
+    *)
+      echo "Missing git. Install git, then rerun setup." >&2
+      return 1
+      ;;
+  esac
+}
+
+ensure_git() {
+  if command -v git >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "Missing git; attempting to install it."
+  install_git
+  if ! command -v git >/dev/null 2>&1; then
+    echo "Missing git after install attempt." >&2
+    exit 1
+  fi
+}
+
+checkout_repo() {
+  mkdir -p "$(dirname "$repo_dir")"
+
+  if [[ -d "$repo_dir/.git" ]]; then
+    git -C "$repo_dir" pull --ff-only
+    return 0
+  fi
+
+  if [[ -e "$repo_dir" ]]; then
+    echo "Checkout path exists but is not a git repo: $repo_dir" >&2
+    exit 1
+  fi
+
+  git clone "$repo_url" "$repo_dir"
+}
+
+if [[ ! -f "$repo_root/scripts/coding-agent-setups.sh" ]]; then
+  setup_args=()
+  if [[ "$run_sync" == "1" ]]; then
+    setup_args+=(--sync)
+  fi
+
+  ensure_git
+  checkout_repo
+  exec bash "$repo_dir/scripts/setup.sh" "${setup_args[@]}"
+fi
+
 setup_dir="$config_home/coding-agent-setups"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$setup_dir/sync.env}"
 opencode_env="$home_dir/.config/opencode/.env"
@@ -170,6 +288,12 @@ write_flags "$sync_codex" "$sync_claude" "$sync_opencode"
 echo "Wrote sync selection to $flag_file"
 
 echo "Setup complete."
-echo "Run this next to install dependencies and apply enabled setup files:"
-echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+if [[ "$run_sync" == "0" && "${CODING_AGENT_SETUPS_SUPPRESS_NEXT_STEP:-0}" != "1" ]]; then
+  echo "Run this next to install dependencies and apply enabled setup files:"
+  echo "  bash \"$repo_root/scripts/coding-agent-setups.sh\" sync download"
+fi
 echo "OAuth files are not synced; run each enabled agent's login flow on this machine."
+
+if [[ "$run_sync" == "1" ]]; then
+  bash "$repo_root/scripts/coding-agent-setups.sh" sync download --yes
+fi

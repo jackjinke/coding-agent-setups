@@ -7,7 +7,7 @@ npx-skills	jackwener/bilibili-cli	bilibili-cli	codex,claude-code,opencode	root S
 npx-skills	jackwener/xiaohongshu-cli	xiaohongshu-cli	codex,opencode	root SKILL.md
 npx-skills	vercel-labs/skills	find-skills	codex,claude-code,opencode	skills.sh helper
 npx-skills	upstash/context7	find-docs	codex,claude-code,opencode	Context7 docs lookup
-npx-skills	microsoft/playwright	playwright-cli	codex,claude-code,opencode	Playwright official repo
+npx-skills	microsoft/playwright-cli	playwright-cli	codex,claude-code,opencode	Playwright CLI official repo
 npx-skills	mattpocock/skills	codebase-design	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	diagnosing-bugs	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	domain-modeling	codex,claude-code,opencode	mattpocock engineering skill

@@ -783,11 +783,13 @@ install_managed_skills() {
     return 0
   fi
 
-  while IFS=$'\t' read -r installer source skill allowed_agents notes; do
+  while IFS=$'\t' read -r installer source skill allowed_agents notes <&3; do
     [[ -z "${installer:-}" || "$installer" == \#* ]] && continue
     case "$installer" in
       npx-skills)
-        install_npx_skill "$source" "$skill" "$allowed_agents"
+        if ! install_npx_skill "$source" "$skill" "$allowed_agents"; then
+          echo "Managed skill install failed; continuing: $source@$skill" >&2
+        fi
         ;;
       uipro)
         install_uipro "$allowed_agents"
@@ -803,7 +805,7 @@ install_managed_skills() {
         exit 1
         ;;
     esac
-  done < "$managed_skills_file"
+  done 3< "$managed_skills_file"
 }
 
 install_managed_sources() {

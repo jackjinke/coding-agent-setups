@@ -1,0 +1,3 @@
+.agents/skills/bilibili-cli
+.agents/skills/xiaohongshu-cli
+.claude/skills/bilibili-cli

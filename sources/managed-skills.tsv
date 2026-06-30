@@ -1,10 +1,7 @@
 # installer<TAB>source<TAB>skill<TAB>agents<TAB>notes
 #
 # agents uses skills CLI agent slugs where relevant. codex and opencode share
-# ~/.agents/skills; claude-code writes ~/.claude/skills. xiaohongshu-cli is not
-# installed for Claude Code.
-npx-skills	jackwener/bilibili-cli	bilibili-cli	codex,claude-code,opencode	root SKILL.md
-npx-skills	jackwener/xiaohongshu-cli	xiaohongshu-cli	codex,opencode	root SKILL.md
+# ~/.agents/skills; claude-code writes ~/.claude/skills.
 npx-skills	vercel-labs/skills	find-skills	codex,claude-code,opencode	skills.sh helper
 npx-skills	upstash/context7	find-docs	codex,claude-code,opencode	Context7 docs lookup
 npx-skills	microsoft/playwright-cli	playwright-cli	codex,claude-code,opencode	Playwright CLI official repo

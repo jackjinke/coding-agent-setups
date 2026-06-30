@@ -106,6 +106,79 @@ EOF
   echo "Updated $startup_file so $bin_dir is on PATH for new shells."
 }
 
+ensure_opencode_env_wrapper() {
+  local shell_name
+  local startup_file marker
+
+  shell_name="$(detect_active_shell)"
+  startup_file="$(shell_startup_file "$shell_name" 2>/dev/null || true)"
+  if [[ -z "$startup_file" ]]; then
+    echo "Unsupported shell for automatic OpenCode env wrapper: ${shell_name:-unknown}" >&2
+    echo "OpenCode will still work through omo, or by exporting ~/.config/opencode/.env before running opencode." >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$startup_file")"
+  touch "$startup_file"
+  marker="# coding-agent-setups OpenCode env wrapper"
+  if grep -Fq "$marker" "$startup_file"; then
+    return 0
+  fi
+
+  case "$shell_name" in
+    fish)
+      if grep -Eq '^[[:space:]]*function[[:space:]]+opencode([[:space:]]|$)' "$startup_file"; then
+        echo "OpenCode shell function already exists in $startup_file; leaving it unchanged."
+        return 0
+      fi
+      cat >> "$startup_file" <<EOF
+
+$marker
+function opencode
+    set -l env_file "\$HOME/.config/opencode/.env"
+    if set -q OPENCODE_ENV_FILE
+        set env_file \$OPENCODE_ENV_FILE
+    end
+
+    if test -f "\$env_file"
+        bash -c 'set -euo pipefail; set -a; source "\$1"; set +a; shift; exec "\$HOME/.opencode/bin/opencode" "\$@"' bash "\$env_file" \$argv
+    else
+        "\$HOME/.opencode/bin/opencode" \$argv
+    end
+end
+EOF
+      ;;
+    bash|zsh)
+      if grep -Eq '^[[:space:]]*(function[[:space:]]+)?opencode([[:space:]]*\(\))?[[:space:]]*\{' "$startup_file"; then
+        echo "OpenCode shell function already exists in $startup_file; leaving it unchanged."
+        return 0
+      fi
+      cat >> "$startup_file" <<EOF
+
+$marker
+opencode() {
+  (
+    local env_file="\${OPENCODE_ENV_FILE:-\$HOME/.config/opencode/.env}"
+    if [[ -f "\$env_file" ]]; then
+      set -a
+      source "\$env_file"
+      set +a
+    fi
+
+    exec "\$HOME/.opencode/bin/opencode" "\$@"
+  )
+}
+EOF
+      ;;
+    *)
+      echo "Unsupported shell for automatic OpenCode env wrapper: ${shell_name:-unknown}" >&2
+      return 0
+      ;;
+  esac
+
+  echo "Updated $startup_file so opencode loads ~/.config/opencode/.env for new shells."
+}
+
 install_coding_agent_local_bins() {
   local repo_root="$1"
   local bin_dir

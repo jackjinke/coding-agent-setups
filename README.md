@@ -19,8 +19,16 @@ Setup is interactive. It asks which agents to sync and whether to install shell
 commands. Local choices are written to:
 
 ```text
-~/.config/coding-agent-setups/sync.env
+~/.coding-agent-setups/sync.env
 ```
+
+The repo checkout lives under:
+
+```text
+~/.coding-agent-setups/source
+```
+
+Backups and managed upstream checkouts also stay under `~/.coding-agent-setups/`.
 
 If shell commands are enabled, setup installs:
 
@@ -57,17 +65,20 @@ coding-agent-setups restore
 If shell commands were not enabled, use the repo-local entrypoint:
 
 ```bash
-bash ~/Projects/coding-agent-setups/scripts/coding-agent-setups.sh sync
+bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
 ```
 
 ## Notes
 
-- `coding-agent-setups sync` pulls the repo before running, so sync uses
-  the latest scripts.
+- `coding-agent-setups sync` and `coding-agent-setups publish` fetch
+  `origin/main` and hard-reset the source checkout before running, so commands
+  use the latest tracked scripts.
 - `sync` backs up folders it may touch under
-  `~/.config/coding-agent-setups/backups/` and keeps the latest three backups.
+  `~/.coding-agent-setups/backups/` and keeps the latest three backups.
 - `publish` runs the secret check, lists changed files, and can commit/push.
 - API keys stay in local env files. Tracked config should reference env vars.
+- OpenCode setup installs an `opencode` shell wrapper that loads
+  `~/.config/opencode/.env` before launching the real binary.
 - Moshi hook state is local-only and is preserved across sync/publish.
 
 Before pushing manually:

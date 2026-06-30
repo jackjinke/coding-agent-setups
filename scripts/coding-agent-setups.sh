@@ -5,8 +5,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
-setup_dir="$config_home/coding-agent-setups"
+setup_dir="${CODING_AGENT_SETUPS_HOME:-$home_dir/.coding-agent-setups}"
+legacy_setup_dir="$config_home/coding-agent-setups"
 backup_dir="$setup_dir/backups"
+legacy_backup_dir="$legacy_setup_dir/backups"
 
 usage() {
   cat <<'USAGE'
@@ -32,12 +34,11 @@ make_temp_file() {
   mktemp "$tmp_base/coding-agent-setups.XXXXXX"
 }
 
-pull_repo_for_sync() {
-  local before after
+reset_repo_to_origin_main() {
+  local command_name="$1"
+  shift || true
+  local before after status_before status_after
 
-  if [[ "${CODING_AGENT_SETUPS_SKIP_REPO_PULL:-0}" == "1" ]]; then
-    return 0
-  fi
   if ! command -v git >/dev/null 2>&1; then
     echo "Missing git; install git or rerun setup." >&2
     exit 1
@@ -47,11 +48,14 @@ pull_repo_for_sync() {
     exit 1
   fi
   before="$(git -C "$repo_root" rev-parse HEAD)"
-  git -C "$repo_root" pull --ff-only
+  status_before="$(git -C "$repo_root" status --porcelain)"
+  git -C "$repo_root" fetch --prune origin +refs/heads/main:refs/remotes/origin/main
+  git -C "$repo_root" reset --hard origin/main
   after="$(git -C "$repo_root" rev-parse HEAD)"
-  if [[ "$before" != "$after" ]]; then
-    echo "Repo updated; restarting sync with latest scripts."
-    exec "$repo_root/scripts/coding-agent-setups.sh" sync "$@"
+  status_after="$(git -C "$repo_root" status --porcelain)"
+  if [[ "$before" != "$after" || "$status_before" != "$status_after" ]]; then
+    echo "Repo reset to origin/main; restarting $command_name with latest scripts."
+    exec "$repo_root/scripts/coding-agent-setups.sh" "$command_name" "$@"
   fi
 }
 
@@ -77,6 +81,16 @@ display_path() {
 archive_for() {
   local root="$1"
   local version="$2"
+  local dir archive
+
+  while IFS= read -r dir; do
+    archive="$dir/$version/$(backup_name_for_root "$root").tar.gz"
+    if [[ -f "$archive" ]]; then
+      printf '%s' "$archive"
+      return 0
+    fi
+  done < <(backup_dirs)
+
   printf '%s/%s/%s.tar.gz' "$backup_dir" "$version" "$(backup_name_for_root "$root")"
 }
 
@@ -86,16 +100,23 @@ backup_name_for_root() {
 }
 
 list_restore_versions() {
+  local dir
   local version_dir
 
-  if [[ ! -d "$backup_dir" ]]; then
-    return 0
-  fi
+  while IFS= read -r dir; do
+    [[ -d "$dir" ]] || continue
+    for version_dir in "$dir"/*; do
+      [[ -d "$version_dir" ]] || continue
+      basename "$version_dir"
+    done
+  done < <(backup_dirs) | sort -ru | head -n 3
+}
 
-  for version_dir in "$backup_dir"/*; do
-    [[ -d "$version_dir" ]] || continue
-    basename "$version_dir"
-  done | sort -r | head -n 3
+backup_dirs() {
+  printf '%s\n' "$backup_dir"
+  if [[ "$legacy_backup_dir" != "$backup_dir" ]]; then
+    printf '%s\n' "$legacy_backup_dir"
+  fi
 }
 
 folders_for_version() {
@@ -242,10 +263,11 @@ case "$command" in
     exec "$script_dir/setup.sh" "$@"
     ;;
   sync)
-    pull_repo_for_sync "$@"
+    reset_repo_to_origin_main sync "$@"
     exec "$script_dir/sync.sh" sync "$@"
     ;;
   publish)
+    reset_repo_to_origin_main publish "$@"
     exec "$script_dir/sync.sh" publish "$@"
     ;;
   restore)

@@ -3,8 +3,9 @@ set -euo pipefail
 
 home_dir="${HOME:?HOME is not set}"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
+state_dir="${CODING_AGENT_SETUPS_HOME:-$home_dir/.coding-agent-setups}"
 repo_url="${CODING_AGENT_SETUPS_REPO_URL:-https://github.com/jackjinke/coding-agent-setups}"
-repo_dir="${CODING_AGENT_SETUPS_REPO:-$home_dir/Projects/coding-agent-setups}"
+repo_dir="${CODING_AGENT_SETUPS_REPO:-$state_dir/source}"
 
 usage() {
   cat <<'USAGE'
@@ -14,7 +15,7 @@ Runs interactive local setup. When this script is downloaded and run outside the
 repo, it first clones or updates the repo, then runs the repo-local setup.
 
 Options:
-  --repo PATH  Checkout path. Defaults to ~/Projects/coding-agent-setups.
+  --repo PATH  Checkout path. Defaults to ~/.coding-agent-setups/source.
 USAGE
 }
 
@@ -117,7 +118,8 @@ if [[ ! -f "$repo_root/scripts/coding-agent-setups.sh" ]]; then
   exec bash "$repo_dir/scripts/setup.sh"
 fi
 
-setup_dir="$config_home/coding-agent-setups"
+setup_dir="$state_dir"
+legacy_setup_dir="$config_home/coding-agent-setups"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$setup_dir/sync.env}"
 opencode_env="$home_dir/.config/opencode/.env"
 
@@ -130,6 +132,28 @@ lower() {
 make_temp_file() {
   local tmp_base="${TMPDIR:-/tmp}"
   mktemp "$tmp_base/coding-agent-setups.XXXXXX"
+}
+
+migrate_legacy_state() {
+  local legacy_flag_file="$legacy_setup_dir/sync.env"
+
+  if [[ "${CODING_AGENT_SETUPS_SKIP_LEGACY_MIGRATION:-0}" == "1" ]]; then
+    return 0
+  fi
+  if [[ -n "${CODING_AGENT_SETUPS_FLAG_FILE:-}" ]]; then
+    return 0
+  fi
+  if [[ "$setup_dir" == "$legacy_setup_dir" ]]; then
+    return 0
+  fi
+  if [[ -f "$flag_file" || ! -f "$legacy_flag_file" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$setup_dir"
+  cp "$legacy_flag_file" "$flag_file"
+  chmod 600 "$flag_file"
+  echo "Migrated sync selection to $flag_file"
 }
 
 read_existing_key() {
@@ -278,6 +302,7 @@ EOF
 }
 
 echo "Shared agent files are installed by sync."
+migrate_legacy_state
 
 detected_shell="$(detect_active_shell)"
 install_shell_commands="$(prompt_yes_no "Make coding-agent-setups available in your ${detected_shell:-current} shell?" "$(existing_yes_no INSTALL_SHELL_COMMANDS y)")"
@@ -297,6 +322,7 @@ if [[ "$sync_opencode" == "1" ]]; then
   set_env_var "$opencode_env" OPENCODE_LITELLM_API_KEY "$api_key"
   set_env_var "$opencode_env" OPENCODE_ENABLE_EXA "1"
   set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
+  ensure_opencode_env_wrapper
 fi
 
 write_flags "$sync_codex" "$sync_claude" "$sync_opencode" "$install_shell_commands"

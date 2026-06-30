@@ -195,13 +195,36 @@ source "$repo_root/scripts/moshi-hooks.sh"
 
 files_dir="$repo_root/files"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
-flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$config_home/coding-agent-setups/sync.env}"
-setup_dir="$config_home/coding-agent-setups"
+setup_dir="${CODING_AGENT_SETUPS_HOME:-$home_dir/.coding-agent-setups}"
+legacy_setup_dir="$config_home/coding-agent-setups"
+flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$setup_dir/sync.env}"
 git_cache_dir="$setup_dir/git"
 managed_sources_file="$repo_root/sources/managed-sources.tsv"
 managed_skills_file="$repo_root/sources/managed-skills.tsv"
 managed_targets_file="$repo_root/sources/managed-targets.txt"
 retired_targets_file="$repo_root/sources/retired-targets.txt"
+
+migrate_legacy_state() {
+  local legacy_flag_file="$legacy_setup_dir/sync.env"
+
+  if [[ "${CODING_AGENT_SETUPS_SKIP_LEGACY_MIGRATION:-0}" == "1" ]]; then
+    return 0
+  fi
+  if [[ -n "${CODING_AGENT_SETUPS_FLAG_FILE:-}" ]]; then
+    return 0
+  fi
+  if [[ "$setup_dir" == "$legacy_setup_dir" ]]; then
+    return 0
+  fi
+  if [[ -f "$flag_file" || ! -f "$legacy_flag_file" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$setup_dir"
+  cp "$legacy_flag_file" "$flag_file"
+  chmod 600 "$flag_file"
+  echo "Migrated sync selection to $flag_file"
+}
 
 shared_paths=()
 
@@ -1086,6 +1109,9 @@ sync_to_home() {
   if shell_commands_enabled; then
     install_coding_agent_shell_commands "$repo_root"
   fi
+  if agent_enabled OPENCODE; then
+    ensure_opencode_env_wrapper
+  fi
 
   if agent_enabled CODEX; then
     codex_moshi_hooks_file="$(make_temp_file)"
@@ -1138,6 +1164,7 @@ sync_to_home() {
   echo "Synced enabled repo files into $home_dir"
 }
 
+migrate_legacy_state
 require_setup_flags
 confirm_sync
 

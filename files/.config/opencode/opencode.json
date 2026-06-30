@@ -171,7 +171,7 @@
     "./plugins/caveman/plugin.js",
     "./plugins/opencode-pty/dist/index.js",
     [
-      "@prevalentware/opencode-goal-plugin",
+      "/home/kjin/Projects/opencode-goal-plugin/dist/server.js",
       {
         "max_auto_turns": 20,
         "max_goal_duration_seconds": 43200,

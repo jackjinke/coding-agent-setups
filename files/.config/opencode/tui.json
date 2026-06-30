@@ -1,6 +1,6 @@
 {
   "plugin": [
-    "@prevalentware/opencode-goal-plugin",
+    "/home/kjin/Projects/opencode-goal-plugin/src/tui.tsx",
     "oh-my-opencode-slim"
   ]
 }

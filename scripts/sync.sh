@@ -472,6 +472,20 @@ copy_group() {
   done
 }
 
+replace_omo_script() {
+  local dst="$home_dir/.local/bin/omo"
+
+  if ! agent_enabled OPENCODE; then
+    return 0
+  fi
+
+  echo "Replacing omo script"
+  copy_path "$files_dir" "$home_dir" ".local/bin/omo" 1
+  if [[ -f "$dst" ]]; then
+    chmod 755 "$dst"
+  fi
+}
+
 print_enabled_groups() {
   echo "  - shared files"
   if agent_enabled CODEX; then
@@ -761,11 +775,18 @@ remove_caveman_opencode_agents() {
     "$config_home/opencode/agents/cavecrew-reviewer.md"
 }
 
-install_npx_skill() {
+install_npx_skills() {
   local source="$1"
-  local skill="$2"
-  local allowed_agents="$3"
+  local allowed_agents="$2"
+  shift 2
+  local skills=("$@")
   local agent_args=()
+  local skill_args=()
+  local skill
+
+  if [[ "${#skills[@]}" -eq 0 ]]; then
+    return 0
+  fi
 
   if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
     agent_args+=(-a codex)
@@ -780,8 +801,12 @@ install_npx_skill() {
     return 0
   fi
 
-  echo "Installing skill via npx skills: $source@$skill"
-  npx skills@latest add "$source" -g --copy -y "${agent_args[@]}" -s "$skill"
+  for skill in "${skills[@]}"; do
+    skill_args+=(-s "$skill")
+  done
+
+  echo "Installing skills via npx skills: $source@${skills[*]}"
+  npx skills@latest add "$source" -g --copy -y "${agent_args[@]}" "${skill_args[@]}"
 }
 
 install_uipro() {
@@ -889,6 +914,9 @@ repair_missing_opencode_file_plugins() {
 
 install_managed_skills() {
   local installer source skill allowed_agents notes
+  local npx_source=""
+  local npx_allowed_agents=""
+  local npx_skills=()
 
   if [[ ! -f "$managed_skills_file" ]]; then
     return 0
@@ -898,29 +926,55 @@ install_managed_skills() {
     return 0
   fi
 
+  flush_npx_skills() {
+    if [[ "${#npx_skills[@]}" -eq 0 ]]; then
+      return 0
+    fi
+
+    if ! install_npx_skills "$npx_source" "$npx_allowed_agents" "${npx_skills[@]}"; then
+      echo "Managed skill install failed; continuing: $npx_source@${npx_skills[*]}" >&2
+    fi
+
+    npx_source=""
+    npx_allowed_agents=""
+    npx_skills=()
+  }
+
   while IFS=$'\t' read -r installer source skill allowed_agents notes <&3; do
     [[ -z "${installer:-}" || "$installer" == \#* ]] && continue
     case "$installer" in
       npx-skills)
-        if ! install_npx_skill "$source" "$skill" "$allowed_agents"; then
-          echo "Managed skill install failed; continuing: $source@$skill" >&2
+        if [[ "${#npx_skills[@]}" -eq 0 ]]; then
+          npx_source="$source"
+          npx_allowed_agents="$allowed_agents"
+        elif [[ "$source" != "$npx_source" || "$allowed_agents" != "$npx_allowed_agents" ]]; then
+          flush_npx_skills
+          npx_source="$source"
+          npx_allowed_agents="$allowed_agents"
         fi
+        npx_skills+=("$skill")
         ;;
       uipro)
+        flush_npx_skills
         install_uipro "$allowed_agents"
         ;;
       opencode-ohmy)
+        flush_npx_skills
         install_opencode_ohmy
         ;;
       opencode-caveman)
+        flush_npx_skills
         install_opencode_caveman
         ;;
       *)
+        flush_npx_skills
         echo "Unknown managed skill installer: $installer" >&2
         exit 1
         ;;
     esac
   done 3< "$managed_skills_file"
+
+  flush_npx_skills
 }
 
 install_managed_sources() {
@@ -1135,6 +1189,7 @@ sync_to_home() {
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
+    replace_omo_script
     repair_missing_opencode_file_plugins
   fi
   if [[ "${#moshi_targets[@]}" -gt 0 ]]; then

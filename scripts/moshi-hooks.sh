@@ -16,8 +16,8 @@ install_moshi_hook() {
   case "$(moshi_platform)" in
     Darwin)
       if ! command -v brew >/dev/null 2>&1; then
-        echo "Missing Homebrew; install Homebrew first, then rerun sync." >&2
-        return 1
+        install_moshi_hook_with_installer
+        return
       fi
       echo "Installing Moshi hook with Homebrew."
       brew tap rjyo/moshi
@@ -25,19 +25,49 @@ install_moshi_hook() {
       brew install moshi-hook
       ;;
     Linux)
-      if ! command -v curl >/dev/null 2>&1; then
-        if declare -F ensure_cmd >/dev/null 2>&1; then
-          ensure_cmd curl
-        else
-          echo "Missing curl; install curl first, then rerun sync." >&2
-          return 1
-        fi
-      fi
-      echo "Installing Moshi hook with the official installer."
-      curl -fsSL https://getmoshi.app/install.sh | sh
+      install_moshi_hook_with_installer
       ;;
     *)
       echo "Unsupported platform for automatic Moshi install: $(moshi_platform)" >&2
+      return 1
+      ;;
+  esac
+}
+
+install_moshi_hook_with_installer() {
+  if ! command -v curl >/dev/null 2>&1; then
+    if declare -F ensure_cmd >/dev/null 2>&1; then
+      ensure_cmd curl
+    else
+      echo "Missing curl; install curl first, then rerun sync." >&2
+      return 1
+    fi
+  fi
+
+  echo "Installing Moshi hook with the official installer."
+  curl -fsSL https://getmoshi.app/install.sh | sh
+}
+
+update_moshi_hook() {
+  case "$(moshi_platform)" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1 && brew list --formula moshi-hook >/dev/null 2>&1; then
+        echo "Updating Moshi hook with Homebrew."
+        brew update
+        brew upgrade moshi-hook || true
+        brew services restart moshi-hook || true
+      else
+        echo "Updating Moshi hook with the official installer."
+        install_moshi_hook_with_installer
+      fi
+      ;;
+    Linux)
+      echo "Updating Moshi hook with the official installer."
+      install_moshi_hook_with_installer
+      restart_moshi_daemon_if_running
+      ;;
+    *)
+      echo "Unsupported platform for automatic Moshi update: $(moshi_platform)" >&2
       return 1
       ;;
   esac
@@ -49,12 +79,46 @@ ensure_moshi_installed() {
   if moshi_missing; then
     install_moshi_hook
     moshi_configure_path
+  else
+    update_moshi_hook
+    moshi_configure_path
   fi
 
   if moshi_missing; then
     echo "Moshi install did not expose both moshi and moshi-hook on PATH." >&2
     return 1
   fi
+}
+
+restart_moshi_daemon_if_running() {
+  local moshi_hook_path
+
+  if ! command -v moshi-hook >/dev/null 2>&1; then
+    return 0
+  fi
+
+  moshi_hook_path="$(command -v moshi-hook)"
+  case "$(moshi_platform)" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1 && brew services list >/dev/null 2>&1; then
+        brew services restart moshi-hook || true
+      fi
+      ;;
+    Linux)
+      if command -v systemctl >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; then
+        if systemctl --user is-active --quiet moshi.service; then
+          systemctl --user restart moshi.service
+          return 0
+        fi
+      fi
+      if command -v pkill >/dev/null 2>&1 && command -v pgrep >/dev/null 2>&1; then
+        if pgrep -f "$moshi_hook_path serve" >/dev/null 2>&1; then
+          pkill -f "$moshi_hook_path serve" || true
+          start_moshi_background_daemon
+        fi
+      fi
+      ;;
+  esac
 }
 
 moshi_is_paired() {

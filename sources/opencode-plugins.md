@@ -40,19 +40,20 @@ If a patch is needed for a Git source, add it to `patches/` and reference it fro
 `sources/managed-sources.tsv`. Installer-managed targets are listed in
 `sources/managed-skills.tsv` and `sources/managed-targets.txt`.
 
-## External Local Plugins
+## Moshi Hook
 
-These are installed and maintained outside this repo. They should not be
-vendored or published.
+Moshi hook integration is tracked by this repo for enabled agents.
 
 - Moshi hook: https://getmoshi.app/docs/hooks
 
-`sync` installs and starts Moshi hook locally when it is missing.
-`publish` ignores it.
+Tracked config:
 
-The same rule applies across agents. `scripts/moshi-hooks.sh` treats hook
-commands whose command contains `moshi` as local-only state for Claude Code and
-Codex, and treats Moshi plugin entries in `opencode.json` as local-only state
-for OpenCode.
+- Claude Code hook commands in `files/.claude/settings.json`
+- Codex hook commands in `files/.codex/hooks.json`
+- OpenCode generated plugin in `files/.config/opencode/plugins/moshi-hooks.ts`
 
-There are currently no vendored local OpenCode plugins in this repo.
+`sync` still installs Moshi when missing, pairs it when needed, and starts the
+daemon. It does not rerun `moshi-hook install --target ...`; synced config is
+the source of truth.
+
+There are currently no other vendored local OpenCode plugins in this repo.

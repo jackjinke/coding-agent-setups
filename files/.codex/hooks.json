@@ -1,1 +1,45 @@
-{}
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "timeout": 300,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

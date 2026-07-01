@@ -7,7 +7,14 @@ if [[ -z "${TMUX:-}" ]]; then
     exit 127
   fi
 
-  exec tmux new-session -s "omo-$$" -- "$0" "$@"
+  session_name="$(basename "$PWD")"
+  if session_id="$(tmux display-message -p -t "=${session_name}" '#{session_id}' 2>/dev/null)"; then
+    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_id}:" -c "$PWD" -- "$0" "$@")"
+    tmux select-window -t "$window_id"
+    exec tmux attach-session -t "$session_id"
+  fi
+
+  exec tmux new-session -s "$session_name" -c "$PWD" -- "$0" "$@"
 fi
 
 for arg in "$@"; do

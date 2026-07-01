@@ -15,6 +15,108 @@
     "DISABLE_TELEMETRY": "1"
   },
   "extraKnownMarketplaces": {},
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "async": false,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "timeout": 300,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "AskUserQuestion"
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "ExitPlanMode"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "AskUserQuestion"
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "ExitPlanMode"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
   "model": "opus[1m]",
   "permissions": {
     "allow": [

@@ -79,7 +79,8 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
 - API keys stay in local env files. Tracked config should reference env vars.
 - OpenCode setup installs an `opencode` shell wrapper that loads
   `~/.config/opencode/.env` before launching the real binary.
-- Moshi hook state is local-only and is preserved across sync/publish.
+- Moshi hook config is tracked for enabled agents; sync only ensures Moshi is
+  installed, paired, and serving.
 
 Before pushing manually:
 

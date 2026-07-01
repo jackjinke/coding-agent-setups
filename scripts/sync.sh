@@ -253,6 +253,7 @@ opencode_paths=(
   ".config/opencode/opencode.json"
   ".config/opencode/package-lock.json"
   ".config/opencode/package.json"
+  ".config/opencode/plugins/moshi-hooks.ts"
   ".config/opencode/tui.json"
 )
 
@@ -278,8 +279,6 @@ rsync_excludes=(
   "--exclude=telemetry/"
   "--exclude=file-history/"
   "--exclude=.ocx/"
-  "--exclude=plugins/moshi-hooks.ts"
-  "--exclude=moshi-hooks.ts"
   "--exclude=.caveman-active"
   "--exclude=*.sqlite"
   "--exclude=*.sqlite-*"
@@ -530,7 +529,6 @@ sanitize_opencode_config() {
     .provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"
   ' "$path" > "$tmp"
   mv "$tmp" "$path"
-  sanitize_moshi_opencode_plugins "$path"
 }
 
 sanitize_codex_config() {
@@ -1089,8 +1087,6 @@ publish_from_home() {
       copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
     fi
   fi
-  sanitize_moshi_command_hooks "$files_dir/.claude/settings.json"
-  sanitize_moshi_command_hooks "$files_dir/.codex/hooks.json"
   sanitize_opencode_config
   sanitize_codex_config
   prune_non_vendored_targets_from_repo
@@ -1100,9 +1096,6 @@ publish_from_home() {
 }
 
 sync_to_home() {
-  local moshi_plugins_file=""
-  local claude_moshi_hooks_file=""
-  local codex_moshi_hooks_file=""
   local moshi_targets=()
 
   create_sync_backups
@@ -1114,18 +1107,12 @@ sync_to_home() {
   fi
 
   if agent_enabled CODEX; then
-    codex_moshi_hooks_file="$(make_temp_file)"
-    capture_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
     moshi_targets+=(codex)
   fi
   if agent_enabled CLAUDE; then
-    claude_moshi_hooks_file="$(make_temp_file)"
-    capture_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
     moshi_targets+=(claude)
   fi
   if agent_enabled OPENCODE; then
-    moshi_plugins_file="$(make_temp_file)"
-    capture_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
     moshi_targets+=(opencode)
   fi
 
@@ -1138,22 +1125,16 @@ sync_to_home() {
     if [[ "${#codex_paths[@]}" -gt 0 ]]; then
       copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
     fi
-    restore_moshi_command_hooks "$home_dir/.codex/hooks.json" "$codex_moshi_hooks_file"
-    rm -f "$codex_moshi_hooks_file"
   fi
   if agent_enabled CLAUDE; then
     if [[ "${#claude_paths[@]}" -gt 0 ]]; then
       copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
     fi
-    restore_moshi_command_hooks "$home_dir/.claude/settings.json" "$claude_moshi_hooks_file"
-    rm -f "$claude_moshi_hooks_file"
   fi
   if agent_enabled OPENCODE; then
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
-    restore_moshi_opencode_plugins "$config_home/opencode/opencode.json" "$moshi_plugins_file"
-    rm -f "$moshi_plugins_file"
     repair_missing_opencode_file_plugins
   fi
   if [[ "${#moshi_targets[@]}" -gt 0 ]]; then

@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -z "${TMUX:-}" ]]; then
+session_name="$(basename "$PWD")"
+
+if [[ -z "${TMUX:-}" || "${OMO_TMUX_MANAGED:-}" != "1" ]]; then
   if ! command -v tmux >/dev/null 2>&1; then
     printf 'omo must start in tmux, but tmux was not found on PATH.\n' >&2
     exit 127
   fi
 
-  session_name="$(basename "$PWD")"
   if session_id="$(tmux display-message -p -t "=${session_name}" '#{session_id}' 2>/dev/null)"; then
-    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_id}:" -c "$PWD" -- "$0" "$@")"
+    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_id}:" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
     tmux select-window -t "$window_id"
+    if [[ -n "${TMUX:-}" ]]; then
+      exec tmux switch-client -t "$session_id"
+    fi
     exec tmux attach-session -t "$session_id"
   fi
 
-  exec tmux new-session -s "$session_name" -c "$PWD" -- "$0" "$@"
+  if [[ -n "${TMUX:-}" ]]; then
+    session_id="$(tmux new-session -d -P -F '#{session_id}' -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
+    exec tmux switch-client -t "$session_id"
+  fi
+
+  exec tmux new-session -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
 fi
 
 for arg in "$@"; do

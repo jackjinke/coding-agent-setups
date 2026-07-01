@@ -41,6 +41,30 @@ set -euo pipefail
 printf '%s\n' "tmux $*" >> "${FAKE_TMUX_LOG:?}"
 
 case "${1:-}" in
+  has-session)
+    shift
+    target=""
+    while (($#)); do
+      case "$1" in
+        -t)
+          target="$2"
+          shift 2
+          ;;
+        *)
+          shift
+          ;;
+      esac
+    done
+
+    session_name="${target#=}"
+    for existing_session in ${FAKE_TMUX_EXISTING_SESSIONS:-}; do
+      if [[ "$existing_session" == "$session_name" ]]; then
+        exit 0
+      fi
+    done
+    printf 'can'\''t find session: %s\n' "$session_name" >&2
+    exit 1
+    ;;
   display-message)
     shift
     target=""
@@ -178,7 +202,7 @@ if [[ -s "$opencode_log" ]]; then
 fi
 
 assert_log_contains "new-window" "$tmux_log"
-assert_log_contains "-t @child:" "$tmux_log"
+assert_log_contains "-t =child:" "$tmux_log"
 assert_log_contains "select-window" "$tmux_log"
 assert_log_contains "switch-client" "$tmux_log"
 

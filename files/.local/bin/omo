@@ -2,6 +2,7 @@
 set -euo pipefail
 
 session_name="$(basename "$PWD")"
+session_target="=${session_name}"
 
 if [[ -z "${TMUX:-}" || "${OMO_TMUX_MANAGED:-}" != "1" ]]; then
   if ! command -v tmux >/dev/null 2>&1; then
@@ -9,22 +10,24 @@ if [[ -z "${TMUX:-}" || "${OMO_TMUX_MANAGED:-}" != "1" ]]; then
     exit 127
   fi
 
-  if session_id="$(tmux display-message -p -t "=${session_name}" '#{session_id}' 2>/dev/null)"; then
-    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_id}:" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
+  if tmux has-session -t "$session_target" 2>/dev/null; then
+    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_target}:" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
     tmux select-window -t "$window_id"
     if [[ -n "${TMUX:-}" ]]; then
-      exec tmux switch-client -t "$session_id"
+      exec tmux switch-client -t "$session_target"
     fi
-    exec tmux attach-session -t "$session_id"
+    exec tmux attach-session -t "$session_target"
   fi
 
   if [[ -n "${TMUX:-}" ]]; then
-    session_id="$(tmux new-session -d -P -F '#{session_id}' -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
-    exec tmux switch-client -t "$session_id"
+    tmux new-session -d -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
+    exec tmux switch-client -t "$session_target"
   fi
 
   exec tmux new-session -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
 fi
+
+unset OMO_TMUX_MANAGED
 
 for arg in "$@"; do
   case "$arg" in

@@ -22,7 +22,7 @@ install_moshi_hook() {
       echo "Installing Moshi hook with Homebrew."
       brew tap rjyo/moshi
       brew trust rjyo/moshi
-      brew install moshi-hook
+      HOMEBREW_NO_ASK=1 brew install moshi-hook
       ;;
     Linux)
       install_moshi_hook_with_installer
@@ -53,8 +53,8 @@ update_moshi_hook() {
     Darwin)
       if command -v brew >/dev/null 2>&1 && brew list --formula moshi-hook >/dev/null 2>&1; then
         echo "Updating Moshi hook with Homebrew."
-        brew update
-        brew upgrade moshi-hook || true
+        HOMEBREW_NO_ASK=1 brew update
+        HOMEBREW_NO_ASK=1 brew upgrade --yes moshi-hook || true
         brew services restart moshi-hook || true
       else
         echo "Updating Moshi hook with the official installer."

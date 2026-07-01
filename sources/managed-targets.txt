@@ -75,3 +75,4 @@
 .config/opencode/skills/caveman-review
 .config/opencode/skills/caveman-stats
 .config/opencode/plugins/opencode-pty
+.config/opencode/plugins/opencode-goal-plugin

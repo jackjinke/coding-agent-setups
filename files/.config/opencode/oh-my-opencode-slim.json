@@ -4,7 +4,7 @@
   "presets": {
     "custom": {
       "orchestrator": {
-        "model": "openai/gpt-5.5",
+        "model": "litellm/gpt-latest",
         "variant": "high",
         "skills": [
           "*"
@@ -12,8 +12,8 @@
         "mcps": []
       },
       "oracle": {
-        "model": "litellm/claude-opus-latest",
-        "variant": "max",
+        "model": "litellm/gpt-latest",
+        "variant": "xhigh",
         "skills": [
           "*"
         ],
@@ -35,7 +35,7 @@
         "mcps": []
       },
       "designer": {
-        "model": "litellm/claude-opus-latest",
+        "model": "litellm/gpt-latest",
         "variant": "xhigh",
         "skills": [
           "*"
@@ -43,7 +43,7 @@
         "mcps": []
       },
       "fixer": {
-        "model": "openai/gpt-5.5",
+        "model": "litellm/gpt-latest",
         "variant": "high",
         "skills": [
           "*"
@@ -58,7 +58,7 @@
         "mcps": []
       },
       "council": {
-        "model": "openai/gpt-5.5",
+        "model": "litellm/gpt-latest",
         "variant": "high",
         "skills": [
           "*"
@@ -147,7 +147,6 @@
           "*"
         ],
         "mcps": [
-          "websearch",
           "gh_grep"
         ]
       },
@@ -183,10 +182,6 @@
   "council": {
     "presets": {
       "default": {
-        "alpha": {
-          "model": "litellm/claude-opus-latest",
-          "variant": "xhigh"
-        },
         "beta": {
           "model": "litellm/gpt-latest",
           "variant": "xhigh"

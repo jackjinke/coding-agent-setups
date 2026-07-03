@@ -4,7 +4,7 @@
   "presets": {
     "custom": {
       "orchestrator": {
-        "model": "litellm/gpt-latest",
+        "model": "omniroute/auto/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"
@@ -12,7 +12,7 @@
         "mcps": []
       },
       "oracle": {
-        "model": "litellm/gpt-latest",
+        "model": "omniroute/auto/gpt-5.5",
         "variant": "xhigh",
         "skills": [
           "*"
@@ -20,7 +20,7 @@
         "mcps": []
       },
       "librarian": {
-        "model": "opencode-go/minimax-m3",
+        "model": "omniroute/opencode-go/minimax-m3",
         "skills": [
           "*"
         ],
@@ -29,13 +29,13 @@
         ]
       },
       "explorer": {
-        "model": "opencode-go/deepseek-v4-pro",
+        "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "max",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "litellm/gpt-latest",
+        "model": "omniroute/auto/gpt-5.5",
         "variant": "xhigh",
         "skills": [
           "*"
@@ -43,7 +43,7 @@
         "mcps": []
       },
       "fixer": {
-        "model": "litellm/gpt-latest",
+        "model": "omniroute/auto/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"
@@ -51,14 +51,14 @@
         "mcps": []
       },
       "observer": {
-        "model": "opencode-go/minimax-m3",
+        "model": "omniroute/opencode-go/minimax-m3",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "council": {
-        "model": "litellm/gpt-latest",
+        "model": "omniroute/auto/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"
@@ -119,14 +119,14 @@
     },
     "opencode-go": {
       "orchestrator": {
-        "model": "opencode-go/glm-5.2",
+        "model": "omniroute/opencode-go/glm-5.2",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "oracle": {
-        "model": "opencode-go/glm-5.2",
+        "model": "omniroute/opencode-go/glm-5.2",
         "variant": "max",
         "skills": [
           "*"
@@ -134,7 +134,7 @@
         "mcps": []
       },
       "council": {
-        "model": "opencode-go/deepseek-v4-pro",
+        "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "high",
         "skills": [
           "*"
@@ -142,7 +142,7 @@
         "mcps": []
       },
       "librarian": {
-        "model": "opencode-go/minimax-m3",
+        "model": "omniroute/opencode-go/minimax-m3",
         "skills": [
           "*"
         ],
@@ -151,27 +151,27 @@
         ]
       },
       "explorer": {
-        "model": "opencode-go/deepseek-v4-pro",
+        "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "max",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "opencode-go/kimi-k2.7-code",
+        "model": "omniroute/opencode-go/kimi-k2.7-code",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "fixer": {
-        "model": "opencode-go/glm-5.2",
+        "model": "omniroute/opencode-go/glm-5.2",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "observer": {
-        "model": "opencode-go/kimi-k2.6",
+        "model": "omniroute/opencode-go/kimi-k2.6",
         "skills": [
           "*"
         ],
@@ -183,15 +183,15 @@
     "presets": {
       "default": {
         "beta": {
-          "model": "litellm/gpt-latest",
+          "model": "omniroute/auto/gpt-5.5",
           "variant": "xhigh"
         },
         "gamma": {
-          "model": "opencode-go/glm-5.2",
+          "model": "omniroute/opencode-go/glm-5.2",
           "variant": "max"
         },
         "delta": {
-          "model": "opencode-go/deepseek-v4-pro",
+          "model": "omniroute/opencode-go/deepseek-v4-pro",
           "variant": "max"
         }
       }

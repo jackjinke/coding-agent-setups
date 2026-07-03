@@ -540,7 +540,15 @@ sanitize_opencode_config() {
   fi
   tmp="$(make_temp_file)"
   jq '
-    .provider.litellm.options.apiKey = "{env:OPENCODE_LITELLM_API_KEY}"
+    del(.provider.litellm) |
+    if .provider.omniroute.options? then
+      .provider.omniroute.options.baseURL = "{env:OPENCODE_OMNIROUTE_BASE_URL}" |
+      .provider.omniroute.options.apiMode = "responses" |
+      .provider.omniroute.options.refreshOnList = true |
+      del(.provider.omniroute.options.apiKey)
+    else
+      .
+    end
   ' "$path" > "$tmp"
   mv "$tmp" "$path"
 }
@@ -848,6 +856,18 @@ install_opencode_caveman() {
     return 1
   fi
   remove_caveman_opencode_agents
+}
+
+install_opencode_package_dependencies() {
+  local opencode_dir="$config_home/opencode"
+
+  if ! agent_enabled OPENCODE || [[ ! -f "$opencode_dir/package.json" ]]; then
+    return 0
+  fi
+
+  ensure_cmd npm
+  echo "Installing OpenCode package dependencies"
+  npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
 resolve_opencode_plugin_ref() {
@@ -1189,6 +1209,7 @@ sync_to_home() {
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
+    install_opencode_package_dependencies
     replace_omo_script
     repair_missing_opencode_file_plugins
   fi

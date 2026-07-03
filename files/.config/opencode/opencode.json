@@ -4,170 +4,17 @@
     "websearch": true
   },
   "provider": {
-    "litellm": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "LiteLLM Local",
+    "omniroute": {
       "options": {
-        "baseURL": "{env:OPENCODE_LITELLM_BASE_URL}",
-        "apiKey": "{env:OPENCODE_LITELLM_API_KEY}"
-      },
-      "models": {
-        "gpt-latest": {
-          "name": "GPT Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "attachment": true,
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "limit": {
-            "context": 256000,
-            "output": 128000
-          },
-          "options": {
-            "reasoning_effort": "medium"
-          },
-          "variants": {
-            "none": {
-              "reasoning_effort": "none"
-            },
-            "low": {
-              "reasoning_effort": "low"
-            },
-            "medium": {
-              "reasoning_effort": "medium"
-            },
-            "high": {
-              "reasoning_effort": "high"
-            },
-            "xhigh": {
-              "reasoning_effort": "xhigh"
-            }
-          }
-        },
-        "claude-opus-latest": {
-          "name": "Claude Opus Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "attachment": true,
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "limit": {
-            "context": 500000,
-            "output": 64000
-          },
-          "options": {
-            "reasoning_effort": "high"
-          },
-          "variants": {
-            "low": {
-              "reasoning_effort": "low"
-            },
-            "medium": {
-              "reasoning_effort": "medium"
-            },
-            "high": {
-              "reasoning_effort": "high"
-            },
-            "xhigh": {
-              "reasoning_effort": "xhigh"
-            },
-            "max": {
-              "reasoning_effort": "max"
-            }
-          }
-        },
-        "claude-sonnet-latest": {
-          "name": "Claude Sonnet Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "attachment": true,
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "limit": {
-            "context": 500000,
-            "output": 64000
-          },
-          "options": {
-            "reasoning_effort": "high"
-          },
-          "variants": {
-            "low": {
-              "reasoning_effort": "low"
-            },
-            "medium": {
-              "reasoning_effort": "medium"
-            },
-            "high": {
-              "reasoning_effort": "high"
-            },
-            "max": {
-              "reasoning_effort": "max"
-            }
-          }
-        },
-        "deepseek-pro-latest": {
-          "name": "DeepSeek Pro Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "limit": {
-            "context": 500000,
-            "output": 64000
-          }
-        },
-        "deepseek-flash-latest": {
-          "name": "DeepSeek Flash Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "limit": {
-            "context": 500000,
-            "output": 64000
-          }
-        },
-        "gemini-flash-latest": {
-          "name": "Gemini Flash Latest",
-          "reasoning": true,
-          "tool_call": true,
-          "attachment": true,
-          "modalities": {
-            "input": [
-              "text",
-              "image"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "limit": {
-            "context": 500000,
-            "output": 64000
-          }
-        }
+        "baseURL": "{env:OPENCODE_OMNIROUTE_BASE_URL}",
+        "apiMode": "responses",
+        "refreshOnList": true
       }
     }
   },
   "plugin": [
-    "@tarquinen/opencode-dcp@latest",
+    "opencode-omniroute-auth",
+    "@tarquinen/opencode-dcp",
     "./plugins/caveman/plugin.js",
     "./plugins/opencode-pty/dist/index.js",
     [

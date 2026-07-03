@@ -315,14 +315,13 @@ sync_opencode="$(prompt_yes_no "Sync OpenCode setup on this machine?" "$(existin
 
 if [[ "$sync_opencode" == "1" ]]; then
   echo "Configuring local OpenCode environment."
-  base_url="$(prompt_value "$opencode_env" OPENCODE_LITELLM_BASE_URL "LiteLLM base URL" "http://localhost:4000/v1")"
-  api_key="$(prompt_secret "$opencode_env" OPENCODE_LITELLM_API_KEY "LiteLLM API key")"
+  base_url="$(prompt_value "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "OmniRoute base URL" "http://localhost:20128/v1")"
 
-  set_env_var "$opencode_env" OPENCODE_LITELLM_BASE_URL "$base_url"
-  set_env_var "$opencode_env" OPENCODE_LITELLM_API_KEY "$api_key"
+  set_env_var "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "$base_url"
   set_env_var "$opencode_env" OPENCODE_ENABLE_EXA "1"
   set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
   ensure_opencode_env_wrapper
+  echo "Run /connect omniroute in OpenCode to store the OmniRoute API key."
 fi
 
 write_flags "$sync_codex" "$sync_claude" "$sync_opencode" "$install_shell_commands"

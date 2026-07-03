@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@opencode-ai/plugin": "1.17.11",
     "@prevalentware/opencode-goal-plugin": "^0.1.18",
-    "@opencode-ai/plugin": "1.17.11"
+    "@tarquinen/opencode-dcp": "^3.1.14",
+    "opencode-omniroute-auth": "^1.2.2"
   }
 }

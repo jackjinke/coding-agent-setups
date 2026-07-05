@@ -7,8 +7,8 @@
     "omniroute": {
       "options": {
         "baseURL": "{env:OPENCODE_OMNIROUTE_BASE_URL}",
-        "apiMode": "responses",
-        "refreshOnList": true
+        "refreshOnList": true,
+        "apiMode": "responses"
       }
     }
   },

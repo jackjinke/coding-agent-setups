@@ -1,26 +1,24 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "custom",
+  "preset": "omniroute",
   "presets": {
-    "custom": {
+    "omniroute": {
       "orchestrator": {
-        "model": "omniroute/auto/gpt-5.5",
-        "variant": "high",
+        "model": "omniroute/omo/orchestrator",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "oracle": {
-        "model": "omniroute/auto/gpt-5.5",
-        "variant": "xhigh",
+        "model": "omniroute/omo/oracle",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "librarian": {
-        "model": "omniroute/opencode-go/minimax-m3",
+        "model": "omniroute/omo/librarian",
         "skills": [
           "*"
         ],
@@ -29,37 +27,33 @@
         ]
       },
       "explorer": {
-        "model": "omniroute/opencode-go/deepseek-v4-pro",
-        "variant": "max",
+        "model": "omniroute/omo/explorer",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "omniroute/auto/gpt-5.5",
-        "variant": "xhigh",
+        "model": "omniroute/omo/designer",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "fixer": {
-        "model": "omniroute/auto/gpt-5.5",
-        "variant": "high",
+        "model": "omniroute/omo/fixer",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "observer": {
-        "model": "omniroute/opencode-go/minimax-m3",
+        "model": "omniroute/omo/observer",
         "skills": [
           "*"
         ],
         "mcps": []
       },
       "council": {
-        "model": "omniroute/auto/gpt-5.5",
-        "variant": "high",
+        "model": "omniroute/omo/council-dispatcher",
         "skills": [
           "*"
         ],
@@ -182,17 +176,14 @@
   "council": {
     "presets": {
       "default": {
-        "beta": {
-          "model": "omniroute/auto/gpt-5.5",
-          "variant": "xhigh"
+        "alpha": {
+	  "model": "omniroute/omo/council-alpha"
+	},
+	"beta": {
+          "model": "omniroute/omo/council-beta"
         },
         "gamma": {
-          "model": "omniroute/opencode-go/glm-5.2",
-          "variant": "max"
-        },
-        "delta": {
-          "model": "omniroute/opencode-go/deepseek-v4-pro",
-          "variant": "max"
+          "model": "omniroute/omo/council-gamma"
         }
       }
     }

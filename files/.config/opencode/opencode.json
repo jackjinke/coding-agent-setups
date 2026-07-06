@@ -44,5 +44,6 @@
       "disable": true
     }
   },
-  "lsp": true
+  "lsp": true,
+  "share": "disabled"
 }

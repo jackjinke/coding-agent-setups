@@ -14,8 +14,8 @@
     "summaryBuffer": true,
     "minContextLimit": "40%",
     "maxContextLimit": "70%",
-    "nudgeFrequency": 10,
-    "iterationNudgeThreshold": 25,
+    "nudgeFrequency": 5,
+    "iterationNudgeThreshold": 15,
     "nudgeForce": "soft",
     "protectUserMessages": false
   },

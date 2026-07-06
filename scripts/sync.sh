@@ -3,11 +3,12 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/sync.sh [sync|publish] [--yes]
+Usage: scripts/sync.sh [sync|publish] [--yes] [--config-only]
 
-  sync     Copy enabled setup files from this repo into $HOME.
-  publish  Refresh this repo from enabled whitelisted files in $HOME.
-  --yes    Skip the confirmation prompt.
+  sync           Copy enabled setup files from this repo into $HOME.
+  publish        Refresh this repo from enabled whitelisted files in $HOME.
+  --yes          Skip the confirmation prompt.
+  --config-only  Sync checked-in config files only; skip installers/dependencies.
 
 Run scripts/setup.sh first. Sync reads the local selection file written by setup.
 USAGE
@@ -15,6 +16,7 @@ USAGE
 
 mode=""
 assume_yes=0
+config_only=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     sync)
@@ -34,6 +36,9 @@ while [[ $# -gt 0 ]]; do
     -y|--yes)
       assume_yes=1
       ;;
+    --config-only)
+      config_only=1
+      ;;
     -h|--help)
       usage
       exit 0
@@ -51,6 +56,10 @@ PATH="$home_dir/.local/bin:$home_dir/.bun/bin:$PATH"
 export PATH
 
 if [[ -z "$mode" ]]; then
+  usage
+  exit 2
+fi
+if [[ "$config_only" == "1" && "$mode" != "sync" ]]; then
   usage
   exit 2
 fi
@@ -112,6 +121,11 @@ ensure_cmd() {
     while IFS= read -r package_name; do
       packages+=("$package_name")
     done < <(packages_for_command "$command_name")
+  fi
+
+  if [[ "${config_only:-0}" == "1" ]]; then
+    echo "Missing required command: $command_name" >&2
+    exit 1
   fi
 
   echo "Missing required command: $command_name; attempting to install ${packages[*]}."
@@ -182,11 +196,13 @@ if [[ "$mode" == "publish" ]]; then
   ensure_cmd git
 fi
 if [[ "$mode" == "sync" ]]; then
-  ensure_cmd git
-  ensure_cmd npx
-  ensure_cmd patch
-  require_sha1
   ensure_cmd tar
+  if [[ "$config_only" != "1" ]]; then
+    ensure_cmd git
+    ensure_cmd npx
+    ensure_cmd patch
+    require_sha1
+  fi
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -511,6 +527,9 @@ confirm_sync() {
       echo "Direction: repo files -> $home_dir"
       echo "Local-only files are preserved."
       echo "Touched folders are backed up before changes."
+      if [[ "$config_only" == "1" ]]; then
+        echo "Config-only: skipping upstream installers, dependency installs, and Moshi setup."
+      fi
       ;;
     publish)
       echo "Direction: $home_dir -> repo files"
@@ -822,15 +841,15 @@ install_uipro() {
 
   if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
     echo "Installing UI UX Pro Max for Codex"
-    npx ui-ux-pro-max-cli@latest init --ai codex --global --force
+    npx -y ui-ux-pro-max-cli@latest init --ai codex --global --force
   fi
   if agent_enabled CLAUDE && csv_contains "$allowed_agents" claude-code; then
     echo "Installing UI UX Pro Max for Claude Code"
-    npx ui-ux-pro-max-cli@latest init --ai claude --global --force
+    npx -y ui-ux-pro-max-cli@latest init --ai claude --global --force
   fi
   if agent_enabled OPENCODE && csv_contains "$allowed_agents" opencode; then
     echo "Installing UI UX Pro Max for OpenCode"
-    npx ui-ux-pro-max-cli@latest init --ai opencode --global --force
+    npx -y ui-ux-pro-max-cli@latest init --ai opencode --global --force
   fi
 }
 
@@ -843,7 +862,8 @@ install_opencode_ohmy() {
   bunx oh-my-opencode-slim@latest install \
     --no-tui \
     --skills=yes \
-    --companion=no
+    --companion=no \
+    --background-subagents=no
 }
 
 install_opencode_caveman() {
@@ -1173,11 +1193,13 @@ sync_to_home() {
   local moshi_targets=()
 
   create_sync_backups
-  if shell_commands_enabled; then
-    install_coding_agent_shell_commands "$repo_root"
-  fi
-  if agent_enabled OPENCODE; then
-    ensure_opencode_env_wrapper
+  if [[ "$config_only" != "1" ]]; then
+    if shell_commands_enabled; then
+      install_coding_agent_shell_commands "$repo_root"
+    fi
+    if agent_enabled OPENCODE; then
+      ensure_opencode_env_wrapper
+    fi
   fi
 
   if agent_enabled CODEX; then
@@ -1190,8 +1212,10 @@ sync_to_home() {
     moshi_targets+=(opencode)
   fi
 
-  install_managed_skills
-  install_managed_sources
+  if [[ "$config_only" != "1" ]]; then
+    install_managed_skills
+    install_managed_sources
+  fi
   if [[ "${#shared_paths[@]}" -gt 0 ]]; then
     copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
   fi
@@ -1209,11 +1233,15 @@ sync_to_home() {
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
-    install_opencode_package_dependencies
+    if [[ "$config_only" != "1" ]]; then
+      install_opencode_package_dependencies
+    fi
     replace_omo_script
-    repair_missing_opencode_file_plugins
+    if [[ "$config_only" != "1" ]]; then
+      repair_missing_opencode_file_plugins
+    fi
   fi
-  if [[ "${#moshi_targets[@]}" -gt 0 ]]; then
+  if [[ "$config_only" != "1" && "${#moshi_targets[@]}" -gt 0 ]]; then
     ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents

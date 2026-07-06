@@ -44,6 +44,12 @@ Sync the latest enabled setup to this machine:
 coding-agent-setups sync
 ```
 
+Sync only checked-in config files, skipping dependency and upstream installers:
+
+```bash
+coding-agent-setups sync --config-only
+```
+
 Publish this machine's enabled setup into the repo:
 
 ```bash

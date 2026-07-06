@@ -16,7 +16,8 @@ Usage: scripts/coding-agent-setups.sh <command> [args]
 
 Commands:
   setup             Run interactive first-time setup.
-  sync              Apply enabled setup files to this machine.
+  sync [--config-only]
+                    Apply enabled setup files to this machine.
   publish           Refresh this repo from this machine.
   restore           Restore a previous sync backup.
 

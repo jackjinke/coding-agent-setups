@@ -12,7 +12,7 @@
     "mode": "range",
     "permission": "allow",
     "summaryBuffer": true,
-    "minContextLimit": "40%",
+    "minContextLimit": "30%",
     "maxContextLimit": "70%",
     "nudgeFrequency": 5,
     "iterationNudgeThreshold": 15,

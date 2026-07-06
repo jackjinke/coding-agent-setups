@@ -269,6 +269,7 @@ opencode_paths=(
   ".config/opencode/opencode.json"
   ".config/opencode/package-lock.json"
   ".config/opencode/package.json"
+  ".config/opencode/plugins/env-protection.ts"
   ".config/opencode/plugins/moshi-hooks.ts"
   ".config/opencode/tui.json"
 )

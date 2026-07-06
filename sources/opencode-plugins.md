@@ -59,4 +59,9 @@ Tracked config:
 daemon. It does not rerun `moshi-hook install --target ...`; synced config is
 the source of truth.
 
-There are currently no other vendored local OpenCode plugins in this repo.
+## Env Protection
+
+Env protection is tracked by this repo as
+`files/.config/opencode/plugins/env-protection.ts`. OpenCode auto-discovers local
+plugins in `~/.config/opencode/plugins/`, so it does not need a `plugin` entry in
+`opencode.json`.

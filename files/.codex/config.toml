@@ -3,8 +3,12 @@ sandbox_mode = "workspace-write"
 approvals_reviewer = "auto_review"
 plan_mode_reasoning_effort = "xhigh"
 model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model_provider = "omniroute"
+model_reasoning_effort = "high"
 service_tier = "default"
+
+notify = ["/Users/jinke/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+personality = "pragmatic"
 
 [sandbox_workspace_write]
 writable_roots = []
@@ -12,14 +16,40 @@ network_access = true
 exclude_tmpdir_env_var = false
 exclude_slash_tmp = false
 
+[model_providers.omniroute]
+name = "OmniRoute"
+base_url = "http://or.moguyun.link:20128/v1"
+env_key = "OMNIROUTE_API_KEY"
+wire_api = "responses"
+
 [features]
 apps = false
 hooks = true
 multi_agent = true
+js_repl = false
 
 [mcp_servers.exa]
 enabled = true
 url = "https://mcp.exa.ai/mcp"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/jinke/.codex"
+CODEX_HOME = "/Users/jinke/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "97669f77b3ca7114a2df05d55646416ea34b28100c07213ef9f643803449ef2f"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.623.141536"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
 status_line = ["model-with-reasoning", "project-name", "context-remaining", "five-hour-limit", "weekly-limit", "approval-mode"]
@@ -31,3 +61,20 @@ status_line_use_colors = true
 [notice]
 hide_rate_limit_model_nudge = true
 
+[desktop]
+followUpQueueMode = "queue"
+conversationDetailMode = "STEPS_COMMANDS"
+
+[desktop.open-in-target-preferences]
+global = "systemDefault"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-07-07T07:58:23Z"
+source_type = "local"
+source = "/Users/jinke/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true

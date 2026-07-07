@@ -177,8 +177,10 @@ if [[ -s "$opencode_log" ]]; then
   fail "omo ran opencode in the current tmux pane instead of creating a child session"
 fi
 
+assert_log_contains "has-session -t =child-1" "$tmux_log"
 assert_log_contains "new-session" "$tmux_log"
-assert_log_contains "-s child" "$tmux_log"
+assert_log_contains "-s child-1" "$tmux_log"
+assert_log_contains "-n child-1" "$tmux_log"
 assert_log_contains "switch-client" "$tmux_log"
 
 : > "$tmux_log"
@@ -189,7 +191,7 @@ assert_log_contains "switch-client" "$tmux_log"
   PATH="$tmp_dir/bin:$PATH" \
     TMUX=/tmp/fake-tmux-client \
     FAKE_TMUX_CURRENT_SESSION=parent \
-    FAKE_TMUX_EXISTING_SESSIONS=child \
+    FAKE_TMUX_EXISTING_SESSIONS=child-1 \
     FAKE_TMUX_LOG="$tmux_log" \
     FAKE_OPENCODE_LOG="$opencode_log" \
     bash "$omo_script" status
@@ -198,12 +200,14 @@ assert_log_contains "switch-client" "$tmux_log"
 if [[ -s "$opencode_log" ]]; then
   printf 'opencode log:\n' >&2
   sed 's/^/  /' "$opencode_log" >&2
-  fail "omo ran opencode in the current tmux pane instead of creating a window in the child session"
+  fail "omo ran opencode in the current tmux pane instead of creating the next child session"
 fi
 
-assert_log_contains "new-window" "$tmux_log"
-assert_log_contains "-t =child:" "$tmux_log"
-assert_log_contains "select-window" "$tmux_log"
+assert_log_contains "has-session -t =child-1" "$tmux_log"
+assert_log_contains "has-session -t =child-2" "$tmux_log"
+assert_log_contains "new-session" "$tmux_log"
+assert_log_contains "-s child-2" "$tmux_log"
+assert_log_contains "-n child-2" "$tmux_log"
 assert_log_contains "switch-client" "$tmux_log"
 
 : > "$tmux_log"
@@ -214,8 +218,8 @@ assert_log_contains "switch-client" "$tmux_log"
   PATH="$tmp_dir/bin:$PATH" \
     TMUX=/tmp/fake-tmux-client \
     OMO_TMUX_MANAGED=1 \
-    FAKE_TMUX_CURRENT_SESSION=child \
-    FAKE_TMUX_EXISTING_SESSIONS=child \
+    FAKE_TMUX_CURRENT_SESSION=child-1 \
+    FAKE_TMUX_EXISTING_SESSIONS=child-1 \
     FAKE_TMUX_LOG="$tmux_log" \
     FAKE_OPENCODE_LOG="$opencode_log" \
     bash "$omo_script" status
@@ -224,4 +228,4 @@ assert_log_contains "switch-client" "$tmux_log"
 assert_log_empty "$tmux_log"
 assert_log_contains "opencode --port" "$opencode_log"
 
-printf 'ok - omo routes tmux launches by current directory name\n'
+printf 'ok - omo creates numbered tmux sessions by current directory name\n'

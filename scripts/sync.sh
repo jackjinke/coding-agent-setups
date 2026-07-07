@@ -489,15 +489,9 @@ copy_group() {
   done
 }
 
-replace_omo_script() {
+ensure_omo_script_executable() {
   local dst="$home_dir/.local/bin/omo"
 
-  if ! agent_enabled OPENCODE; then
-    return 0
-  fi
-
-  echo "Replacing omo script"
-  copy_path "$files_dir" "$home_dir" ".local/bin/omo" 1
   if [[ -f "$dst" ]]; then
     chmod 755 "$dst"
   fi
@@ -1237,7 +1231,7 @@ sync_to_home() {
     if [[ "$config_only" != "1" ]]; then
       install_opencode_package_dependencies
     fi
-    replace_omo_script
+    ensure_omo_script_executable
     if [[ "$config_only" != "1" ]]; then
       repair_missing_opencode_file_plugins
     fi

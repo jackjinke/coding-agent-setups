@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-session_name="$(basename "$PWD")"
-session_target="=${session_name}"
+session_base="$(basename "$PWD")"
+
+next_session_name() {
+  local index=1
+  local name
+
+  while :; do
+    name="${session_base}-${index}"
+    if ! tmux has-session -t "=${name}" 2>/dev/null; then
+      printf '%s\n' "$name"
+      return
+    fi
+    ((index++))
+  done
+}
 
 if [[ -z "${TMUX:-}" || "${OMO_TMUX_MANAGED:-}" != "1" ]]; then
   if ! command -v tmux >/dev/null 2>&1; then
@@ -10,21 +23,15 @@ if [[ -z "${TMUX:-}" || "${OMO_TMUX_MANAGED:-}" != "1" ]]; then
     exit 127
   fi
 
-  if tmux has-session -t "$session_target" 2>/dev/null; then
-    window_id="$(tmux new-window -d -P -F '#{window_id}' -t "${session_target}:" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@")"
-    tmux select-window -t "$window_id"
-    if [[ -n "${TMUX:-}" ]]; then
-      exec tmux switch-client -t "$session_target"
-    fi
-    exec tmux attach-session -t "$session_target"
-  fi
+  session_name="$(next_session_name)"
+  session_target="=${session_name}"
 
   if [[ -n "${TMUX:-}" ]]; then
-    tmux new-session -d -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
+    tmux new-session -d -s "$session_name" -n "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
     exec tmux switch-client -t "$session_target"
   fi
 
-  exec tmux new-session -s "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
+  exec tmux new-session -s "$session_name" -n "$session_name" -c "$PWD" -- env OMO_TMUX_MANAGED=1 "$0" "$@"
 fi
 
 unset OMO_TMUX_MANAGED

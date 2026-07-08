@@ -4,4 +4,3 @@
 # patch and build use "-" when not needed. Patches are applied after copying
 # upstream into target. Build commands run from inside target.
 .config/opencode/plugins/opencode-pty	https://github.com/shekohex/opencode-pty.git	latest	.	-	bun install && bun run build:prod
-.config/opencode/plugins/opencode-goal-plugin	https://github.com/jackjinke/opencode-goal-plugin.git	latest	.	-	bun install && bun run build

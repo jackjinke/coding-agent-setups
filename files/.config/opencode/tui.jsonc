@@ -1,0 +1,6 @@
+{
+  "plugin": [
+    "./plugins/opencode-goal-plugin/src/tui.tsx",
+    "oh-my-opencode-slim"
+  ]
+}

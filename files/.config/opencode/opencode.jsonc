@@ -1,0 +1,49 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "tools": {
+    "websearch": true
+  },
+  "provider": {
+    "omniroute": {
+      "options": {
+        "baseURL": "{env:OPENCODE_OMNIROUTE_BASE_URL}",
+        "refreshOnList": true,
+        "apiMode": "responses"
+      }
+    }
+  },
+  "plugin": [
+    "opencode-omniroute-auth",
+    "@tarquinen/opencode-dcp",
+    "./plugins/caveman/plugin.js",
+    "./plugins/opencode-pty/dist/index.js",
+    [
+      "./plugins/opencode-goal-plugin/dist/server.js",
+      {
+        "max_auto_turns": 20,
+        "max_goal_duration_seconds": 43200,
+        "no_progress_token_threshold": 10,
+        "max_no_progress_turns": 4,
+        "default_token_budget": 100000000
+      }
+    ],
+    "oh-my-opencode-slim"
+  ],
+  "permission": {
+    "external_directory": {
+      "*": "ask",
+      "/tmp": "allow",
+      "/tmp/**": "allow"
+    }
+  },
+  "agent": {
+    "general": {
+      "disable": true
+    },
+    "explore": {
+      "disable": true
+    }
+  },
+  "lsp": true,
+  "share": "disabled"
+}

@@ -265,13 +265,13 @@ opencode_paths=(
   ".config/opencode/agents"
   ".config/opencode/bun.lock"
   ".config/opencode/dcp.jsonc"
-  ".config/opencode/oh-my-opencode-slim.json"
-  ".config/opencode/opencode.json"
+  ".config/opencode/oh-my-opencode-slim.jsonc"
+  ".config/opencode/opencode.jsonc"
   ".config/opencode/package-lock.json"
   ".config/opencode/package.json"
   ".config/opencode/plugins/env-protection.ts"
   ".config/opencode/plugins/moshi-hooks.ts"
-  ".config/opencode/tui.json"
+  ".config/opencode/tui.jsonc"
 )
 
 rsync_excludes=(

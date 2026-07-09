@@ -17,9 +17,45 @@ next_session_name() {
   done
 }
 
-if [[ -z "${TMUX:-}" ]]; then
+herdr_available() {
+  command -v herdr >/dev/null 2>&1 || return 1
+  # Socket API commands need a running server; use this as the reachability probe.
+  herdr workspace list >/dev/null 2>&1
+}
+
+launch_in_herdr() {
+  local create_json root_pane launch_cmd arg
+
+  create_json="$(herdr workspace create --cwd "$PWD" --label "$session_base" --focus 2>/dev/null)" || return 1
+
+  if command -v jq >/dev/null 2>&1; then
+    root_pane="$(printf '%s' "$create_json" | jq -r '.result.root_pane.pane_id // empty')"
+  else
+    root_pane="$(printf '%s' "$create_json" | sed -n 's/.*"root_pane":{[^}]*"pane_id":"\([^"]*\)".*/\1/p')"
+  fi
+
+  [[ -n "$root_pane" ]] || return 1
+
+  # Re-exec omo in the new space's root pane; HERDR_ENV=1 there routes it to opencode.
+  launch_cmd="exec"
+  for arg in "$0" "$@"; do
+    launch_cmd+=" $(printf '%q' "$arg")"
+  done
+
+  herdr pane run "$root_pane" "$launch_cmd"
+}
+
+if [[ -z "${HERDR_ENV:-}" && -z "${TMUX:-}" ]]; then
+  # Not inside a managed session yet: open one. Prefer herdr, fall back to tmux.
+  if herdr_available; then
+    if launch_in_herdr "$@"; then
+      exit 0
+    fi
+    printf 'omo: failed to open a herdr space; falling back to tmux.\n' >&2
+  fi
+
   if ! command -v tmux >/dev/null 2>&1; then
-    printf 'omo must start in tmux, but tmux was not found on PATH.\n' >&2
+    printf 'omo must start in herdr or tmux, but neither was available.\n' >&2
     exit 127
   fi
 

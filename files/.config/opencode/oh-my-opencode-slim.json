@@ -7,19 +7,24 @@
         "model": "omniroute/omo/orchestrator",
         "skills": [
           "*"
-        ]
+        ],
+        "mcps": []
       },
       "oracle": {
         "model": "omniroute/omo/oracle",
         "skills": [
           "*"
-        ]
+        ],
+        "mcps": []
       },
       "librarian": {
         "model": "omniroute/omo/librarian",
         "skills": [
           "*"
-	]
+        ],
+        "mcps": [
+          "gh_grep"
+        ]
       },
       "explorer": {
         "model": "omniroute/omo/explorer",
@@ -30,25 +35,29 @@
         "model": "omniroute/omo/designer",
         "skills": [
           "*"
-        ]
+        ],
+        "mcps": []
       },
       "fixer": {
         "model": "omniroute/omo/fixer",
         "skills": [
           "*"
-        ]
+        ],
+        "mcps": []
       },
       "observer": {
         "model": "omniroute/omo/observer",
         "skills": [
           "*"
-        ]
+        ],
+        "mcps": []
       },
       "council": {
         "model": "omniroute/omo/council-dispatcher",
         "skills": [
           "*"
         ],
+        "mcps": []
       }
     },
     "openai": {
@@ -58,6 +67,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "oracle": {
         "model": "openai/gpt-5.5",
@@ -65,6 +75,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "librarian": {
         "model": "openai/gpt-5.4-mini",
@@ -72,6 +83,10 @@
         "skills": [
           "*"
         ],
+        "mcps": [
+          "websearch",
+          "gh_grep"
+        ]
       },
       "explorer": {
         "model": "openai/gpt-5.4-mini",
@@ -85,6 +100,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "fixer": {
         "model": "openai/gpt-5.5",
@@ -92,6 +108,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       }
     },
     "opencode-go": {
@@ -100,6 +117,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "oracle": {
         "model": "omniroute/opencode-go/glm-5.2",
@@ -107,6 +125,7 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "council": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
@@ -114,35 +133,43 @@
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "librarian": {
         "model": "omniroute/opencode-go/minimax-m3",
         "skills": [
           "*"
         ],
+        "mcps": [
+          "gh_grep"
+        ]
       },
       "explorer": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "max",
         "skills": [],
+        "mcps": []
       },
       "designer": {
         "model": "omniroute/opencode-go/kimi-k2.7-code",
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "fixer": {
         "model": "omniroute/opencode-go/glm-5.2",
         "skills": [
           "*"
         ],
+        "mcps": []
       },
       "observer": {
         "model": "omniroute/opencode-go/kimi-k2.6",
         "skills": [
           "*"
         ],
+        "mcps": []
       }
     }
   },
@@ -159,10 +186,17 @@
           "model": "omniroute/omo/council-gamma"
         }
       }
-    }
+    },
+    "timeout": 600000
   },
   "companion": {
-    "enabled": false
+    "enabled": false,
+    "position": "bottom-right",
+    "size": "medium",
+    "gifPack": "default",
+    "loopStyle": "classic",
+    "speed": 1,
+    "debug": false
   },
   "multiplexer": {
     "type": "auto",
@@ -171,7 +205,6 @@
   },
   "disabled_mcps": [
     "websearch",
-    "context7",
-    "gh_grep"
+    "context7"
   ]
 }

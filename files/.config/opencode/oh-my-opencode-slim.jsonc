@@ -45,7 +45,7 @@
         ]
       },
       "council": {
-        "model": "omniroute/omos/council-dispatcher",
+        "model": "omniroute/omos/council-lead",
         "skills": [
           "*"
         ]

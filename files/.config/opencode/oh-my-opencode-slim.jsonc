@@ -170,8 +170,6 @@
     "main_pane_size": 60
   },
   "disabled_mcps": [
-    "websearch",
-    "context7",
-    "gh_grep"
+    "websearch"
   ]
 }

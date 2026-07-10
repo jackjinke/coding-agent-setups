@@ -37,7 +37,6 @@ These are local plugin paths in OpenCode config, but their source of truth is an
 upstream repo. `scripts/sync.sh sync` clones or fetches the upstream latest
 version and installs it locally.
 
-- `opencode-pty`: `https://github.com/shekohex/opencode-pty.git`
 - `caveman`: `https://github.com/JuliusBrussee/caveman`
 
 Caveman is installed with its upstream OpenCode installer:

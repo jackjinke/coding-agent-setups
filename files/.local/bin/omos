@@ -49,7 +49,7 @@ if [[ -z "${HERDR_ENV:-}" && -z "${TMUX:-}" ]]; then
   # Not inside a managed session yet: open one. Prefer herdr, fall back to tmux.
   if herdr_available; then
     if launch_in_herdr "$@"; then
-      exit 0
+      exec herdr
     fi
     printf 'omos: failed to open a herdr space; falling back to tmux.\n' >&2
   fi

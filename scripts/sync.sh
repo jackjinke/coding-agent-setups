@@ -191,7 +191,6 @@ sha1_text() {
 }
 
 ensure_cmd rsync
-ensure_cmd jq
 if [[ "$mode" == "publish" ]]; then
   ensure_cmd git
 fi
@@ -260,10 +259,9 @@ claude_paths=(
 )
 
 opencode_paths=(
-  ".local/bin/omo"
+  ".local/bin/omos"
   ".config/opencode/AGENTS.md"
   ".config/opencode/agents"
-  ".config/opencode/bun.lock"
   ".config/opencode/dcp.jsonc"
   ".config/opencode/oh-my-opencode-slim.jsonc"
   ".config/opencode/opencode.jsonc"
@@ -489,8 +487,8 @@ copy_group() {
   done
 }
 
-ensure_omo_script_executable() {
-  local dst="$home_dir/.local/bin/omo"
+ensure_omos_script_executable() {
+  local dst="$home_dir/.local/bin/omos"
 
   if [[ -f "$dst" ]]; then
     chmod 755 "$dst"
@@ -544,27 +542,6 @@ confirm_sync() {
       exit 1
       ;;
   esac
-}
-
-sanitize_opencode_config() {
-  local path="$files_dir/.config/opencode/opencode.json"
-  local tmp
-  if [[ ! -f "$path" ]]; then
-    return 0
-  fi
-  tmp="$(make_temp_file)"
-  jq '
-    del(.provider.litellm) |
-    if .provider.omniroute.options? then
-      .provider.omniroute.options.baseURL = "{env:OPENCODE_OMNIROUTE_BASE_URL}" |
-      .provider.omniroute.options.apiMode = "responses" |
-      .provider.omniroute.options.refreshOnList = true |
-      del(.provider.omniroute.options.apiKey)
-    else
-      .
-    end
-  ' "$path" > "$tmp"
-  mv "$tmp" "$path"
 }
 
 sanitize_codex_config() {
@@ -694,7 +671,7 @@ source_target_enabled() {
       agent_enabled OPENCODE
       return
       ;;
-    .local/bin/omo)
+    .local/bin/omos)
       agent_enabled OPENCODE
       return
       ;;
@@ -885,66 +862,19 @@ install_opencode_package_dependencies() {
   npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
-resolve_opencode_plugin_ref() {
-  local ref="$1"
-
-  case "$ref" in
-    /*) printf '%s' "$ref" ;;
-    ./*) printf '%s/%s' "$config_home/opencode" "${ref#./}" ;;
-    ../*) printf '%s/%s' "$config_home/opencode" "$ref" ;;
-    *) return 1 ;;
-  esac
-}
-
-remove_opencode_plugin_ref() {
-  local config="$1"
-  local ref="$2"
-  local tmp
-
-  tmp="$(make_temp_file)"
-  jq --arg ref "$ref" '
-    if (.plugin? | type) == "array" then
-      .plugin |= map(select(. != $ref))
-    else
-      .
-    end
-  ' "$config" > "$tmp"
-  mv "$tmp" "$config"
-}
-
-repair_missing_opencode_file_plugins() {
-  local config="$config_home/opencode/opencode.json"
-  local refs_file ref plugin_path
-
-  if ! agent_enabled OPENCODE || [[ ! -f "$config" ]]; then
+ensure_herdr_opencode_integration() {
+  if ! agent_enabled OPENCODE; then
+    return 0
+  fi
+  if ! command -v herdr >/dev/null 2>&1; then
+    echo "Herdr command not found; skipping OpenCode integration."
     return 0
   fi
 
-  refs_file="$(make_temp_file)"
-  jq -r '
-    .plugin[]?
-    | select(type == "string")
-    | select(startswith("./") or startswith("../") or startswith("/"))
-  ' "$config" > "$refs_file"
-
-  while IFS= read -r ref; do
-    plugin_path="$(resolve_opencode_plugin_ref "$ref" || true)"
-    [[ -n "$plugin_path" ]] || continue
-
-    if [[ "$ref" == "./plugins/caveman/plugin.js" && ! -e "$plugin_path" && "${CODING_AGENT_SETUPS_SKIP_MANAGED_SOURCES:-0}" != "1" ]]; then
-      echo "Caveman plugin file is missing; reinstalling Caveman for OpenCode."
-      if install_opencode_caveman && [[ -e "$plugin_path" ]]; then
-        continue
-      fi
-    fi
-
-    if [[ ! -e "$plugin_path" ]]; then
-      echo "Removing missing OpenCode plugin reference: $ref" >&2
-      remove_opencode_plugin_ref "$config" "$ref"
-    fi
-  done < "$refs_file"
-
-  rm -f "$refs_file"
+  echo "Installing Herdr OpenCode integration"
+  if ! herdr integration install opencode; then
+    echo "Herdr OpenCode integration install failed; continuing." >&2
+  fi
 }
 
 install_managed_skills() {
@@ -1176,7 +1106,6 @@ publish_from_home() {
       copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
     fi
   fi
-  sanitize_opencode_config
   sanitize_codex_config
   prune_non_vendored_targets_from_repo
   cleanup_public_tree
@@ -1228,19 +1157,19 @@ sync_to_home() {
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
+  fi
+  remove_retired_targets_from_home
+  if agent_enabled OPENCODE; then
     if [[ "$config_only" != "1" ]]; then
       install_opencode_package_dependencies
+      ensure_herdr_opencode_integration
     fi
-    ensure_omo_script_executable
-    if [[ "$config_only" != "1" ]]; then
-      repair_missing_opencode_file_plugins
-    fi
+    ensure_omos_script_executable
   fi
   if [[ "$config_only" != "1" && "${#moshi_targets[@]}" -gt 0 ]]; then
     ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents
-  remove_retired_targets_from_home
   echo "Synced enabled repo files into $home_dir"
 }
 

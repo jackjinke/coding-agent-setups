@@ -36,7 +36,7 @@ launch_in_herdr() {
 
   [[ -n "$root_pane" ]] || return 1
 
-  # Re-exec omo in the new space's root pane; HERDR_ENV=1 there routes it to opencode.
+  # Re-exec omos in the new space's root pane; HERDR_ENV=1 there routes it to opencode.
   launch_cmd="exec"
   for arg in "$0" "$@"; do
     launch_cmd+=" $(printf '%q' "$arg")"
@@ -51,11 +51,11 @@ if [[ -z "${HERDR_ENV:-}" && -z "${TMUX:-}" ]]; then
     if launch_in_herdr "$@"; then
       exit 0
     fi
-    printf 'omo: failed to open a herdr space; falling back to tmux.\n' >&2
+    printf 'omos: failed to open a herdr space; falling back to tmux.\n' >&2
   fi
 
   if ! command -v tmux >/dev/null 2>&1; then
-    printf 'omo must start in herdr or tmux, but neither was available.\n' >&2
+    printf 'omos must start in herdr or tmux, but neither was available.\n' >&2
     exit 127
   fi
 
@@ -67,7 +67,7 @@ fi
 for arg in "$@"; do
   case "$arg" in
     --port|--port=*)
-      printf 'omo chooses a random high port; pass other opencode arguments only.\n' >&2
+      printf 'omos chooses a random high port; pass other opencode arguments only.\n' >&2
       exit 2
       ;;
   esac
@@ -88,4 +88,4 @@ else
 fi
 
 export OPENCODE_PORT="$port"
-exec opencode --port "$port" "$@"
+exec "$HOME/.opencode/bin/opencode" --port "$port" "$@"

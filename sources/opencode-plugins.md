@@ -2,7 +2,7 @@
 
 ## Follow OpenCode/NPM Latest
 
-These are declared in `opencode.json` or `package.json`, or installed by their
+These are declared in `opencode.jsonc` or `package.json`, or installed by their
 published installer. They should not be vendored in this repo:
 
 - `@tarquinen/opencode-dcp` through `package.json` semver; source:
@@ -20,6 +20,16 @@ bunx oh-my-opencode-slim@latest install --no-tui --skills=yes --companion=no --b
 ```
 
 Its bundled `worktrees` skill is kept by following the upstream installer.
+
+Herdr's generated OpenCode plugin is installed with:
+
+```bash
+herdr integration install opencode
+```
+
+The generated `~/.config/opencode/plugins/herdr-agent-state.js` is
+installer-managed and explicitly not vendored in this repo. OpenCode discovers
+it from the plugin directory without a config entry.
 
 ## Follow Upstream Git
 
@@ -64,4 +74,4 @@ the source of truth.
 Env protection is tracked by this repo as
 `files/.config/opencode/plugins/env-protection.ts`. OpenCode auto-discovers local
 plugins in `~/.config/opencode/plugins/`, so it does not need a `plugin` entry in
-`opencode.json`.
+`opencode.jsonc`.

@@ -1,3 +1,6 @@
 .agents/skills/bilibili-cli
 .agents/skills/xiaohongshu-cli
 .claude/skills/bilibili-cli
+.config/opencode/bun.lock
+.config/opencode/opencode.json
+.config/opencode/tui.json

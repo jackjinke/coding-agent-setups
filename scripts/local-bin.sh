@@ -114,7 +114,7 @@ ensure_opencode_env_wrapper() {
   startup_file="$(shell_startup_file "$shell_name" 2>/dev/null || true)"
   if [[ -z "$startup_file" ]]; then
     echo "Unsupported shell for automatic OpenCode env wrapper: ${shell_name:-unknown}" >&2
-    echo "OpenCode will still work through omo, or by exporting ~/.config/opencode/.env before running opencode." >&2
+    echo "OpenCode will still work through omos." >&2
     return 0
   fi
 
@@ -135,16 +135,7 @@ ensure_opencode_env_wrapper() {
 
 $marker
 function opencode
-    set -l env_file "\$HOME/.config/opencode/.env"
-    if set -q OPENCODE_ENV_FILE
-        set env_file \$OPENCODE_ENV_FILE
-    end
-
-    if test -f "\$env_file"
-        bash -c 'set -euo pipefail; set -a; source "\$1"; set +a; shift; exec "\$HOME/.opencode/bin/opencode" "\$@"' bash "\$env_file" \$argv
-    else
-        "\$HOME/.opencode/bin/opencode" \$argv
-    end
+    "\$HOME/.local/bin/omos" \$argv
 end
 EOF
       ;;
@@ -157,16 +148,7 @@ EOF
 
 $marker
 opencode() {
-  (
-    local env_file="\${OPENCODE_ENV_FILE:-\$HOME/.config/opencode/.env}"
-    if [[ -f "\$env_file" ]]; then
-      set -a
-      source "\$env_file"
-      set +a
-    fi
-
-    exec "\$HOME/.opencode/bin/opencode" "\$@"
-  )
+  "\$HOME/.local/bin/omos" "\$@"
 }
 EOF
       ;;
@@ -176,7 +158,7 @@ EOF
       ;;
   esac
 
-  echo "Updated $startup_file so opencode loads ~/.config/opencode/.env for new shells."
+  echo "Updated $startup_file so opencode launches omos for new shells."
 }
 
 install_coding_agent_local_bins() {

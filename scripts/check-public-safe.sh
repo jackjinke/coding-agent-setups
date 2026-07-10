@@ -10,15 +10,55 @@ make_temp_file() {
 }
 
 scan_output="$(make_temp_file)"
-trap 'rm -f "$scan_output"' EXIT
+scan_raw="$(make_temp_file)"
+trap 'rm -f "$scan_output" "$scan_raw"' EXIT
 
-if grep -rInE \
-  '(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9_]{20,}|refresh_token[[:space:]]*[:=][[:space:]]*["'\'']?[A-Za-z0-9._~+/=-]{20,}|access_token[[:space:]]*[:=][[:space:]]*["'\'']?[A-Za-z0-9._~+/=-]{20,}|client_secret[[:space:]]*[:=][[:space:]]*["'\'']?[A-Za-z0-9._~+/=-]{20,}|api[_-]?key[[:space:]]*[:=][[:space:]]*["'\'']?[A-Za-z0-9._~+/=-]{20,}|BEGIN [A-Z ]*PRIVATE KEY)' \
+run_grep_scan() {
+  local status=0
+
+  grep "$@" >"$scan_raw" || status=$?
+  case "$status" in
+    0|1) return "$status" ;;
+    *)
+      echo "Secret scanner failed (grep exited $status); aborting." >&2
+      exit "$status"
+      ;;
+  esac
+}
+
+if run_grep_scan -rIinE \
+  '(sk-[A-Za-z0-9_-]{20,}|github_pat_[A-Za-z0-9_]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN [A-Z ]*PRIVATE KEY)' \
   --exclude-dir=.git \
   --exclude='check-public-safe.sh' \
-  . >"$scan_output"; then
+  .; then
+  while IFS= read -r match; do
+    printf '%s\n' "$match" >>"$scan_output"
+  done <"$scan_raw"
+fi
+
+if run_grep_scan -rIinoE \
+  '(refresh[_-]?token|access[_-]?token|client[_-]?secret|api[_-]?key)["'\'']?[[:space:]]*[:=][[:space:]]*["'\'']?([A-Za-z0-9._~+/=-]{20,}|process\.env\.[A-Za-z_][A-Za-z0-9_]*|\{env:[A-Za-z_][A-Za-z0-9_]*\}|\$\{[A-Za-z_][A-Za-z0-9_]*\})["'\'']?' \
+  --exclude-dir=.git \
+  --exclude='check-public-safe.sh' \
+  .; then
+  safe_env_assignment='(refresh[_-]?token|access[_-]?token|client[_-]?secret|api[_-]?key)["'\'']?[[:space:]]*[:=][[:space:]]*["'\'']?(process\.env\.OPENCODE_OMNIROUTE_API_KEY|OPENCODE_OMNIROUTE_API_KEY|\{env:OPENCODE_OMNIROUTE_API_KEY\}|\$\{OPENCODE_OMNIROUTE_API_KEY\})["'\'']?$'
+  shopt -s nocasematch
+  while IFS= read -r match; do
+    # safe_env_assignment is $-anchored and start-unanchored, so it matches the
+    # trailing assignment even with grep's file:line: prefix on each -o match.
+    if [[ "$match" =~ $safe_env_assignment ]]; then
+      continue
+    fi
+    printf '%s\n' "$match" >>"$scan_output"
+  done <"$scan_raw"
+  shopt -u nocasematch
+fi
+
+if [[ -s "$scan_output" ]]; then
   echo "Secret-looking content found:" >&2
-  cat "$scan_output" >&2
+  while IFS= read -r match; do
+    printf '%s\n' "$match" >&2
+  done <"$scan_output"
   exit 1
 fi
 

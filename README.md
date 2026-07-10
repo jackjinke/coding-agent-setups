@@ -2,7 +2,7 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks Codex, Claude Code, OpenCode, selected wrappers like `omo`,
+This repo tracks Codex, Claude Code, OpenCode, selected wrappers like `omos`,
 and source manifests for upstream skills/plugins. It does not track OAuth files,
 API keys, histories, caches, logs, local databases, browser profiles, or other
 machine-specific runtime state. Hermes and Cursor are intentionally not synced.
@@ -83,8 +83,8 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
   `~/.coding-agent-setups/backups/` and keeps the latest three backups.
 - `publish` runs the secret check, lists changed files, and can commit/push.
 - API keys stay in local env files. Tracked config should reference env vars.
-- OpenCode setup installs an `opencode` shell wrapper that loads
-  `~/.config/opencode/.env` before launching the real binary.
+- OpenCode setup installs an `opencode` shell wrapper that launches `omos`,
+  which loads `~/.config/opencode/.env`, starts tmux, and chooses a random high port.
 - Moshi hook config is tracked for enabled agents; sync only ensures Moshi is
   installed, paired, and serving.
 

@@ -4,51 +4,51 @@
   "presets": {
     "omniroute": {
       "orchestrator": {
-        "model": "omniroute/omo/orchestrator",
+        "model": "omniroute/omos/orchestrator",
         "skills": [
           "*"
         ]
       },
       "oracle": {
-        "model": "omniroute/omo/oracle",
+        "model": "omniroute/omos/oracle",
         "skills": [
           "*"
         ]
       },
       "librarian": {
-        "model": "omniroute/omo/librarian",
+        "model": "omniroute/omos/librarian",
         "skills": [
           "*"
 	]
       },
       "explorer": {
-        "model": "omniroute/omo/explorer",
+        "model": "omniroute/omos/explorer",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "omniroute/omo/designer",
+        "model": "omniroute/omos/designer",
         "skills": [
           "*"
         ]
       },
       "fixer": {
-        "model": "omniroute/omo/fixer",
+        "model": "omniroute/omos/fixer",
         "skills": [
           "*"
         ]
       },
       "observer": {
-        "model": "omniroute/omo/observer",
+        "model": "omniroute/omos/observer",
         "skills": [
           "*"
         ]
       },
       "council": {
-        "model": "omniroute/omo/council-dispatcher",
+        "model": "omniroute/omos/council-dispatcher",
         "skills": [
           "*"
-        ],
+        ]
       }
     },
     "openai": {
@@ -57,21 +57,21 @@
         "variant": "medium",
         "skills": [
           "*"
-        ],
+        ]
       },
       "oracle": {
         "model": "openai/gpt-5.5",
         "variant": "high",
         "skills": [
           "*"
-        ],
+        ]
       },
       "librarian": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [
           "*"
-        ],
+        ]
       },
       "explorer": {
         "model": "openai/gpt-5.4-mini",
@@ -84,14 +84,14 @@
         "variant": "medium",
         "skills": [
           "*"
-        ],
+        ]
       },
       "fixer": {
         "model": "openai/gpt-5.5",
         "variant": "low",
         "skills": [
           "*"
-        ],
+        ]
       }
     },
     "opencode-go": {
@@ -99,50 +99,50 @@
         "model": "omniroute/opencode-go/glm-5.2",
         "skills": [
           "*"
-        ],
+        ]
       },
       "oracle": {
         "model": "omniroute/opencode-go/glm-5.2",
         "variant": "max",
         "skills": [
           "*"
-        ],
+        ]
       },
       "council": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "high",
         "skills": [
           "*"
-        ],
+        ]
       },
       "librarian": {
         "model": "omniroute/opencode-go/minimax-m3",
         "skills": [
           "*"
-        ],
+        ]
       },
       "explorer": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
         "variant": "max",
-        "skills": [],
+        "skills": []
       },
       "designer": {
         "model": "omniroute/opencode-go/kimi-k2.7-code",
         "skills": [
           "*"
-        ],
+        ]
       },
       "fixer": {
         "model": "omniroute/opencode-go/glm-5.2",
         "skills": [
           "*"
-        ],
+        ]
       },
       "observer": {
         "model": "omniroute/opencode-go/kimi-k2.6",
         "skills": [
           "*"
-        ],
+        ]
       }
     }
   },
@@ -150,13 +150,13 @@
     "presets": {
       "default": {
         "alpha": {
-	  "model": "omniroute/omo/council-alpha"
+	  "model": "omniroute/omos/council-alpha"
 	},
 	"beta": {
-          "model": "omniroute/omo/council-beta"
+          "model": "omniroute/omos/council-beta"
         },
         "gamma": {
-          "model": "omniroute/omo/council-gamma"
+          "model": "omniroute/omos/council-gamma"
         }
       }
     }

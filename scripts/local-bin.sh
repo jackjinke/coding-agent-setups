@@ -107,57 +107,27 @@ EOF
 }
 
 ensure_opencode_env_wrapper() {
-  local shell_name
-  local startup_file marker
+  local shell_name startup_file alias_line
 
   shell_name="$(detect_active_shell)"
-  startup_file="$(shell_startup_file "$shell_name" 2>/dev/null || true)"
-  if [[ -z "$startup_file" ]]; then
-    echo "Unsupported shell for automatic OpenCode env wrapper: ${shell_name:-unknown}" >&2
-    echo "OpenCode will still work through omos." >&2
-    return 0
-  fi
-
-  mkdir -p "$(dirname "$startup_file")"
-  touch "$startup_file"
-  marker="# coding-agent-setups OpenCode env wrapper"
-  if grep -Fq "$marker" "$startup_file"; then
-    return 0
-  fi
-
   case "$shell_name" in
-    fish)
-      if grep -Eq '^[[:space:]]*function[[:space:]]+opencode([[:space:]]|$)' "$startup_file"; then
-        echo "OpenCode shell function already exists in $startup_file; leaving it unchanged."
-        return 0
-      fi
-      cat >> "$startup_file" <<EOF
-
-$marker
-function opencode
-    "\$HOME/.local/bin/omos" \$argv
-end
-EOF
-      ;;
-    bash|zsh)
-      if grep -Eq '^[[:space:]]*(function[[:space:]]+)?opencode([[:space:]]*\(\))?[[:space:]]*\{' "$startup_file"; then
-        echo "OpenCode shell function already exists in $startup_file; leaving it unchanged."
-        return 0
-      fi
-      cat >> "$startup_file" <<EOF
-
-$marker
-opencode() {
-  "\$HOME/.local/bin/omos" "\$@"
-}
-EOF
-      ;;
+    bash|zsh) ;;
     *)
-      echo "Unsupported shell for automatic OpenCode env wrapper: ${shell_name:-unknown}" >&2
+      echo "Unsupported shell for automatic OpenCode alias: ${shell_name:-unknown}" >&2
       return 0
       ;;
   esac
 
+  startup_file="$(shell_startup_file "$shell_name")"
+  mkdir -p "$(dirname "$startup_file")"
+  touch "$startup_file"
+  alias_line="alias opencode='\$HOME/.local/bin/omos'"
+
+  if grep -Fxq "$alias_line" "$startup_file"; then
+    return 0
+  fi
+
+  printf '\n%s\n' "$alias_line" >> "$startup_file"
   echo "Updated $startup_file so opencode launches omos for new shells."
 }
 

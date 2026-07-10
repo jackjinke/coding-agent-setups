@@ -83,8 +83,9 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
   `~/.coding-agent-setups/backups/` and keeps the latest three backups.
 - `publish` runs the secret check, lists changed files, and can commit/push.
 - API keys stay in local env files. Tracked config should reference env vars.
-- OpenCode setup installs an `opencode` shell wrapper that launches `omos`,
-  which loads `~/.config/opencode/.env`, starts tmux, and chooses a random high port.
+- OpenCode setup aliases `opencode` to `omos` in Bash/Zsh. With no arguments,
+  `omos` starts OpenCode in Herdr on a random high port; arguments pass directly
+  to the real OpenCode CLI without port or multiplexer handling.
 - Moshi hook config is tracked for enabled agents; sync only ensures Moshi is
   installed, paired, and serving.
 

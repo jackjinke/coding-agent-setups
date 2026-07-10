@@ -1,91 +1,55 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-session_base="$(basename "$PWD")"
-
-next_session_name() {
-  local index=1
-  local name
-
-  while :; do
-    name="${session_base}-${index}"
-    if ! tmux has-session -t "=${name}" 2>/dev/null; then
-      printf '%s\n' "$name"
-      return
-    fi
-    ((index++))
-  done
-}
-
-herdr_available() {
-  command -v herdr >/dev/null 2>&1 || return 1
-  # Socket API commands need a running server; use this as the reachability probe.
-  herdr workspace list >/dev/null 2>&1
-}
-
-launch_in_herdr() {
-  local create_json root_pane launch_cmd arg
-
-  create_json="$(herdr workspace create --cwd "$PWD" --label "$session_base" --focus 2>/dev/null)" || return 1
-
-  if command -v jq >/dev/null 2>&1; then
-    root_pane="$(printf '%s' "$create_json" | jq -r '.result.root_pane.pane_id // empty')"
-  else
-    root_pane="$(printf '%s' "$create_json" | sed -n 's/.*"root_pane":{[^}]*"pane_id":"\([^"]*\)".*/\1/p')"
-  fi
-
-  [[ -n "$root_pane" ]] || return 1
-
-  # Re-exec omos in the new space's root pane; HERDR_ENV=1 there routes it to opencode.
-  launch_cmd="exec"
-  for arg in "$0" "$@"; do
-    launch_cmd+=" $(printf '%q' "$arg")"
-  done
-
-  herdr pane run "$root_pane" "$launch_cmd"
-}
-
-if [[ -z "${HERDR_ENV:-}" && -z "${TMUX:-}" ]]; then
-  # Not inside a managed session yet: open one. Prefer herdr, fall back to tmux.
-  if herdr_available; then
-    if launch_in_herdr "$@"; then
-      exec herdr
-    fi
-    printf 'omos: failed to open a herdr space; falling back to tmux.\n' >&2
-  fi
-
-  if ! command -v tmux >/dev/null 2>&1; then
-    printf 'omos must start in herdr or tmux, but neither was available.\n' >&2
-    exit 127
-  fi
-
-  session_name="$(next_session_name)"
-
-  exec tmux new-session -s "$session_name" -n "$session_name" -c "$PWD" -- "$0" "$@"
-fi
-
-for arg in "$@"; do
-  case "$arg" in
-    --port|--port=*)
-      printf 'omos chooses a random high port; pass other opencode arguments only.\n' >&2
-      exit 2
-      ;;
-  esac
-done
-
+real_opencode="$HOME/.opencode/bin/opencode"
 env_file="${OPENCODE_ENV_FILE:-$HOME/.config/opencode/.env}"
-if [[ -f "$env_file" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
+
+load_env() {
+  if [[ -f "$env_file" ]]; then
+    set -a
+    source "$env_file"
+    set +a
+  fi
+}
+
+random_port() {
+  if command -v shuf >/dev/null 2>&1; then
+    shuf -i 49152-65535 -n 1
+  else
+    printf '%d\n' "$((49152 + (((RANDOM << 15) | RANDOM) % 16384)))"
+  fi
+}
+
+if (($#)); then
+  load_env
+  exec "$real_opencode" "$@"
 fi
 
-if command -v shuf >/dev/null 2>&1; then
-  port="$(shuf -i 49152-65535 -n 1)"
+if [[ -n "${HERDR_ENV:-}" ]]; then
+  load_env
+  port="$(random_port)"
+  export OPENCODE_PORT="$port"
+  exec "$real_opencode" --port "$port"
+fi
+
+command -v herdr >/dev/null 2>&1 || {
+  printf 'omos requires herdr when launched outside Herdr.\n' >&2
+  exit 127
+}
+
+session_base="$(basename "$PWD")"
+create_json="$(herdr workspace create --cwd "$PWD" --label "$session_base" --focus)"
+if command -v jq >/dev/null 2>&1; then
+  root_pane="$(printf '%s' "$create_json" | jq -r '.result.root_pane.pane_id // empty')"
 else
-  port="$((49152 + (((RANDOM << 15) | RANDOM) % 16384)))"
+  root_pane="$(printf '%s' "$create_json" | sed -n 's/.*"root_pane":{[^}]*"pane_id":"\([^"]*\)".*/\1/p')"
 fi
 
-export OPENCODE_PORT="$port"
-exec "$HOME/.opencode/bin/opencode" --port "$port" "$@"
+if [[ -z "$root_pane" ]]; then
+  printf 'omos could not determine the new Herdr workspace pane.\n' >&2
+  exit 1
+fi
+
+launch_cmd="exec env HERDR_ENV=1 $(printf '%q' "$0")"
+herdr pane run "$root_pane" "$launch_cmd"
+exec herdr

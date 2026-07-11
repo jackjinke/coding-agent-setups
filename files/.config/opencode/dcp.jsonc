@@ -18,14 +18,5 @@
     "iterationNudgeThreshold": 15,
     "nudgeForce": "soft",
     "protectUserMessages": false
-  },
-  "strategies": {
-    "deduplication": {
-      "enabled": true
-    },
-    "purgeErrors": {
-      "enabled": true,
-      "turns": 5
-    }
   }
 }

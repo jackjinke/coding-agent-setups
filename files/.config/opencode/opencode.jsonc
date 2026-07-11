@@ -36,6 +36,20 @@
     }
   },
   "agent": {
+    "build": {
+      "permission": {
+        "task": "deny"
+      }
+    },
+    "plan": {
+      "permission": {
+        "task": {
+          "*": "deny",
+          "explorer": "allow",
+          "librarian": "allow"
+        }
+      }
+    },
     "general": {
       "disable": true
     },

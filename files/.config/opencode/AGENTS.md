@@ -15,3 +15,28 @@ Auto-Clarity: drop caveman for security warnings, irreversible actions, user con
 
 Boundaries: code/commits/PRs written normal.
 <!-- caveman-end -->
+
+<!-- code-rules-begin -->
+Scope: production code. Project AGENTS.md carries project facts (commands, structure, gotchas) + overrides on conflict. Ambiguous requirement -> ask or state assumption first.
+
+## Invariants — never violate
+- Report truth: failed, incomplete, skipped, not-run stated as such + reason. Success claim needs evidence: tests/build/run matching scope. Never success via silence, default, fallback, or stale result.
+- Go green by fixing code. Never weaken/delete/skip tests, loosen assertions, or suppress lint/type errors to pass.
+- No secrets in code, logs, commits. Destructive op (data delete, migration, force push) -> confirm + rollback path first.
+
+## Defaults — project may override
+- Match repo style, structure, existing helpers. Unrelated refactor: suggest, don't do. New dependency -> justify; prefer stdlib + existing deps.
+- Architecture stays sound: no hot-patch. Abstraction only for reuse, tests, replacement. Single-purpose units. Centralize types/states/enums.
+- Ship complete: no TODO, placeholder, fake data, demo hardcode.
+- Old logic replaced -> ask user: clean cut (delete old code/config/tests + migrate) vs backward compat (dual path for deploy/UX safety). Project rule or user answer decides; then no stale refs either way.
+- Fix root cause, not symptom. Symptom patch only if asked -> mark clearly. 2 failed attempts same approach -> stop, rethink, widen context.
+- Unit test logic (mock externals). API tests for APIs. E2E for critical flows. Test failure paths: missing dep, external down, empty/partial input. Assert side effects, not just end state. Small isolated first, full E2E last.
+- Validate external input at trust boundaries.
+
+## Taste — prefer
+- Names carry logic meaning, match project style. Bad: foo2, handleStuff, dataDefault.
+- Comments = why, not what.
+- Commit per milestone, task files only. No build output, cache, temp, local config.
+
+Rule misfires or never fires -> propose edit to this file.
+<!-- code-rules-end -->

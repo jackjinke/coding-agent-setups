@@ -4,8 +4,7 @@
       {
         "hooks": [
           {
-            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
-            "timeout": 300,
+            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]
@@ -15,7 +14,8 @@
       {
         "hooks": [
           {
-            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "command": "bash '/home/kjin/.codex/herdr-agent-state.sh' session",
+            "timeout": 10,
             "type": "command"
           }
         ]
@@ -23,8 +23,7 @@
       {
         "hooks": [
           {
-            "command": "bash '/home/kjin/.codex/herdr-agent-state.sh' session",
-            "timeout": 10,
+            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]
@@ -34,7 +33,7 @@
       {
         "hooks": [
           {
-            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]
@@ -44,7 +43,7 @@
       {
         "hooks": [
           {
-            "command": "\"$HOME/.local/bin/moshi-hook\" codex-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]

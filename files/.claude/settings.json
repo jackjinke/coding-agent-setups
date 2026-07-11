@@ -21,8 +21,7 @@
         "hooks": [
           {
             "async": false,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
-            "timeout": 300,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]
@@ -33,7 +32,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ],
@@ -43,7 +42,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ],
@@ -55,7 +54,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ],
@@ -65,7 +64,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ],
@@ -77,7 +76,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]
@@ -87,21 +86,21 @@
       {
         "hooks": [
           {
-            "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
             "command": "bash '/home/kjin/.claude/hooks/herdr-agent-state.sh' session",
             "timeout": 10,
             "type": "command"
           }
         ],
         "matcher": "*"
+      },
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
+            "type": "command"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -109,7 +108,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]
@@ -120,7 +119,7 @@
         "hooks": [
           {
             "async": true,
-            "command": "\"$HOME/.local/bin/moshi-hook\" claude-hook",
+            "command": "'/home/kjin/.local/bin/moshi-hook' claude-hook",
             "type": "command"
           }
         ]

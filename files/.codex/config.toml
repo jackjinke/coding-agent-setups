@@ -2,7 +2,7 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 approvals_reviewer = "auto_review"
 plan_mode_reasoning_effort = "xhigh"
-model = "gpt-5.5"
+model = "gpt-5.6-terra"
 model_provider = "omniroute"
 model_reasoning_effort = "high"
 service_tier = "default"
@@ -52,11 +52,12 @@ BROWSER_USE_CODEX_APP_VERSION = "26.623.141536"
 CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
-status_line = ["model-with-reasoning", "project-name", "context-remaining", "five-hour-limit", "weekly-limit", "approval-mode"]
+status_line = ["model-with-reasoning", "project-name", "context-remaining", "five-hour-limit", "weekly-limit", "approval-mode", "context-window-size"]
 status_line_use_colors = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+"gpt-5.6-sol" = 3
 
 [notice]
 hide_rate_limit_model_nudge = true
@@ -78,3 +79,4 @@ enabled = true
 
 [plugins."computer-use@openai-bundled"]
 enabled = true
+

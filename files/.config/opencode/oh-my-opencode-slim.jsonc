@@ -147,6 +147,7 @@
     }
   },
   "council": {
+    "timeout": 900000,
     "presets": {
       "default": {
         "alpha": {

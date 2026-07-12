@@ -26,7 +26,8 @@ Scope: production code. Project AGENTS.md carries project facts (commands, struc
 
 ## Defaults — project may override
 - Match repo style, structure, existing helpers. Unrelated refactor: suggest, don't do. New dependency -> justify; prefer stdlib + existing deps.
-- Architecture stays sound: no hot-patch. Abstraction only for reuse, tests, replacement. Single-purpose units. Centralize types/states/enums.
+- Architecture stays sound: no hot-patch. Single-purpose units, clean seams, types at boundaries. Centralize types/states/enums.
+- Build what task requires. Abstract at second use or for tests/replacement, not speculatively; well-factored concrete code makes later abstraction cheap. Extra features/options/flags -> propose, don't build.
 - Ship complete: no TODO, placeholder, fake data, demo hardcode.
 - Old logic replaced -> ask user: clean cut (delete old code/config/tests + migrate) vs backward compat (dual path for deploy/UX safety). Project rule or user answer decides; then no stale refs either way.
 - Fix root cause, not symptom. Symptom patch only if asked -> mark clearly. 2 failed attempts same approach -> stop, rethink, widen context.

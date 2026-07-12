@@ -1,8 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "tools": {
-    "websearch": true
-  },
   "provider": {
     "omniroute": {
       "options": {
@@ -19,11 +16,8 @@
     [
       "@prevalentware/opencode-goal-plugin",
       {
-        "max_auto_turns": 20,
-        "max_goal_duration_seconds": 43200,
-        "no_progress_token_threshold": 10,
-        "max_no_progress_turns": 4,
-        "default_token_budget": 100000000
+        "no_progress_token_threshold": 20,
+        "max_no_progress_turns": 4
       }
     ],
     "oh-my-opencode-slim"

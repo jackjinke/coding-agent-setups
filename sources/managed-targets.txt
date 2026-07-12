@@ -54,7 +54,6 @@
 .config/opencode/skills/simplify
 .config/opencode/skills/worktrees
 .config/opencode/plugins/caveman
-.config/opencode/plugins/herdr-agent-state.js
 .config/opencode/commands/caveman.md
 .config/opencode/commands/caveman-commit.md
 .config/opencode/commands/caveman-compress.md

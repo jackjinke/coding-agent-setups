@@ -268,6 +268,7 @@ opencode_paths=(
   ".config/opencode/package-lock.json"
   ".config/opencode/package.json"
   ".config/opencode/plugins/env-protection.ts"
+  ".config/opencode/plugins/herdr-agent-state.js"
   ".config/opencode/plugins/moshi-hooks.ts"
   ".config/opencode/tui.jsonc"
 )
@@ -862,21 +863,6 @@ install_opencode_package_dependencies() {
   npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
-ensure_herdr_opencode_integration() {
-  if ! agent_enabled OPENCODE; then
-    return 0
-  fi
-  if ! command -v herdr >/dev/null 2>&1; then
-    echo "Herdr command not found; skipping OpenCode integration."
-    return 0
-  fi
-
-  echo "Installing Herdr OpenCode integration"
-  if ! herdr integration install opencode; then
-    echo "Herdr OpenCode integration install failed; continuing." >&2
-  fi
-}
-
 install_managed_skills() {
   local installer source skill allowed_agents notes
   local npx_source=""
@@ -1086,6 +1072,20 @@ finish_publish_review() {
   fi
 }
 
+publish_opencode_from_home() {
+  local herdr_plugin=".config/opencode/plugins/herdr-agent-state.js"
+  local rel
+
+  echo "Syncing OpenCode"
+  for rel in "${opencode_paths[@]}"; do
+    if [[ "$rel" == "$herdr_plugin" && ! -e "$home_dir/$rel" ]]; then
+      echo "Warning: Herdr OpenCode plugin not found at $home_dir/$rel; preserving tracked snapshot." >&2
+      continue
+    fi
+    copy_path "$home_dir" "$files_dir" "$rel" 1
+  done
+}
+
 publish_from_home() {
   mkdir -p "$files_dir"
   if [[ "${#shared_paths[@]}" -gt 0 ]]; then
@@ -1103,7 +1103,7 @@ publish_from_home() {
   fi
   if agent_enabled OPENCODE; then
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
-      copy_group "OpenCode" "$home_dir" "$files_dir" 1 "${opencode_paths[@]}"
+      publish_opencode_from_home
     fi
   fi
   sanitize_codex_config
@@ -1162,7 +1162,6 @@ sync_to_home() {
   if agent_enabled OPENCODE; then
     if [[ "$config_only" != "1" ]]; then
       install_opencode_package_dependencies
-      ensure_herdr_opencode_integration
     fi
     ensure_omos_script_executable
   fi

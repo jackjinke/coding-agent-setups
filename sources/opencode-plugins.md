@@ -21,15 +21,24 @@ bunx oh-my-opencode-slim@latest install --no-tui --skills=yes --companion=no --b
 
 Its bundled `worktrees` skill is kept by following the upstream installer.
 
-Herdr's generated OpenCode plugin is installed with:
+Herdr's generated OpenCode plugin keeps its provenance and source identity from
+the Herdr integration. `publish` snapshots the current locally installed
+`~/.config/opencode/plugins/herdr-agent-state.js` into this repo, and `sync`
+restores that tracked snapshot without reinstalling or updating it from the
+official source. If the local file is missing, `publish` preserves the existing
+tracked snapshot and prints a warning. OpenCode discovers it from the plugin
+directory without a config entry.
+
+To upgrade the tracked plugin, install the current integration locally, then
+publish the resulting snapshot:
 
 ```bash
 herdr integration install opencode
+scripts/sync.sh publish
 ```
 
-The generated `~/.config/opencode/plugins/herdr-agent-state.js` is
-installer-managed and explicitly not vendored in this repo. OpenCode discovers
-it from the plugin directory without a config entry.
+Normal `sync` restores the tracked snapshot; it does not run the Herdr
+integration installer.
 
 ## Follow Upstream Git
 

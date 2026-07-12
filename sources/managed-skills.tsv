@@ -3,6 +3,7 @@
 # agents uses skills CLI agent slugs where relevant. codex and opencode share
 # ~/.agents/skills; claude-code writes ~/.claude/skills.
 npx-skills	microsoft/playwright-cli	playwright-cli	codex,claude-code,opencode	Playwright CLI official repo
+npx-skills	cli/cli	gh	codex,claude-code,opencode	GitHub CLI official agent skill
 npx-skills	mattpocock/skills	codebase-design	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	diagnosing-bugs	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	domain-modeling	codex,claude-code,opencode	mattpocock engineering skill

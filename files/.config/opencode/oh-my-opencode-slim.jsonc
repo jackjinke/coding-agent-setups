@@ -104,7 +104,9 @@
     "enabled": false
   },
   "multiplexer": {
-    "type": "auto"
+    "type": "auto",
+    "layout": "main-vertical",
+    "main_pane_size": 50
   },
   "disabled_mcps": []
 }

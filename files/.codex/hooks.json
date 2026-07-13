@@ -14,8 +14,7 @@
       {
         "hooks": [
           {
-            "command": "bash '/home/kjin/.codex/herdr-agent-state.sh' session",
-            "timeout": 10,
+            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]
@@ -23,7 +22,8 @@
       {
         "hooks": [
           {
-            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
+            "command": "bash '/home/kjin/.codex/herdr-agent-state.sh' session",
+            "timeout": 10,
             "type": "command"
           }
         ]

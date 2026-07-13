@@ -318,7 +318,6 @@ if [[ "$sync_opencode" == "1" ]]; then
   base_url="$(prompt_value "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "OmniRoute base URL" "http://localhost:20128/v1")"
 
   set_env_var "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "$base_url"
-  set_env_var "$opencode_env" OPENCODE_ENABLE_EXA "1"
   set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
   set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_CODE_MODE "true"
   ensure_opencode_env_wrapper

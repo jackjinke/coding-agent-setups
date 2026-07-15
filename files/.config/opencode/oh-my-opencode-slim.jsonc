@@ -4,98 +4,120 @@
   "presets": {
     "omniroute": {
       "orchestrator": {
-        "model": "omniroute/omos/orchestrator"
+        "model": "omniroute/omos/orchestrator",
+        "mcps": ["*"]
       },
       "oracle": {
-        "model": "omniroute/omos/oracle"
+        "model": "omniroute/omos/oracle",
+        "mcps": ["*"]
       },
       "librarian": {
-        "model": "omniroute/omos/librarian"
+        "model": "omniroute/omos/librarian",
+        "mcps": ["context7", "exa", "gh_grep"]
       },
       "explorer": {
-        "model": "omniroute/omos/explorer"
+        "model": "omniroute/omos/explorer",
+        "mcps": []
       },
       "designer": {
-        "model": "omniroute/omos/designer"
+        "model": "omniroute/omos/designer",
+        "mcps": []
       },
       "fixer": {
-        "model": "omniroute/omos/fixer"
+        "model": "omniroute/omos/fixer",
+        "mcps": []
       },
       "observer": {
-        "model": "omniroute/omos/observer"
+        "model": "omniroute/omos/observer",
+        "mcps": []
       },
       "council": {
-        "model": "omniroute/omos/council-lead"
+        "model": "omniroute/omos/council",
+        "mcps": ["*"]
       }
     },
     "openai": {
       "orchestrator": {
         "model": "openai/gpt-5.6-terra",
-        "variant": "medium"
+        "variant": "medium",
+        "mcps": ["*"]
       },
       "oracle": {
         "model": "openai/gpt-5.6-sol",
-        "variant": "high"
+        "variant": "high",
+        "mcps": ["*"]
       },
       "librarian": {
         "model": "openai/gpt-5.6-luna",
-        "variant": "low"
+        "variant": "low",
+        "mcps": ["context7", "exa", "gh_grep"]
       },
       "explorer": {
         "model": "openai/gpt-5.6-luna",
-        "variant": "low"
+        "variant": "low",
+        "mcps": []
       },
       "designer": {
         "model": "openai/gpt-5.6-luna",
-        "variant": "medium"
+        "variant": "medium",
+        "mcps": []
       },
       "fixer": {
         "model": "openai/gpt-5.6-luna",
-        "variant": "medium"
+        "variant": "medium",
+        "mcps": []
       }
     },
     "opencode-go": {
       "orchestrator": {
-        "model": "omniroute/opencode-go/glm-5.2"
+        "model": "omniroute/opencode-go/glm-5.2",
+        "mcps": ["*"]
       },
       "oracle": {
         "model": "omniroute/opencode-go/glm-5.2",
-        "variant": "max"
+        "variant": "max",
+        "mcps": ["*"]
       },
       "council": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
-        "variant": "high"
+        "variant": "high",
+        "mcps": ["*"]
       },
       "librarian": {
-        "model": "omniroute/opencode-go/minimax-m3"
+        "model": "omniroute/opencode-go/minimax-m3",
+        "mcps": ["context7", "exa", "gh_grep"]
       },
       "explorer": {
         "model": "omniroute/opencode-go/deepseek-v4-pro",
-        "variant": "max"
+        "variant": "max",
+        "mcps": []
       },
       "designer": {
-        "model": "omniroute/opencode-go/kimi-k2.7-code"
+        "model": "omniroute/opencode-go/kimi-k2.7-code",
+        "mcps": []
       },
       "fixer": {
-        "model": "omniroute/opencode-go/glm-5.2"
+        "model": "omniroute/opencode-go/glm-5.2",
+        "mcps": []
       },
       "observer": {
-        "model": "omniroute/opencode-go/kimi-k2.6"
+        "model": "omniroute/opencode-go/kimi-k2.6",
+        "mcps": []
       }
     }
   },
   "council": {
-    "timeout": 900000,
+    "timeout": 1200000,
     "presets": {
       "default": {
         "alpha": {
-	  "model": "omniroute/omos/council-alpha"
+	  "model": "omniroute/omos/councillor-alpha"
 	},
 	"beta": {
-          "model": "omniroute/omos/council-beta"
+          "model": "omniroute/omos/councillor-beta"
         },
         "gamma": {
-          "model": "omniroute/omos/council-gamma"
+          "model": "omniroute/omos/councillor-gamma"
         }
       }
     }
@@ -108,5 +130,7 @@
     "layout": "main-vertical",
     "main_pane_size": 50
   },
-  "disabled_mcps": []
+  "disabled_mcps": [
+    "websearch"
+  ]
 }

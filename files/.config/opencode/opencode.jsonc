@@ -13,20 +13,29 @@
     "opencode-omniroute-auth",
     "@tarquinen/opencode-dcp",
     "./plugins/caveman/plugin.js",
-    [
-      "@prevalentware/opencode-goal-plugin",
-      {
-        "no_progress_token_threshold": 20,
-        "max_no_progress_turns": 4
-      }
-    ],
+    "opencode-pty",
     "oh-my-opencode-slim"
   ],
+  "tools": {
+    "webfetch": false,
+    "websearch": false
+  },
+  "mcp": {
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp",
+      "enabled": true,
+      "headers": {
+        "x-api-key": "{env:EXA_API_KEY}"
+      }
+    }
+  },
   "permission": {
     "external_directory": {
       "*": "ask",
       "/tmp": "allow",
-      "/tmp/**": "allow"
+      "/tmp/**": "allow",
+      "/var/**": "allow"
     }
   },
   "agent": {

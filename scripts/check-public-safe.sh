@@ -42,11 +42,12 @@ if run_grep_scan -rIinoE \
   --exclude='check-public-safe.sh' \
   .; then
   safe_env_assignment='(refresh[_-]?token|access[_-]?token|client[_-]?secret|api[_-]?key)["'\'']?[[:space:]]*[:=][[:space:]]*["'\'']?(process\.env\.OPENCODE_OMNIROUTE_API_KEY|OPENCODE_OMNIROUTE_API_KEY|\{env:OPENCODE_OMNIROUTE_API_KEY\}|\$\{OPENCODE_OMNIROUTE_API_KEY\})["'\'']?$'
+  safe_opencode_env_assignment='^\./files/\.config/opencode/opencode\.jsonc:[0-9]+:(refresh[_-]?token|access[_-]?token|client[_-]?secret|api[_-]?key)["'\'']?[[:space:]]*[:=][[:space:]]*["'\'']?\{env:[A-Za-z_][A-Za-z0-9_]*\}["'\'']?$'
   shopt -s nocasematch
   while IFS= read -r match; do
     # safe_env_assignment is $-anchored and start-unanchored, so it matches the
     # trailing assignment even with grep's file:line: prefix on each -o match.
-    if [[ "$match" =~ $safe_env_assignment ]]; then
+    if [[ "$match" =~ $safe_env_assignment || "$match" =~ $safe_opencode_env_assignment ]]; then
       continue
     fi
     printf '%s\n' "$match" >>"$scan_output"

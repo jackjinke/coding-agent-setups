@@ -41,7 +41,8 @@
   "agent": {
     "build": {
       "permission": {
-        "task": "deny"
+        "task": "deny",
+        "council_session": "deny"
       }
     },
     "plan": {

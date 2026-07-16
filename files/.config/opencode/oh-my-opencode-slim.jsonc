@@ -118,6 +118,9 @@
         },
         "gamma": {
           "model": "omniroute/omos/councillor-gamma"
+        },
+        "delta": {
+          "model": "omniroute/omos/councillor-delta"
         }
       }
     }

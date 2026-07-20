@@ -2,10 +2,11 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks Codex, Claude Code, OpenCode, selected wrappers like `omos`,
-and source manifests for upstream skills/plugins. It does not track OAuth files,
-API keys, histories, caches, logs, local databases, browser profiles, or other
-machine-specific runtime state. Hermes and Cursor are intentionally not synced.
+This repo tracks generic shared setup, Codex, Claude Code, OpenCode, OMP, and
+selected wrappers like `omos`, plus source manifests for upstream skills/plugins.
+It does not track OAuth files, API keys, histories, caches, logs, local databases,
+browser profiles, or other machine-specific runtime state. Hermes and Cursor are
+intentionally not synced.
 
 ## Bootstrap
 
@@ -15,8 +16,8 @@ Setup from anywhere:
 bash -c "$(curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh)"
 ```
 
-Setup is interactive. It asks which agents to sync and whether to install shell
-commands. Local choices are written to:
+Setup is interactive. It asks for the default sync groups and whether to install
+shell commands. Local choices are written to:
 
 ```text
 ~/.coding-agent-setups/sync.env
@@ -38,7 +39,8 @@ coding-agent-setups
 
 ## Use
 
-Sync the latest enabled setup to this machine:
+Choose what to sync to this machine from a checklist. The available groups are
+Generic/shared, Codex, Claude Code, OpenCode, and OMP:
 
 ```bash
 coding-agent-setups sync
@@ -49,6 +51,8 @@ Sync only checked-in config files, skipping dependency and upstream installers:
 ```bash
 coding-agent-setups sync --config-only
 ```
+
+For automation, `--yes` skips the checklist and uses the defaults saved by setup.
 
 Publish this machine's enabled setup into the repo:
 
@@ -86,8 +90,8 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
 - OpenCode setup aliases `opencode` to `omos` in Bash/Zsh. With no arguments,
   `omos` starts OpenCode in Herdr on a random high port; arguments pass directly
   to the real OpenCode CLI without port or multiplexer handling.
-- Moshi hook config is tracked for enabled agents; sync only ensures Moshi is
-  installed, paired, and serving.
+- Sync runs `moshi-hook install --target ...` for each selected harness, then
+  ensures Moshi is installed, paired, and serving.
 
 Before pushing manually:
 

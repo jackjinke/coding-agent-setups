@@ -5,12 +5,12 @@ usage() {
   cat <<'USAGE'
 Usage: scripts/sync.sh [sync|publish] [--yes] [--config-only]
 
-  sync           Copy enabled setup files from this repo into $HOME.
+  sync           Choose setup groups, then copy them from this repo into $HOME.
   publish        Refresh this repo from enabled whitelisted files in $HOME.
-  --yes          Skip the confirmation prompt.
+  --yes          Skip prompts and use the saved setup selection.
   --config-only  Sync checked-in config files only; skip installers/dependencies.
 
-Run scripts/setup.sh first. Sync reads the local selection file written by setup.
+Run scripts/setup.sh first. Its saved selection provides checklist defaults.
 USAGE
 }
 
@@ -196,12 +196,6 @@ if [[ "$mode" == "publish" ]]; then
 fi
 if [[ "$mode" == "sync" ]]; then
   ensure_cmd tar
-  if [[ "$config_only" != "1" ]]; then
-    ensure_cmd git
-    ensure_cmd npx
-    ensure_cmd patch
-    require_sha1
-  fi
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -241,7 +235,7 @@ migrate_legacy_state() {
   echo "Migrated sync selection to $flag_file"
 }
 
-shared_paths=()
+generic_paths=()
 
 codex_paths=(
   ".codex/AGENTS.md"
@@ -271,6 +265,12 @@ opencode_paths=(
   ".config/opencode/plugins/herdr-agent-state.js"
   ".config/opencode/plugins/moshi-hooks.ts"
   ".config/opencode/tui.jsonc"
+)
+
+omp_paths=(
+  ".omp/agent/AGENTS.md"
+  ".omp/agent/config.yml"
+  ".omp/agent/models.yml"
 )
 
 rsync_excludes=(
@@ -405,14 +405,121 @@ read_flag() {
   fi
 }
 
-agent_enabled() {
-  local key="SYNC_$1"
+saved_group_enabled() {
+  local group="$1"
   local value
-  value="$(read_flag "$key")"
+  value="$(read_flag "SYNC_$group")"
   case "$(lower "$value")" in
     1|true|yes|on) return 0 ;;
+    0|false|no|off) return 1 ;;
+  esac
+
+  [[ "$group" == "GENERIC" ]]
+}
+
+selection_contains() {
+  local group="$1"
+  case ",$sync_selection," in
+    *",$group,"*) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+group_enabled() {
+  local group="$1"
+  if [[ "$mode" == "sync" && "$sync_selection_ready" == "1" ]]; then
+    selection_contains "$group"
+    return
+  fi
+  saved_group_enabled "$group"
+}
+
+agent_enabled() {
+  group_enabled "$1"
+}
+
+select_sync_groups() {
+  local keys=(GENERIC CODEX CLAUDE OPENCODE OMP)
+  local labels=("Generic / shared" "Codex" "Claude Code" "OpenCode" "OMP")
+  local selected=()
+  local i token answer has_selection
+
+  for ((i = 0; i < ${#keys[@]}; i++)); do
+    if saved_group_enabled "${keys[$i]}"; then
+      selected[$i]=1
+    else
+      selected[$i]=0
+    fi
+  done
+
+  if [[ "$assume_yes" != "1" && ( ! -t 0 || ! -t 1 ) ]]; then
+    echo "Sync checklist requires an interactive terminal; use --yes to use saved defaults." >&2
+    exit 1
+  fi
+
+  if [[ "$assume_yes" != "1" && -t 0 && -t 1 ]]; then
+    while true; do
+      printf '\033[2J\033[H'
+      echo "Select setup groups to sync"
+      echo
+      for ((i = 0; i < ${#keys[@]}; i++)); do
+        if [[ "${selected[$i]}" == "1" ]]; then
+          printf '  [x] %d. %s\n' "$((i + 1))" "${labels[$i]}"
+        else
+          printf '  [ ] %d. %s\n' "$((i + 1))" "${labels[$i]}"
+        fi
+      done
+      echo
+      read -r -p "Toggle numbers (space-separated), a=all, n=none, Enter=continue: " answer
+      if [[ -z "$answer" ]]; then
+        has_selection=0
+        for ((i = 0; i < ${#keys[@]}; i++)); do
+          if [[ "${selected[$i]}" == "1" ]]; then
+            has_selection=1
+            break
+          fi
+        done
+        if [[ "$has_selection" == "1" ]]; then
+          break
+        fi
+        read -r -p "Select at least one group. Press Enter to continue." _
+        continue
+      fi
+
+      for token in ${answer//,/ }; do
+        case "$token" in
+          a|A)
+            for ((i = 0; i < ${#keys[@]}; i++)); do selected[$i]=1; done
+            ;;
+          n|N)
+            for ((i = 0; i < ${#keys[@]}; i++)); do selected[$i]=0; done
+            ;;
+          [1-5])
+            i=$((10#$token - 1))
+            if [[ "${selected[$i]}" == "1" ]]; then selected[$i]=0; else selected[$i]=1; fi
+            ;;
+          *)
+            read -r -p "Unknown choice: $token. Press Enter to continue." _
+            ;;
+        esac
+      done
+    done
+  else
+    echo "Using saved setup selection (--yes)."
+  fi
+
+  sync_selection=""
+  for ((i = 0; i < ${#keys[@]}; i++)); do
+    if [[ "${selected[$i]}" == "1" ]]; then
+      if [[ -n "$sync_selection" ]]; then sync_selection+=","; fi
+      sync_selection+="${keys[$i]}"
+    fi
+  done
+  if [[ -z "$sync_selection" ]]; then
+    echo "No sync groups selected." >&2
+    exit 1
+  fi
+  sync_selection_ready=1
 }
 
 shell_commands_enabled() {
@@ -497,7 +604,9 @@ ensure_omos_script_executable() {
 }
 
 print_enabled_groups() {
-  echo "  - shared files"
+  if group_enabled GENERIC; then
+    echo "  - Generic / shared"
+  fi
   if agent_enabled CODEX; then
     echo "  - Codex"
   fi
@@ -506,6 +615,9 @@ print_enabled_groups() {
   fi
   if agent_enabled OPENCODE; then
     echo "  - OpenCode"
+  fi
+  if group_enabled OMP; then
+    echo "  - OMP"
   fi
 }
 
@@ -579,7 +691,7 @@ backup_keep_count=3
 backup_dir="$setup_dir/backups"
 
 sync_backup_roots() {
-  if shell_commands_enabled || agent_enabled OPENCODE; then
+  if (group_enabled GENERIC && shell_commands_enabled) || agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.local/bin"
   fi
   if agent_enabled CODEX || agent_enabled OPENCODE; then
@@ -593,6 +705,9 @@ sync_backup_roots() {
   fi
   if agent_enabled OPENCODE; then
     printf '%s\n' "$config_home/opencode" "$home_dir/.opencode"
+  fi
+  if group_enabled OMP; then
+    printf '%s\n' "$home_dir/.omp/agent"
   fi
 }
 
@@ -655,7 +770,10 @@ create_sync_backups() {
 source_target_enabled() {
   local target="$1"
   case "$target" in
-    .agents/*) return 0 ;;
+    .agents/*)
+      agent_enabled CODEX || agent_enabled OPENCODE
+      return
+      ;;
     .codex/*)
       agent_enabled CODEX
       return
@@ -670,6 +788,10 @@ source_target_enabled() {
       ;;
     .opencode/*)
       agent_enabled OPENCODE
+      return
+      ;;
+    .omp/agent/*)
+      group_enabled OMP
       return
       ;;
     .local/bin/omos)
@@ -1088,8 +1210,8 @@ publish_opencode_from_home() {
 
 publish_from_home() {
   mkdir -p "$files_dir"
-  if [[ "${#shared_paths[@]}" -gt 0 ]]; then
-    copy_group "shared files" "$home_dir" "$files_dir" 1 "${shared_paths[@]}"
+  if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
+    copy_group "Generic / shared" "$home_dir" "$files_dir" 1 "${generic_paths[@]}"
   fi
   if agent_enabled CODEX; then
     if [[ "${#codex_paths[@]}" -gt 0 ]]; then
@@ -1106,6 +1228,9 @@ publish_from_home() {
       publish_opencode_from_home
     fi
   fi
+  if group_enabled OMP && [[ "${#omp_paths[@]}" -gt 0 ]]; then
+    copy_group "OMP" "$home_dir" "$files_dir" 1 "${omp_paths[@]}"
+  fi
   sanitize_codex_config
   prune_non_vendored_targets_from_repo
   cleanup_public_tree
@@ -1115,10 +1240,16 @@ publish_from_home() {
 
 sync_to_home() {
   local moshi_targets=()
+  if [[ "$config_only" != "1" ]] && (agent_enabled CODEX || agent_enabled CLAUDE || agent_enabled OPENCODE); then
+    ensure_cmd git
+    ensure_cmd npx
+    ensure_cmd patch
+    require_sha1
+  fi
 
   create_sync_backups
   if [[ "$config_only" != "1" ]]; then
-    if shell_commands_enabled; then
+    if group_enabled GENERIC && shell_commands_enabled; then
       install_coding_agent_shell_commands "$repo_root"
     fi
     if agent_enabled OPENCODE; then
@@ -1135,13 +1266,16 @@ sync_to_home() {
   if agent_enabled OPENCODE; then
     moshi_targets+=(opencode)
   fi
+  if group_enabled OMP; then
+    moshi_targets+=(omp)
+  fi
 
   if [[ "$config_only" != "1" ]]; then
     install_managed_skills
     install_managed_sources
   fi
-  if [[ "${#shared_paths[@]}" -gt 0 ]]; then
-    copy_group "shared files" "$files_dir" "$home_dir" 0 "${shared_paths[@]}"
+  if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
+    copy_group "Generic / shared" "$files_dir" "$home_dir" 0 "${generic_paths[@]}"
   fi
   if agent_enabled CODEX; then
     if [[ "${#codex_paths[@]}" -gt 0 ]]; then
@@ -1158,6 +1292,9 @@ sync_to_home() {
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
     fi
   fi
+  if group_enabled OMP && [[ "${#omp_paths[@]}" -gt 0 ]]; then
+    copy_group "OMP" "$files_dir" "$home_dir" 0 "${omp_paths[@]}"
+  fi
   remove_retired_targets_from_home
   if agent_enabled OPENCODE; then
     if [[ "$config_only" != "1" ]]; then
@@ -1172,8 +1309,13 @@ sync_to_home() {
   echo "Synced enabled repo files into $home_dir"
 }
 
+sync_selection=""
+sync_selection_ready=0
 migrate_legacy_state
 require_setup_flags
+if [[ "$mode" == "sync" ]]; then
+  select_sync_groups
+fi
 confirm_sync
 
 case "$mode" in

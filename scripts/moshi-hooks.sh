@@ -91,13 +91,10 @@ ensure_moshi_installed() {
 }
 
 restart_moshi_daemon_if_running() {
-  local moshi_hook_path
-
   if ! command -v moshi-hook >/dev/null 2>&1; then
     return 0
   fi
 
-  moshi_hook_path="$(command -v moshi-hook)"
   case "$(moshi_platform)" in
     Darwin)
       if command -v brew >/dev/null 2>&1 && brew services list >/dev/null 2>&1; then
@@ -105,18 +102,7 @@ restart_moshi_daemon_if_running() {
       fi
       ;;
     Linux)
-      if command -v systemctl >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; then
-        if systemctl --user is-active --quiet moshi.service; then
-          systemctl --user restart moshi.service
-          return 0
-        fi
-      fi
-      if command -v pkill >/dev/null 2>&1 && command -v pgrep >/dev/null 2>&1; then
-        if pgrep -f "$moshi_hook_path serve" >/dev/null 2>&1; then
-          pkill -f "$moshi_hook_path serve" || true
-          start_moshi_background_daemon
-        fi
-      fi
+      moshi service install
       ;;
   esac
 }
@@ -152,32 +138,6 @@ pair_moshi_if_needed() {
   esac
 }
 
-write_moshi_systemd_service() {
-  local service_dir="$HOME/.config/systemd/user"
-  local service_file="$service_dir/moshi.service"
-  local moshi_hook_path
-
-  moshi_hook_path="$(command -v moshi-hook)"
-  mkdir -p "$service_dir"
-  cat > "$service_file" <<EOF
-[Unit]
-Description=Moshi Hook Daemon
-Documentation=https://getmoshi.app/docs/hooks
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=simple
-ExecStart=$moshi_hook_path serve
-Restart=always
-RestartSec=5
-Environment=XDG_RUNTIME_DIR=%t
-Environment=PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin
-
-[Install]
-WantedBy=default.target
-EOF
-}
 
 start_moshi_background_daemon() {
   local log_dir="$HOME/.local/state/moshi"
@@ -201,19 +161,24 @@ ensure_moshi_daemon_running() {
       fi
       ;;
     Linux)
-      if command -v systemctl >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; then
-        write_moshi_systemd_service
-        systemctl --user daemon-reload
-        systemctl --user enable --now moshi.service
-      else
-        echo "systemd --user is unavailable; starting Moshi for this login session only." >&2
-        start_moshi_background_daemon
-      fi
+      moshi service install
       ;;
     *)
       start_moshi_background_daemon
       ;;
   esac
+}
+
+install_moshi_for_targets() {
+  local target
+  local args=()
+
+  for target in "$@"; do
+    args+=(--target "$target")
+  done
+
+  echo "Installing Moshi hooks for: $*"
+  moshi-hook install "${args[@]}"
 }
 
 ensure_moshi_for_targets() {
@@ -222,6 +187,7 @@ ensure_moshi_for_targets() {
   fi
 
   ensure_moshi_installed
+  install_moshi_for_targets "$@"
   if pair_moshi_if_needed; then
     ensure_moshi_daemon_running
   fi

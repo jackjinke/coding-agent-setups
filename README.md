@@ -39,8 +39,9 @@ coding-agent-setups
 
 ## Use
 
-Choose what to sync to this machine from a checklist. The available groups are
-Generic/shared, Codex, Claude Code, OpenCode, and OMP:
+Choose what to sync to this machine from a checklist, which starts with nothing
+selected. The available groups are Generic/shared, Codex, Claude Code, OpenCode,
+and OMP:
 
 ```bash
 coding-agent-setups sync
@@ -52,9 +53,10 @@ Sync only checked-in config files, skipping dependency and upstream installers:
 coding-agent-setups sync --config-only
 ```
 
-For automation, `--yes` skips the checklist and uses the defaults saved by setup.
+For automation, `--yes` skips the checklist and selects every group.
 
-Publish this machine's enabled setup into the repo:
+Choose what to publish from this machine into the repo from the same
+nothing-selected checklist:
 
 ```bash
 coding-agent-setups publish

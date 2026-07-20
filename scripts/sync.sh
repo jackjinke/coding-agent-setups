@@ -6,11 +6,11 @@ usage() {
 Usage: scripts/sync.sh [sync|publish] [--yes] [--config-only]
 
   sync           Choose setup groups, then copy them from this repo into $HOME.
-  publish        Refresh this repo from enabled whitelisted files in $HOME.
-  --yes          Skip prompts and use the saved setup selection.
+  publish        Choose setup groups, then refresh their repo files from $HOME.
+  --yes          Skip prompts and select all setup groups.
   --config-only  Sync checked-in config files only; skip installers/dependencies.
 
-Run scripts/setup.sh first. Its saved selection provides checklist defaults.
+Run scripts/setup.sh first.
 USAGE
 }
 
@@ -405,17 +405,6 @@ read_flag() {
   fi
 }
 
-saved_group_enabled() {
-  local group="$1"
-  local value
-  value="$(read_flag "SYNC_$group")"
-  case "$(lower "$value")" in
-    1|true|yes|on) return 0 ;;
-    0|false|no|off) return 1 ;;
-  esac
-
-  [[ "$group" == "GENERIC" ]]
-}
 
 selection_contains() {
   local group="$1"
@@ -427,40 +416,38 @@ selection_contains() {
 
 group_enabled() {
   local group="$1"
-  if [[ "$mode" == "sync" && "$sync_selection_ready" == "1" ]]; then
+  if [[ "$sync_selection_ready" == "1" ]]; then
     selection_contains "$group"
     return
   fi
-  saved_group_enabled "$group"
+  return 1
 }
 
 agent_enabled() {
   group_enabled "$1"
 }
 
-select_sync_groups() {
+select_groups() {
   local keys=(GENERIC CODEX CLAUDE OPENCODE OMP)
   local labels=("Generic / shared" "Codex" "Claude Code" "OpenCode" "OMP")
-  local selected=()
-  local i token answer has_selection
+  local selected=(0 0 0 0 0)
+  local action i token answer has_selection
 
-  for ((i = 0; i < ${#keys[@]}; i++)); do
-    if saved_group_enabled "${keys[$i]}"; then
-      selected[$i]=1
-    else
-      selected[$i]=0
-    fi
-  done
+  if [[ "$mode" == "sync" ]]; then
+    action="sync"
+  else
+    action="publish"
+  fi
 
   if [[ "$assume_yes" != "1" && ( ! -t 0 || ! -t 1 ) ]]; then
-    echo "Sync checklist requires an interactive terminal; use --yes to use saved defaults." >&2
+    echo "Group checklist requires an interactive terminal; use --yes to select all groups." >&2
     exit 1
   fi
 
-  if [[ "$assume_yes" != "1" && -t 0 && -t 1 ]]; then
+  if [[ "$assume_yes" != "1" ]]; then
     while true; do
       printf '\033[2J\033[H'
-      echo "Select setup groups to sync"
+      echo "Select setup groups to $action"
       echo
       for ((i = 0; i < ${#keys[@]}; i++)); do
         if [[ "${selected[$i]}" == "1" ]]; then
@@ -505,7 +492,8 @@ select_sync_groups() {
       done
     done
   else
-    echo "Using saved setup selection (--yes)."
+    echo "Selecting all setup groups (--yes)."
+    selected=(1 1 1 1 1)
   fi
 
   sync_selection=""
@@ -515,10 +503,6 @@ select_sync_groups() {
       sync_selection+="${keys[$i]}"
     fi
   done
-  if [[ -z "$sync_selection" ]]; then
-    echo "No sync groups selected." >&2
-    exit 1
-  fi
   sync_selection_ready=1
 }
 
@@ -534,11 +518,10 @@ shell_commands_enabled() {
 require_setup_flags() {
   if [[ ! -f "$flag_file" ]]; then
     cat >&2 <<EOF
-Missing setup selection file:
+Setup has not been completed:
   $flag_file
 
-Run scripts/setup.sh first. It asks which coding agents to sync on this machine
-and writes the selection file that sync uses.
+Run scripts/setup.sh first to configure this machine.
 EOF
     exit 1
   fi
@@ -626,13 +609,12 @@ confirm_publish() {
   if [[ "$assume_yes" == "1" ]]; then
     return 0
   fi
-
-  echo "Sync action: publish"
+  echo "Publish action"
   echo "Direction: $home_dir -> repo files"
-  echo "Stale files may be deleted inside $files_dir for enabled groups."
+  echo "Stale files may be deleted inside $files_dir for selected groups."
   echo "Secret check runs after copying."
   echo "Changed files are listed before the commit/push prompt."
-  echo "Enabled groups:"
+  echo "Selected groups:"
   print_enabled_groups
 
   read -r -p "Proceed? [y/N]: " answer
@@ -1294,16 +1276,15 @@ sync_to_home() {
     ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents
-  echo "Synced enabled repo files into $home_dir"
+  echo "Synced selected repo files into $home_dir"
 }
 
 sync_selection=""
 sync_selection_ready=0
 migrate_legacy_state
 require_setup_flags
-if [[ "$mode" == "sync" ]]; then
-  select_sync_groups
-else
+select_groups
+if [[ "$mode" == "publish" ]]; then
   confirm_publish
 fi
 

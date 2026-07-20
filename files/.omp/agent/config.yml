@@ -1,0 +1,55 @@
+setupVersion: 1
+modelRoles:
+  smol: omniroute/combo/budget
+  slow: omniroute/combo/reviewer
+  designer: omniroute/combo/designer
+  vision: omniroute/combo/vision
+  plan: "@slow"
+  task: "@default"
+  commit: "@smol"
+  default: omniroute/combo/coding
+defaultThinkingLevel: auto
+personality: pragmatic
+compaction:
+  strategy: snapcompact
+astGrep:
+  enabled: false
+browser:
+  cmux: false
+plan:
+  defaultOnStartup: false
+task:
+  eager: preferred
+commands:
+  enableClaudeUser: false
+  enableClaudeProject: false
+  enableOpencodeUser: false
+  enableOpencodeProject: false
+providers:
+  webSearch: exa
+  tinyModel: online
+tools:
+  approvalMode: yolo
+advisor:
+  enabled: false
+disabledProviders:
+  - claude
+  - codex
+  - opencode
+  - ollama
+exa:
+  enabled: true
+secrets:
+  enabled: true
+display:
+  shimmer: classic
+modelRoleStorage: global
+collab:
+  relayUrl: ""
+share:
+  serverUrl: ""
+symbolPreset: nerd
+statusLine:
+  preset: default
+memory:
+  backend: "off"

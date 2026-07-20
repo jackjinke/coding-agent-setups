@@ -955,6 +955,22 @@ install_opencode_package_dependencies() {
   npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
+ensure_omp_omniroute_plugin() {
+  local plugin_name="omniroute-pi-adapter-ext"
+  local plugin_source="git:github.com/jackjinke/omniroute-pi-adapter-ext"
+
+  if ! group_enabled OMP; then
+    return 0
+  fi
+  ensure_cmd omp
+  if omp plugin list 2>/dev/null | grep -Eq "^[[:space:]]*[●○][[:space:]]+$plugin_name(@|[[:space:]]|$)"; then
+    return 0
+  fi
+
+  echo "Installing OmniRoute plugin for OMP"
+  omp install "$plugin_source"
+}
+
 install_managed_skills() {
   local installer source skill allowed_agents notes
   local npx_source=""
@@ -1243,6 +1259,7 @@ sync_to_home() {
   if [[ "$config_only" != "1" ]]; then
     install_managed_skills
     install_managed_sources
+    ensure_omp_omniroute_plugin
   fi
   if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
     copy_group "Generic / shared" "$files_dir" "$home_dir" 0 "${generic_paths[@]}"

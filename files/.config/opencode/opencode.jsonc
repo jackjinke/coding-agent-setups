@@ -13,7 +13,6 @@
     "opencode-omniroute-auth",
     "@tarquinen/opencode-dcp",
     "./plugins/caveman/plugin.js",
-    "opencode-pty",
     "oh-my-opencode-slim"
   ],
   "tools": {

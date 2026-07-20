@@ -16,8 +16,8 @@ Setup from anywhere:
 bash -c "$(curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh)"
 ```
 
-Setup is interactive. It asks for the default sync groups and whether to install
-shell commands. Local choices are written to:
+Setup is interactive. It installs the shell command and configures the local
+OpenCode environment. Machine-local state is written to:
 
 ```text
 ~/.coding-agent-setups/sync.env

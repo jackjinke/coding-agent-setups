@@ -621,29 +621,17 @@ print_enabled_groups() {
   fi
 }
 
-confirm_sync() {
+confirm_publish() {
   local answer
   if [[ "$assume_yes" == "1" ]]; then
     return 0
   fi
 
-  echo "Sync action: $mode"
-  case "$mode" in
-    sync)
-      echo "Direction: repo files -> $home_dir"
-      echo "Local-only files are preserved."
-      echo "Touched folders are backed up before changes."
-      if [[ "$config_only" == "1" ]]; then
-        echo "Config-only: skipping upstream installers, dependency installs, and Moshi setup."
-      fi
-      ;;
-    publish)
-      echo "Direction: $home_dir -> repo files"
-      echo "Stale files may be deleted inside $files_dir for enabled groups."
-      echo "Secret check runs after copying."
-      echo "Changed files are listed before the commit/push prompt."
-      ;;
-  esac
+  echo "Sync action: publish"
+  echo "Direction: $home_dir -> repo files"
+  echo "Stale files may be deleted inside $files_dir for enabled groups."
+  echo "Secret check runs after copying."
+  echo "Changed files are listed before the commit/push prompt."
   echo "Enabled groups:"
   print_enabled_groups
 
@@ -1315,8 +1303,9 @@ migrate_legacy_state
 require_setup_flags
 if [[ "$mode" == "sync" ]]; then
   select_sync_groups
+else
+  confirm_publish
 fi
-confirm_sync
 
 case "$mode" in
   publish) publish_from_home ;;

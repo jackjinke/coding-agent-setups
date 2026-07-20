@@ -1,13 +1,14 @@
 setupVersion: 1
 modelRoles: 
-  smol: omniroute/combo/budget
   slow: omniroute/combo/reviewer
   designer: omniroute/combo/designer
   vision: omniroute/combo/vision
   plan: "@slow"
-  task: "@default"
   commit: "@smol"
   default: omniroute/combo/coding
+  smol: omniroute/combo/budget:high
+  task: omniroute/combo/coding
+  tiny: omniroute/combo/flash:high
 defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 
@@ -27,8 +28,9 @@ commands:
   enableOpencodeProject: false
 providers: 
   webSearch: exa
-  tinyModel: lfm2-700m
-  tinyModelDevice: gpu
+  tinyModel: online
+  tinyModelDevice: default
+  autoThinkingModel: online
 tools: 
   approvalMode: yolo
 advisor: 
@@ -52,17 +54,17 @@ share:
 symbolPreset: nerd
 statusLine: 
   preset: custom
-  leftSegments:
+  leftSegments: 
     - model
     - mode
     - context_pct
     - git
-  rightSegments:
+  rightSegments: 
     - session_name
-  segmentOptions:
-    model:
+  segmentOptions: 
+    model: 
       showThinkingLevel: true
-    git:
+    git: 
       showBranch: true
       showStaged: false
       showUnstaged: false

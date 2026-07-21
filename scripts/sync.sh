@@ -269,9 +269,41 @@ opencode_paths=(
 
 omp_paths=(
   ".omp/agent/AGENTS.md"
-  ".omp/agent/config.yml"
-  ".omp/agent/models.yml"
 )
+
+append_omp_path() {
+  local candidate="$1"
+  local existing
+
+  for existing in "${omp_paths[@]}"; do
+    if [[ "$existing" == "$candidate" ]]; then
+      return 0
+    fi
+  done
+  omp_paths+=("$candidate")
+}
+
+discover_omp_yaml_paths() {
+  local root="$1"
+  local config_dir="$root/.omp/agent"
+  local path
+
+  if [[ ! -d "$config_dir" ]]; then
+    return 0
+  fi
+  while IFS= read -r -d '' path; do
+    append_omp_path "${path#"$root/"}"
+  done < <(find "$config_dir" -type f \( -name '*.yaml' -o -name '*.yml' \) -print0)
+}
+
+refresh_omp_paths() {
+  local src_root="$1"
+  local dst_root="$2"
+
+  omp_paths=(".omp/agent/AGENTS.md")
+  discover_omp_yaml_paths "$src_root"
+  discover_omp_yaml_paths "$dst_root"
+}
 
 rsync_excludes=(
   "--exclude=.git/"
@@ -1195,6 +1227,9 @@ publish_opencode_from_home() {
 }
 
 publish_from_home() {
+  if group_enabled OMP; then
+    refresh_omp_paths "$home_dir" "$files_dir"
+  fi
   mkdir -p "$files_dir"
   if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
     copy_group "Generic / shared" "$home_dir" "$files_dir" 1 "${generic_paths[@]}"
@@ -1260,6 +1295,9 @@ sync_to_home() {
     install_managed_skills
     install_managed_sources
     ensure_omp_omniroute_plugin
+  fi
+  if group_enabled OMP; then
+    refresh_omp_paths "$files_dir" "$home_dir"
   fi
   if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
     copy_group "Generic / shared" "$files_dir" "$home_dir" 0 "${generic_paths[@]}"

@@ -1,14 +1,17 @@
 setupVersion: 1
 modelRoles: 
-  vision: omniroute/combo/vision
-  plan: "@slow"
-  task: "@default"
-  commit: "@smol"
-  tiny: omniroute/combo/flash:high
-  default: omniroute/combo/coding:high
-  smol: omniroute/combo/budget:high
+  alpha: omniroute/combo/coding-alpha
+  beta: omniroute/combo/coding-beta
+  default: "@alpha"
+  smol: "@beta:high"
   slow: omniroute/combo/reviewer:high
   designer: omniroute/combo/designer:xhigh
+  task: "@beta:xhigh"
+  plan: "@alpha:high"
+  commit: "@smol"
+  tiny: omniroute/combo/flash:high
+  vision: omniroute/combo/vision
+  advisor: "@beta:high"
 defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 
@@ -21,6 +24,7 @@ plan:
   defaultOnStartup: false
 task: 
   eager: preferred
+  showResolvedModelBadge: true
 commands: 
   enableClaudeUser: false
   enableClaudeProject: false

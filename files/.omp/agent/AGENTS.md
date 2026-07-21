@@ -31,3 +31,12 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 
 - Verification should fit the change: reserve automated tests for durable behavioral contracts, and don't mechanically add tests to experiments or purely visual work.
 - Tests assert observable behavior and side effects — including failure paths (missing dependencies, unavailable services, empty or partial input) — not internal plumbing.
+
+## Orchestration
+
+- Architectural designs get reviewed before implementation starts.
+- In large changes, each phase or milestone passes review before the next begins.
+- Give review more time than feels necessary; a rushed review is worse than none.
+- No two delegated slices may decide the same question.
+- Record design decisions where downstream work will encounter them.
+- Prefer multiple decorrelated review lenses (transcript, output only, codebase only) over one deep pass.

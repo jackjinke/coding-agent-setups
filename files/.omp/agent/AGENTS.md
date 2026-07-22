@@ -36,7 +36,8 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 
 - Architectural designs get reviewed before implementation starts.
 - In large changes, each phase or milestone passes review before the next begins.
-- Give reviewers more time than feels necessary; a rushed review is worse than none.
+- Every review assignment defines its scope: which artifacts, which lens, and what questions it must answer. An unscoped review runs long and shallow.
+- Once dispatched, a review runs to completion — don't interrupt or cancel it just for taking long. If reviews chronically overrun, narrow their scope on the next dispatch instead.
 - No two delegated slices may decide the same question.
 - Record design decisions where downstream work will encounter them.
 - Prefer multiple decorrelated review lenses (transcript, output only, codebase only) over one deep pass.

@@ -75,6 +75,7 @@ statusLine:
   transparent: false
   sessionAccent: true
   compactThinkingLevel: true
+  separator: powerline-thin
 memory: 
   backend: "off"
 bashInterceptor: 

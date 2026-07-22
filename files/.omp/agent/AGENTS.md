@@ -33,7 +33,7 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 - Verification should fit the change: reserve automated tests for durable behavioral contracts, and don't mechanically add tests to experiments or purely visual work.
 - Tests assert observable behavior and side effects — including failure paths (missing dependencies, unavailable services, empty or partial input) — not internal plumbing.
 
-## Subagent Orchestration
+## Orchestration
 
 - In large changes, each phase or milestone passes review before the next begins.
 - Scope every review before dispatching it, sized to the change under review. Avoid long and shallow reviews.

@@ -36,7 +36,7 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 
 - Architectural designs get reviewed before implementation starts.
 - In large changes, each phase or milestone passes review before the next begins.
-- Give review more time than feels necessary; a rushed review is worse than none.
+- Give reviewers more time than feels necessary; a rushed review is worse than none.
 - No two delegated slices may decide the same question.
 - Record design decisions where downstream work will encounter them.
 - Prefer multiple decorrelated review lenses (transcript, output only, codebase only) over one deep pass.

@@ -12,6 +12,7 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 - Prefer the simplest, most direct design that solves the stated problem — no speculative flags, options, or abstractions (YAGNI). Abstract at the second concrete use, not the first.
 - Keep modules focused and single-purpose, with explicit boundaries expressed in types.
 - Centralize domain types, states, and enums rather than scattering parallel definitions.
+- Architectural designs should get reviewed before implementation starts.
 
 ## Naming
 
@@ -32,12 +33,11 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 - Verification should fit the change: reserve automated tests for durable behavioral contracts, and don't mechanically add tests to experiments or purely visual work.
 - Tests assert observable behavior and side effects — including failure paths (missing dependencies, unavailable services, empty or partial input) — not internal plumbing.
 
-## Orchestration
+## Subagent Orchestration
 
-- Architectural designs get reviewed before implementation starts.
 - In large changes, each phase or milestone passes review before the next begins.
-- Every review assignment defines its scope: which artifacts, which lens, and what questions it must answer. An unscoped review runs long and shallow.
-- Once dispatched, a review runs to completion — don't interrupt or cancel it just for taking long. If reviews chronically overrun, narrow their scope on the next dispatch instead.
+- Scope every review before dispatching it, sized to the change under review.
+- Once dispatched, a review runs to completion. Don't interrupt or cancel it just for taking long. If reviews chronically overrun, adjust their scope on the next dispatch instead.
 - No two delegated slices may decide the same question.
 - Record design decisions where downstream work will encounter them.
 - Prefer multiple decorrelated review lenses (transcript, output only, codebase only) over one deep pass.

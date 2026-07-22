@@ -72,5 +72,10 @@ statusLine:
       showStaged: false
       showUnstaged: false
       showUntracked: false
+  transparent: false
+  sessionAccent: true
+  compactThinkingLevel: true
 memory: 
   backend: "off"
+bashInterceptor: 
+  enabled: false

@@ -36,7 +36,7 @@ Personal defaults for every project. A project's own AGENTS.md carries project f
 ## Subagent Orchestration
 
 - In large changes, each phase or milestone passes review before the next begins.
-- Scope every review before dispatching it, sized to the change under review.
+- Scope every review before dispatching it, sized to the change under review. Avoid long and shallow reviews.
 - Once dispatched, a review runs to completion. Don't interrupt or cancel it just for taking long. If reviews chronically overrun, adjust their scope on the next dispatch instead.
 - No two delegated slices may decide the same question.
 - Record design decisions where downstream work will encounter them.

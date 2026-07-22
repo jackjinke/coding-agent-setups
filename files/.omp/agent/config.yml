@@ -4,7 +4,6 @@ modelRoles:
   beta: omniroute/combo/coding-beta
   default: "@alpha"
   smol: "@beta:high"
-  slow: omniroute/combo/reviewer:high
   designer: omniroute/combo/designer:xhigh
   task: "@beta:xhigh"
   plan: "@alpha:high"
@@ -12,6 +11,7 @@ modelRoles:
   tiny: omniroute/combo/flash:high
   vision: omniroute/combo/vision
   advisor: "@beta:high"
+  slow: omniroute/combo/reviewer
 defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 

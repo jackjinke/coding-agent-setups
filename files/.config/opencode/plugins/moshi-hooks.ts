@@ -736,7 +736,6 @@ function summarizeQuestion(props: Record<string, unknown>): string {
 function sendTerminalInputRequired(eventName: string, props: Record<string, unknown>, directory: string, title: string, fallbackMessage: string): void {
   const cwd = directoryFromProperties(props, directory)
   const sessionID = sessionIDFromProperties(props)
-  const actionID = stringProp(props, "id", "questionID", "questionId", "requestID", "requestId") || newSessionID()
   const message = summarizeQuestion(props) || fallbackMessage
   void modelLimitsReady.finally(() => {
     void sendEnvelope(
@@ -744,9 +743,7 @@ function sendTerminalInputRequired(eventName: string, props: Record<string, unkn
         type: "session.update",
         source: "opencode",
         sessionId: sessionID || newSessionID(),
-        actionId: actionID,
         eventName,
-        phase: "waitingForApproval",
         category: "approval_required",
         cwd,
         projectName: projectNameForCwd(cwd),

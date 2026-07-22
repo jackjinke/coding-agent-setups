@@ -2,17 +2,20 @@
 // managed by herdr; reinstalling or updating the integration overwrites this file.
 // add custom hooks/plugins beside this file instead of editing it.
 // HERDR_INTEGRATION_ID=opencode
-// HERDR_INTEGRATION_VERSION=8
+// HERDR_INTEGRATION_VERSION=9
 
 import net from "node:net";
 
 const SOURCE = "herdr:opencode";
 const AGENT = "opencode";
 let reportSeq = Date.now() * 1000;
+let requestChain = Promise.resolve();
+let reportedRootSessionID;
 
+// Subagent (task tool) sessions carry a parentID; the main agent session does
+// not. Their lifecycle events would otherwise clobber the pane's real state, so
+// learn child session ids from session.created/updated and drop their reports.
 const childSessions = new Set();
-const childStates = new Map();
-let rootState = "idle";
 
 function nextReportSeq() {
   reportSeq += 1;
@@ -46,11 +49,21 @@ function stateFromSessionStatus(status) {
 }
 
 function request(method, params) {
+  const pending = requestChain.then(() => requestOnce(method, params));
+  requestChain = pending.catch(() => {});
+  return pending;
+}
+
+function requestOnce(method, params) {
+  const paneId = process.env.HERDR_PANE_ID;
   const socketPath = process.env.HERDR_SOCKET_PATH;
 
-  if (!socketPath) {
+  if (!paneId || !socketPath) {
     return Promise.resolve();
   }
+
+  const socketEndpoint =
+    process.platform === "win32" ? `\\\\.\\pipe\\${socketPath}` : socketPath;
 
   const requestId = `${SOURCE}:${Date.now()}:${Math.floor(Math.random() * 1_000_000)
     .toString()
@@ -58,44 +71,30 @@ function request(method, params) {
   const request = {
     id: requestId,
     method,
-    params,
+    params: {
+      pane_id: paneId,
+      source: SOURCE,
+      agent: AGENT,
+      seq: nextReportSeq(),
+      ...params,
+    },
   };
 
   return new Promise((resolve) => {
-    let response = "";
-    const client = net.createConnection(socketPath, () => {
+    const client = net.createConnection(socketEndpoint, () => {
       client.write(`${JSON.stringify(request)}\n`);
     });
 
     const finish = () => {
       client.destroy();
-      try {
-        resolve(response ? JSON.parse(response.trim()) : undefined);
-      } catch {
-        resolve(undefined);
-      }
+      resolve();
     };
 
     client.setTimeout(500, finish);
-    client.on("data", (chunk) => {
-      response += chunk.toString();
-      if (response.includes("\n")) finish();
-    });
+    client.on("data", finish);
     client.on("error", finish);
     client.on("end", finish);
-    client.on("close", () => resolve(undefined));
-  });
-}
-
-function reportRequest(method, params, paneID) {
-  const targetPaneID = paneID ?? process.env.HERDR_PANE_ID;
-  if (!targetPaneID) return Promise.resolve();
-  return request(method, {
-    pane_id: targetPaneID,
-    source: SOURCE,
-    agent: AGENT,
-    seq: nextReportSeq(),
-    ...params,
+    client.on("close", resolve);
   });
 }
 
@@ -107,84 +106,16 @@ function reportSession(sessionID, sessionStartSource) {
   if (sessionStartSource) {
     params.session_start_source = sessionStartSource;
   }
-  return reportRequest("pane.report_agent_session", params);
+  return request("pane.report_agent_session", params);
 }
 
-function reportState(state, sessionID, paneID) {
+function reportState(state, sessionID) {
   const params = { state };
   if (sessionID) {
+    reportedRootSessionID = sessionID;
     params.agent_session_id = sessionID;
   }
-  return reportRequest("pane.report_agent", params, paneID);
-}
-
-const childPanes = new Map();
-const childAgents = new Map();
-
-async function paneForChildSession(sessionID) {
-  childPanes.delete(sessionID);
-
-  const workspaceID = process.env.HERDR_WORKSPACE_ID;
-  const listResponse = await request("pane.list", {
-    ...(workspaceID ? { workspace_id: workspaceID } : {}),
-  });
-  const panes = listResponse?.result?.panes;
-  if (!Array.isArray(panes)) return undefined;
-
-  for (const pane of panes) {
-    if (!pane?.pane_id || pane.pane_id === process.env.HERDR_PANE_ID) continue;
-    const processResponse = await request("pane.process_info", {
-      pane_id: pane.pane_id,
-    });
-    const processes = processResponse?.result?.process_info?.foreground_processes;
-    if (!Array.isArray(processes)) continue;
-    const matched = processes.some((process) => {
-      const argv = process?.argv;
-      if (!Array.isArray(argv)) return false;
-      const sessionIndex = argv.indexOf("--session");
-      return sessionIndex >= 0 && argv[sessionIndex + 1] === sessionID;
-    });
-    if (matched) {
-      childPanes.set(sessionID, pane.pane_id);
-      return pane.pane_id;
-    }
-  }
-  return undefined;
-}
-
-async function reportChildMetadata(sessionID) {
-  const childAgent = childAgents.get(sessionID);
-  if (!childAgent) return;
-  const paneID = await paneForChildSession(sessionID);
-  if (!paneID) return;
-  await request("pane.report_metadata", {
-    pane_id: paneID,
-    source: SOURCE,
-    agent: AGENT,
-    seq: nextReportSeq(),
-    display_agent: `${AGENT} (${childAgent})`,
-    clear_title: true,
-  });
-}
-
-async function reportChildState(state, sessionID) {
-  const paneID = await paneForChildSession(sessionID);
-  if (!paneID) return;
-  await Promise.all([
-    reportState(state, sessionID, paneID),
-    reportChildMetadata(sessionID),
-  ]);
-}
-
-function aggregateState() {
-  const states = [rootState, ...childStates.values()];
-  if (states.includes("blocked")) return "blocked";
-  if (states.includes("working")) return "working";
-  return "idle";
-}
-
-function reportAggregateState() {
-  return reportState(aggregateState());
+  return request("pane.report_agent", params);
 }
 
 export const HerdrAgentStatePlugin = async () => {
@@ -199,14 +130,8 @@ export const HerdrAgentStatePlugin = async () => {
   return {
     "chat.message": async ({ sessionID }) => {
       if (sessionID && childSessions.has(sessionID)) {
-        childStates.set(sessionID, "working");
-        await Promise.all([
-          reportChildState("working", sessionID),
-          reportAggregateState(),
-        ]);
         return;
       }
-      rootState = "working";
       await reportState("working", sessionID);
     },
     event: async ({ event }) => {
@@ -217,67 +142,44 @@ export const HerdrAgentStatePlugin = async () => {
       const info = properties.info;
       if (info?.id && info.parentID) {
         childSessions.add(info.id);
-        if (typeof info.agent === "string" && info.agent) {
-          childAgents.set(info.id, info.agent);
-        }
       }
       if (sessionID && childSessions.has(sessionID)) {
+        // Child session events are dropped so they cannot clobber the pane's
+        // root-agent state, but a subagent waiting on the user must still
+        // surface as blocked (and clear once answered). Report state only,
+        // without an agent_session_id, so the pane keeps the root session.
         switch (type) {
-          case "session.status": {
-            const state = stateFromSessionStatus(properties.status);
-            if (state) childStates.set(sessionID, state);
+          case "permission.asked":
+          case "question.asked":
+            await reportState("blocked");
             break;
-          }
-          case "tool.execute.before":
-          case "tool.execute.after":
           case "permission.replied":
           case "question.replied":
           case "question.rejected":
-          case "session.compacted":
-            childStates.set(sessionID, "working");
-            break;
-          case "permission.asked":
-          case "question.asked":
-          case "session.error":
-            childStates.set(sessionID, "blocked");
-            break;
-          case "session.idle":
-            childStates.set(sessionID, "idle");
-            break;
-          case "session.deleted":
-            childStates.delete(sessionID);
-            childSessions.delete(sessionID);
-            childPanes.delete(sessionID);
-            childAgents.delete(sessionID);
+            await reportState("working");
             break;
           default:
             break;
         }
-        const childState = childStates.get(sessionID);
-        await Promise.all([
-          childState
-            ? reportChildState(childState, sessionID)
-            : reportChildMetadata(sessionID),
-          reportAggregateState(),
-        ]);
         return;
       }
 
       switch (type) {
         case "session.created":
-          // A root session.created is a genuine new-session start (child
+          // A root session.created is a genuine new-session start (subagent
           // creates are dropped above). Signal it so herdr replaces the pane's
           // prior session id instead of treating the change as cross-talk.
           await reportSession(sessionID, "new");
           break;
         case "session.updated":
-          await reportSession(sessionID);
+          if (sessionID && sessionID !== reportedRootSessionID) {
+            await reportSession(sessionID);
+          }
           break;
         case "session.status": {
           const state = stateFromSessionStatus(properties.status);
           if (state) {
-            rootState = state;
-            await reportAggregateState();
+            await reportState(state, sessionID);
           } else {
             await reportSession(sessionID);
           }
@@ -289,18 +191,15 @@ export const HerdrAgentStatePlugin = async () => {
         case "question.replied":
         case "question.rejected":
         case "session.compacted":
-          rootState = "working";
-          await reportAggregateState();
+          await reportState("working", sessionID);
           break;
         case "permission.asked":
         case "question.asked":
         case "session.error":
-          rootState = "blocked";
-          await reportAggregateState();
+          await reportState("blocked", sessionID);
           break;
         case "session.idle":
-          rootState = "idle";
-          await reportAggregateState();
+          await reportState("idle", sessionID);
           break;
         case "session.deleted":
           break;

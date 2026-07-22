@@ -4,105 +4,44 @@
   "presets": {
     "omniroute": {
       "orchestrator": {
-        "model": "omniroute/omos/orchestrator",
+        "model": "omniroute/combo/coding-alpha",
+        "variant": "high",
         "mcps": ["*"]
       },
       "oracle": {
-        "model": "omniroute/omos/oracle",
-        "mcps": ["*"]
-      },
-      "librarian": {
-        "model": "omniroute/omos/librarian",
-        "mcps": ["context7", "exa", "gh_grep"]
-      },
-      "explorer": {
-        "model": "omniroute/omos/explorer",
-        "mcps": []
-      },
-      "designer": {
-        "model": "omniroute/omos/designer",
-        "mcps": []
-      },
-      "fixer": {
-        "model": "omniroute/omos/fixer",
-        "mcps": []
-      },
-      "observer": {
-        "model": "omniroute/omos/observer",
-        "mcps": []
-      },
-      "council": {
-        "model": "omniroute/omos/council",
-        "mcps": ["*"]
-      }
-    },
-    "openai": {
-      "orchestrator": {
-        "model": "openai/gpt-5.6-terra",
-        "variant": "medium",
-        "mcps": ["*"]
-      },
-      "oracle": {
-        "model": "openai/gpt-5.6-sol",
+        "model": "omniroute/combo/reviewer",
         "variant": "high",
         "mcps": ["*"]
       },
       "librarian": {
-        "model": "openai/gpt-5.6-luna",
-        "variant": "low",
-        "mcps": ["context7", "exa", "gh_grep"]
-      },
-      "explorer": {
-        "model": "openai/gpt-5.6-luna",
-        "variant": "low",
-        "mcps": []
-      },
-      "designer": {
-        "model": "openai/gpt-5.6-luna",
-        "variant": "medium",
-        "mcps": []
-      },
-      "fixer": {
-        "model": "openai/gpt-5.6-luna",
-        "variant": "medium",
-        "mcps": []
-      }
-    },
-    "opencode-go": {
-      "orchestrator": {
-        "model": "omniroute/opencode-go/glm-5.2",
-        "mcps": ["*"]
-      },
-      "oracle": {
-        "model": "omniroute/opencode-go/glm-5.2",
-        "variant": "max",
-        "mcps": ["*"]
-      },
-      "council": {
-        "model": "omniroute/opencode-go/deepseek-v4-pro",
+        "model": "omniroute/combo/coding-beta",
         "variant": "high",
-        "mcps": ["*"]
-      },
-      "librarian": {
-        "model": "omniroute/opencode-go/minimax-m3",
         "mcps": ["context7", "exa", "gh_grep"]
       },
       "explorer": {
-        "model": "omniroute/opencode-go/deepseek-v4-pro",
-        "variant": "max",
+        "model": "omniroute/combo/coding-beta",
+        "variant": "high",
         "mcps": []
       },
       "designer": {
-        "model": "omniroute/opencode-go/kimi-k2.7-code",
+        "model": "omniroute/combo/designer",
+        "variant": "xhigh",
         "mcps": []
       },
       "fixer": {
-        "model": "omniroute/opencode-go/glm-5.2",
+        "model": "omniroute/combo/coding-beta",
+        "variant": "xhigh",
         "mcps": []
       },
       "observer": {
-        "model": "omniroute/opencode-go/kimi-k2.6",
+        "model": "omniroute/combo/coding-beta",
+        "variant": "high",
         "mcps": []
+      },
+      "council": {
+        "model": "omniroute/combo/coding-beta",
+        "variant": "xhigh",
+        "mcps": ["*"]
       }
     }
   },
@@ -110,17 +49,13 @@
     "timeout": 1200000,
     "presets": {
       "default": {
-        "alpha": {
-	  "model": "omniroute/omos/councillor-alpha"
-	},
-	"beta": {
-          "model": "omniroute/omos/councillor-beta"
+        "reviewer": {
+          "model": "omniroute/combo/reviewer",
+          "variant": "high"
         },
-        "gamma": {
-          "model": "omniroute/omos/councillor-gamma"
-        },
-        "delta": {
-          "model": "omniroute/omos/councillor-delta"
+        "coding-alpha": {
+          "model": "omniroute/combo/coding-alpha",
+          "variant": "xhigh"
         }
       }
     }

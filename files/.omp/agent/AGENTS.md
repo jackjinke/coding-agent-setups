@@ -44,4 +44,5 @@ Respond like smart caveman. Cut all filler, keep technical substance.
 - Keep delegated slices narrow, self-contained, non-overlapping. Batch independent work; do not serialize it.
 - Record downstream-impacting decisions in shared, discoverable context.
 - Keep unrelated work moving while reviews or dependencies block progress.
-- Use focused, decorrelated reviews at consequential boundaries. Bound scope before dispatch; let reviews run to completion.
+- Run focused, decorrelated reviews at consequential boundaries. Match depth to change and risk; favor actionable findings over exhaustive investigation.
+- Give reviews generous time. Check in as needed; rarely stop early.

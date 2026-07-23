@@ -16,6 +16,8 @@ defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 
   strategy: snapcompact
+  remoteEnabled: true
+  remoteStreamingV2Enabled: true
 astGrep: 
   enabled: false
 browser: 
@@ -80,3 +82,6 @@ memory:
   backend: "off"
 bashInterceptor: 
   enabled: false
+snapcompact: 
+  shape: auto
+  systemPrompt: none

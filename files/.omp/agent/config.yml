@@ -85,3 +85,5 @@ bashInterceptor:
 snapcompact: 
   shape: auto
   systemPrompt: none
+dev: 
+  autoqaConsent: granted

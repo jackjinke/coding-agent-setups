@@ -112,6 +112,9 @@ snapcompact:
   systemPrompt: none
 dev: 
   autoqaConsent: granted
+  autoqa: false
+  autoqaPush: 
+    endpoint: ""
 hideThinkingBlock: false
 irc: 
   timeoutMs: 300000

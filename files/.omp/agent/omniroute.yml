@@ -1,4 +1,4 @@
-format: responses
+format: chat_completions
 combo/coding-alpha: [medium, high, xhigh, max]
 combo/coding-beta: [high, xhigh, max]
 combo/designer: [high, xhigh, max]

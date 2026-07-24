@@ -33,9 +33,34 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
 providers: 
-  webSearch: exa
   tinyModel: lfm2-700m
   tinyModelDevice: gpu
+  webSearchOrder: 
+    - exa
+    - perplexity
+    - gemini
+    - anthropic
+    - codex
+    - xai
+    - zai
+    - tinyfish
+    - jina
+    - kagi
+    - tavily
+    - firecrawl
+    - brave
+    - kimi
+    - parallel
+    - synthetic
+    - searxng
+    - startpage
+    - duckduckgo
+    - ecosia
+    - google
+    - mojeek
+    - public
+  streamIdleTimeoutSeconds: 0
+  streamFirstEventTimeoutSeconds: 0
 tools: 
   approvalMode: yolo
 advisor: 
@@ -87,3 +112,6 @@ snapcompact:
   systemPrompt: none
 dev: 
   autoqaConsent: granted
+hideThinkingBlock: false
+irc: 
+  timeoutMs: 300000

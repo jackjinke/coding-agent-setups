@@ -11,7 +11,7 @@ modelRoles:
   tiny: omniroute/combo/flash:high
   vision: omniroute/combo/vision
   advisor: "@beta:high"
-  slow: omniroute/combo/reviewer
+  slow: omniroute/combo/reviewer:xhigh
 defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 
@@ -59,8 +59,8 @@ providers:
     - google
     - mojeek
     - public
-  streamIdleTimeoutSeconds: 0
-  streamFirstEventTimeoutSeconds: 0
+  streamIdleTimeoutSeconds: -1
+  streamFirstEventTimeoutSeconds: -1
 tools: 
   approvalMode: yolo
 advisor: 

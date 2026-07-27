@@ -64,7 +64,7 @@ providers:
     - mojeek
     - public
   streamIdleTimeoutSeconds: -1
-  streamFirstEventTimeoutSeconds: -1
+  streamFirstEventTimeoutSeconds: 300
 tools: 
   approvalMode: yolo
 advisor: 
@@ -122,3 +122,5 @@ dev:
 hideThinkingBlock: false
 irc: 
   timeoutMs: 300000
+prewalk: 
+  enabled: false

@@ -4,14 +4,15 @@ modelRoles:
   beta: omniroute/combo/coding-beta
   default: "@alpha"
   smol: "@beta:high"
+  slow: omniroute/combo/reviewer
+  tiny: omniroute/combo/flash:high
   designer: omniroute/combo/designer:xhigh
   task: "@beta:xhigh"
   plan: "@alpha:high"
   commit: "@smol"
-  tiny: omniroute/combo/flash:high
   vision: omniroute/combo/vision
   advisor: "@beta:high"
-  slow: omniroute/combo/reviewer:xhigh
+  reviewer: "@slow:xhigh"
 defaultThinkingLevel: auto
 personality: pragmatic
 compaction: 
@@ -27,6 +28,9 @@ plan:
 task: 
   eager: preferred
   showResolvedModelBadge: true
+  prewalk: false
+  agentModelOverrides: 
+    {}
 commands: 
   enableClaudeUser: false
   enableClaudeProject: false

@@ -5,11 +5,11 @@ modelRoles:
   smol: "@beta:high"
   tiny: omniroute/combo/flash:high
   designer: omniroute/combo/designer:xhigh
-  task: "@beta:xhigh"
+  task: "@alpha:medium"
   plan: "@alpha:high"
   commit: "@smol"
   vision: omniroute/combo/vision
-  advisor: "@beta:high"
+  advisor: "@slow:high"
   reviewer: "@slow:xhigh"
   slow: omniroute/combo/reviewer:xhigh
   default: "@alpha:high"
@@ -68,7 +68,7 @@ providers:
 tools: 
   approvalMode: yolo
 advisor: 
-  enabled: false
+  enabled: true
 disabledProviders: 
   - claude
   - codex

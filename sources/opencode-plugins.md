@@ -73,9 +73,10 @@ Tracked config:
 - Codex hook commands in `files/.codex/hooks.json`
 - OpenCode generated plugin in `files/.config/opencode/plugins/moshi-hooks.ts`
 
-`sync` installs hooks for each selected harness, pairs Moshi when needed, and
-starts the daemon. On Linux, it installs and starts the official systemd user
-service with `moshi service install`.
+`sync` installs or updates Moshi only when Generic / shared is selected. It
+installs hooks for harness groups selected in the same sync, pairs Moshi when
+needed, and starts the daemon. On Linux, it installs and starts the official
+systemd user service with `moshi service install`.
 
 ## Env Protection
 

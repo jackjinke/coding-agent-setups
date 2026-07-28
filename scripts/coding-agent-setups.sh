@@ -68,6 +68,7 @@ backup_roots() {
     "$home_dir/.opencode" \
     "$home_dir/.local/bin" \
     "$config_home/opencode" \
+    "$home_dir/.pi/agent" \
     "$home_dir/.omp/agent"
 }
 

@@ -182,12 +182,10 @@ install_moshi_for_targets() {
 }
 
 ensure_moshi_for_targets() {
-  if [[ $# -eq 0 ]]; then
-    return 0
-  fi
-
   ensure_moshi_installed
-  install_moshi_for_targets "$@"
+  if [[ $# -gt 0 ]]; then
+    install_moshi_for_targets "$@"
+  fi
   if pair_moshi_if_needed; then
     ensure_moshi_daemon_running
   fi

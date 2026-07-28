@@ -696,17 +696,23 @@ sync_backup_roots() {
   if (group_enabled GENERIC && shell_commands_enabled) || agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.local/bin"
   fi
-  if agent_enabled CODEX || agent_enabled OPENCODE; then
+  if group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.agents"
   fi
   if agent_enabled CODEX; then
     printf '%s\n' "$home_dir/.codex"
   fi
-  if agent_enabled CLAUDE; then
+  if group_enabled GENERIC || agent_enabled CLAUDE; then
     printf '%s\n' "$home_dir/.claude"
   fi
+  if group_enabled GENERIC; then
+    printf '%s\n' "$home_dir/.pi/agent"
+  fi
+  if group_enabled GENERIC || agent_enabled OPENCODE; then
+    printf '%s\n' "$config_home/opencode"
+  fi
   if agent_enabled OPENCODE; then
-    printf '%s\n' "$config_home/opencode" "$home_dir/.opencode"
+    printf '%s\n' "$home_dir/.opencode"
   fi
   if group_enabled OMP; then
     printf '%s\n' "$home_dir/.omp/agent"
@@ -773,15 +779,23 @@ source_target_enabled() {
   local target="$1"
   case "$target" in
     .agents/*)
-      agent_enabled CODEX || agent_enabled OPENCODE
+      group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE
       return
       ;;
     .codex/*)
       agent_enabled CODEX
       return
       ;;
+    .claude/skills/*)
+      group_enabled GENERIC || agent_enabled CLAUDE
+      return
+      ;;
     .claude/*)
       agent_enabled CLAUDE
+      return
+      ;;
+    .config/opencode/skills/impeccable)
+      group_enabled GENERIC
       return
       ;;
     .config/opencode/*)
@@ -789,7 +803,11 @@ source_target_enabled() {
       return
       ;;
     .opencode/*)
-      agent_enabled OPENCODE
+      group_enabled GENERIC || agent_enabled OPENCODE
+      return
+      ;;
+    .pi/agent/skills/*)
+      group_enabled GENERIC
       return
       ;;
     .omp/agent/*)
@@ -908,17 +926,20 @@ install_npx_skills() {
   local skill_args=()
   local skill
 
+  if ! group_enabled GENERIC; then
+    return 0
+  fi
   if [[ "${#skills[@]}" -eq 0 ]]; then
     return 0
   fi
 
-  if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
+  if csv_contains "$allowed_agents" codex; then
     agent_args+=(-a codex)
   fi
-  if agent_enabled CLAUDE && csv_contains "$allowed_agents" claude-code; then
+  if csv_contains "$allowed_agents" claude-code; then
     agent_args+=(-a claude-code)
   fi
-  if agent_enabled OPENCODE && csv_contains "$allowed_agents" opencode; then
+  if csv_contains "$allowed_agents" opencode; then
     agent_args+=(-a opencode)
   fi
   if [[ "${#agent_args[@]}" -eq 0 ]]; then
@@ -933,21 +954,18 @@ install_npx_skills() {
   npx skills@latest add "$source" -g --copy -y "${agent_args[@]}" "${skill_args[@]}"
 }
 
-install_uipro() {
-  local allowed_agents="$1"
+install_impeccable() {
+  if ! group_enabled GENERIC; then
+    return 0
+  fi
 
-  if agent_enabled CODEX && csv_contains "$allowed_agents" codex; then
-    echo "Installing UI UX Pro Max for Codex"
-    npx -y ui-ux-pro-max-cli@latest init --ai codex --global --force
-  fi
-  if agent_enabled CLAUDE && csv_contains "$allowed_agents" claude-code; then
-    echo "Installing UI UX Pro Max for Claude Code"
-    npx -y ui-ux-pro-max-cli@latest init --ai claude --global --force
-  fi
-  if agent_enabled OPENCODE && csv_contains "$allowed_agents" opencode; then
-    echo "Installing UI UX Pro Max for OpenCode"
-    npx -y ui-ux-pro-max-cli@latest init --ai opencode --global --force
-  fi
+  echo "Installing Impeccable into shared agent skills"
+  npx -y impeccable@latest install \
+    --providers=codex \
+    --scope=global \
+    --no-hooks \
+    --force \
+    --yes
 }
 
 install_opencode_ohmy() {
@@ -1045,9 +1063,9 @@ install_managed_skills() {
         fi
         npx_skills+=("$skill")
         ;;
-      uipro)
+      impeccable)
         flush_npx_skills
-        install_uipro "$allowed_agents"
+        install_impeccable
         ;;
       opencode-ohmy)
         flush_npx_skills
@@ -1261,7 +1279,7 @@ publish_from_home() {
 
 sync_to_home() {
   local moshi_targets=()
-  if [[ "$config_only" != "1" ]] && (agent_enabled CODEX || agent_enabled CLAUDE || agent_enabled OPENCODE); then
+  if [[ "$config_only" != "1" ]] && (group_enabled GENERIC || agent_enabled CODEX || agent_enabled CLAUDE || agent_enabled OPENCODE); then
     ensure_cmd git
     ensure_cmd npx
     ensure_cmd patch
@@ -1327,7 +1345,7 @@ sync_to_home() {
     fi
     ensure_omos_script_executable
   fi
-  if [[ "$config_only" != "1" && "${#moshi_targets[@]}" -gt 0 ]]; then
+  if [[ "$config_only" != "1" ]] && group_enabled GENERIC; then
     ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents

@@ -9,9 +9,9 @@ modelRoles:
   plan: "@alpha:high"
   commit: "@smol"
   vision: omniroute/combo/vision
-  advisor: omniroute/combo/advisor:high
-  reviewer: "@slow:xhigh"
-  slow: omniroute/combo/reviewer:xhigh
+  advisor: "@slow:high"
+  reviewer: "@slow:high"
+  slow: omniroute/combo/reviewer
   default: "@alpha:high"
 defaultThinkingLevel: high
 personality: pragmatic

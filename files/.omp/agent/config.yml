@@ -9,7 +9,7 @@ modelRoles:
   plan: "@alpha:high"
   commit: "@smol"
   vision: omniroute/combo/vision
-  advisor: "@slow:high"
+  advisor: omniroute/combo/advisor:high
   reviewer: "@slow:xhigh"
   slow: omniroute/combo/reviewer:xhigh
   default: "@alpha:high"
@@ -39,30 +39,6 @@ commands:
 providers: 
   tinyModel: lfm2-700m
   tinyModelDevice: gpu
-  webSearchOrder: 
-    - exa
-    - perplexity
-    - gemini
-    - anthropic
-    - codex
-    - xai
-    - zai
-    - tinyfish
-    - jina
-    - kagi
-    - tavily
-    - firecrawl
-    - brave
-    - kimi
-    - parallel
-    - synthetic
-    - searxng
-    - startpage
-    - duckduckgo
-    - ecosia
-    - google
-    - mojeek
-    - public
   streamIdleTimeoutSeconds: -1
   streamFirstEventTimeoutSeconds: 300
 tools: 
@@ -124,3 +100,4 @@ irc:
   timeoutMs: 300000
 prewalk: 
   enabled: false
+treeFilterMode: default

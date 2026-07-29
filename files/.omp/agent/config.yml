@@ -44,7 +44,7 @@ providers:
 tools: 
   approvalMode: yolo
 advisor: 
-  enabled: true
+  enabled: false
 disabledProviders: 
   - claude
   - codex

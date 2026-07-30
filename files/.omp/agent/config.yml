@@ -23,6 +23,7 @@ astGrep:
   enabled: false
 browser: 
   cmux: false
+  headless: false
 plan: 
   defaultOnStartup: false
 task: 
@@ -31,6 +32,10 @@ task:
   prewalk: false
   agentModelOverrides: 
     {}
+  isolation: 
+    mode: auto
+    merge: patch
+    commits: generic
 commands: 
   enableClaudeUser: false
   enableClaudeProject: false

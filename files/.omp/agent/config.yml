@@ -17,12 +17,7 @@ defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
   strategy: snapcompact
-  remoteEnabled: true
-  remoteStreamingV2Enabled: true
-astGrep: 
-  enabled: false
 browser: 
-  cmux: false
   headless: false
 plan: 
   defaultOnStartup: false
@@ -30,8 +25,6 @@ task:
   eager: preferred
   showResolvedModelBadge: true
   prewalk: false
-  agentModelOverrides: 
-    {}
   isolation: 
     mode: auto
     merge: patch
@@ -42,8 +35,6 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
 providers: 
-  tinyModel: lfm2-700m
-  tinyModelDevice: gpu
   streamIdleTimeoutSeconds: -1
   streamFirstEventTimeoutSeconds: 300
 tools: 
@@ -74,8 +65,6 @@ statusLine:
     - mode
     - context_pct
     - git
-  rightSegments: 
-    - session_name
   segmentOptions: 
     model: 
       showThinkingLevel: true

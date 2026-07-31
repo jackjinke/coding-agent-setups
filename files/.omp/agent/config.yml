@@ -16,7 +16,7 @@ modelRoles:
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
-  strategy: context-full
+  strategy: snapcompact
   remoteEnabled: true
   remoteStreamingV2Enabled: true
 astGrep: 

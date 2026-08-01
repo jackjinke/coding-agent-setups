@@ -216,9 +216,6 @@ retired_targets_file="$repo_root/sources/retired-targets.txt"
 migrate_legacy_state() {
   local legacy_flag_file="$legacy_setup_dir/sync.env"
 
-  if [[ "${CODING_AGENT_SETUPS_SKIP_LEGACY_MIGRATION:-0}" == "1" ]]; then
-    return 0
-  fi
   if [[ -n "${CODING_AGENT_SETUPS_FLAG_FILE:-}" ]]; then
     return 0
   fi
@@ -267,9 +264,7 @@ opencode_paths=(
   ".config/opencode/tui.jsonc"
 )
 
-omp_paths=(
-  ".omp/agent/AGENTS.md"
-)
+omp_paths=()
 
 append_omp_path() {
   local candidate="$1"
@@ -283,7 +278,7 @@ append_omp_path() {
   omp_paths+=("$candidate")
 }
 
-discover_omp_yaml_paths() {
+discover_omp_config_paths() {
   local root="$1"
   local config_dir="$root/.omp/agent"
   local path
@@ -293,16 +288,21 @@ discover_omp_yaml_paths() {
   fi
   while IFS= read -r -d '' path; do
     append_omp_path "${path#"$root/"}"
-  done < <(find "$config_dir" -type f \( -name '*.yaml' -o -name '*.yml' \) -print0)
+  done < <(
+    find "$config_dir" \
+      \( -type d \( -name sessions -o -name terminal-sessions -o -name cache \) -prune \) -o \
+      \( -type f \( -name '*.md' -o -name '*.json' -o -name '*.jsonl' -o -name '*.yaml' -o -name '*.yml' \) \
+        ! -name auth.json ! -name .credentials.json ! -name history.jsonl -print0 \)
+  )
 }
 
 refresh_omp_paths() {
   local src_root="$1"
   local dst_root="$2"
 
-  omp_paths=(".omp/agent/AGENTS.md")
-  discover_omp_yaml_paths "$src_root"
-  discover_omp_yaml_paths "$dst_root"
+  omp_paths=()
+  discover_omp_config_paths "$src_root"
+  discover_omp_config_paths "$dst_root"
 }
 
 rsync_excludes=(

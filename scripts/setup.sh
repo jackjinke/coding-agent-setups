@@ -137,9 +137,6 @@ make_temp_file() {
 migrate_legacy_state() {
   local legacy_flag_file="$legacy_setup_dir/sync.env"
 
-  if [[ "${CODING_AGENT_SETUPS_SKIP_LEGACY_MIGRATION:-0}" == "1" ]]; then
-    return 0
-  fi
   if [[ -n "${CODING_AGENT_SETUPS_FLAG_FILE:-}" ]]; then
     return 0
   fi

@@ -2,17 +2,17 @@ setupVersion: 1
 modelRoles: 
   alpha: omniroute/combo/coding-alpha
   beta: omniroute/combo/coding-beta
-  smol: "@beta:high"
+  smol: "@beta:xhigh"
   tiny: omniroute/combo/flash:high
   designer: omniroute/combo/designer:xhigh
   task: "@alpha:medium"
-  plan: "@alpha:high"
+  plan: "@alpha"
   commit: "@smol"
   vision: omniroute/combo/vision
-  advisor: "@slow:high"
-  reviewer: "@slow:high"
+  advisor: "@slow"
+  reviewer: "@slow"
   slow: omniroute/combo/reviewer
-  default: "@alpha:high"
+  default: "@alpha"
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 

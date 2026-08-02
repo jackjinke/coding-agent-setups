@@ -270,11 +270,13 @@ append_omp_path() {
   local candidate="$1"
   local existing
 
-  for existing in "${omp_paths[@]}"; do
-    if [[ "$existing" == "$candidate" ]]; then
-      return 0
-    fi
-  done
+  if [[ "${#omp_paths[@]}" -gt 0 ]]; then
+    for existing in "${omp_paths[@]}"; do
+      if [[ "$existing" == "$candidate" ]]; then
+        return 0
+      fi
+    done
+  fi
   omp_paths+=("$candidate")
 }
 

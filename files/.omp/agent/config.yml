@@ -36,7 +36,7 @@ commands:
   enableOpencodeProject: false
 providers: 
   streamIdleTimeoutSeconds: -1
-  streamFirstEventTimeoutSeconds: 300
+  streamFirstEventTimeoutSeconds: -1
 tools: 
   approvalMode: yolo
 advisor: 
@@ -95,3 +95,8 @@ irc:
 prewalk: 
   enabled: false
 treeFilterMode: default
+steeringMode: all
+interruptMode: wait
+followUpMode: one-at-a-time
+error: 
+  notify: "on"

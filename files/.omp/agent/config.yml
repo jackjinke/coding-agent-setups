@@ -93,7 +93,7 @@ dev:
   autoqa: false
   autoqaPush: 
     endpoint: ""
-hideThinkingBlock: false
+hideThinkingBlock: true
 irc: 
   timeoutMs: 300000
 prewalk: 

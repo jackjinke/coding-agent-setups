@@ -29,6 +29,10 @@ task:
     mode: auto
     merge: patch
     commits: generic
+  agentModelOverrides: 
+    {}
+  agentPrewalk: 
+    {}
 commands: 
   enableClaudeUser: false
   enableClaudeProject: false
@@ -100,3 +104,5 @@ interruptMode: wait
 followUpMode: one-at-a-time
 error: 
   notify: "on"
+title: 
+  refreshOnReplan: false

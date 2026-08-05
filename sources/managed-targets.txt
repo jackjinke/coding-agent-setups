@@ -1,8 +1,6 @@
 # Targets relative to $HOME that are source-managed by scripts/sync.sh.
 # They must not be vendored under files/.
 .agents/.skill-lock.json
-.agents/skills/playwright-cli
-.agents/skills/gh
 .agents/skills/codebase-design
 .agents/skills/diagnosing-bugs
 .agents/skills/domain-modeling
@@ -14,8 +12,6 @@
 .agents/skills/tdd
 .agents/skills/teach
 .agents/skills/writing-great-skills
-.claude/skills/playwright-cli
-.claude/skills/gh
 .claude/skills/codebase-design
 .claude/skills/diagnosing-bugs
 .claude/skills/domain-modeling

@@ -953,7 +953,7 @@ install_npx_skills() {
   done
 
   echo "Installing skills via npx skills: $source@${skills[*]}"
-  npx skills@latest add "$source" -g --copy -y "${agent_args[@]}" "${skill_args[@]}"
+  npm_config_yes=true npx --yes --package=skills@latest -- skills add "$source" -g --copy -y "${agent_args[@]}" "${skill_args[@]}"
 }
 
 install_impeccable() {

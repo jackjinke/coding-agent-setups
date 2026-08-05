@@ -42,3 +42,7 @@
 .config/opencode/bun.lock
 .config/opencode/opencode.json
 .config/opencode/tui.json
+.agents/skills/playwright-cli
+.agents/skills/gh
+.claude/skills/playwright-cli
+.claude/skills/gh

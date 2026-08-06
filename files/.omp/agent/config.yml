@@ -19,6 +19,7 @@ compaction:
   strategy: snapcompact
 browser: 
   headless: false
+  relay: true
 plan: 
   defaultOnStartup: false
 task: 
@@ -106,3 +107,5 @@ error:
   notify: "on"
 title: 
   refreshOnReplan: false
+github: 
+  enabled: true

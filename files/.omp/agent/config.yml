@@ -12,7 +12,7 @@ modelRoles:
   advisor: "@slow"
   reviewer: "@slow"
   slow: omniroute/combo/reviewer
-  default: "@alpha"
+  default: "@alpha:high"
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
@@ -23,7 +23,7 @@ browser:
 plan: 
   defaultOnStartup: false
 task: 
-  eager: preferred
+  eager: default
   showResolvedModelBadge: true
   prewalk: false
   isolation: 

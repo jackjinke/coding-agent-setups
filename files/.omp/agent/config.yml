@@ -109,3 +109,6 @@ title:
   refreshOnReplan: false
 github: 
   enabled: true
+security: 
+  enabled: false
+autoResume: true

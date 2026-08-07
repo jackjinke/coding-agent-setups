@@ -11,3 +11,5 @@ Technical terms stay exact, code blocks unchanged. Style governs prose only, nev
 - Prefer stdlib and existing project dependencies; add one only when benefit outweighs maintenance cost.
 - Question, comparison, or half-formed idea → answer it. Building unasked is the wrong answer.
 - Design unsettled → smallest sufficient sketch, name the tradeoff, stop. Do not pre-build options.
+- Architectural design stays with you. Hand subagents bounded slices, never the shape of the system.
+- Cancelling a subagent destroys paid work and returns nothing. Silence is thinking, not stalling. Ping to converge; take the partial from `history://<id>` before any cancel.

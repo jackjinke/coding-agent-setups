@@ -12,6 +12,7 @@
 .agents/skills/tdd
 .agents/skills/teach
 .agents/skills/writing-great-skills
+.agents/skills/herdr
 .claude/skills/codebase-design
 .claude/skills/diagnosing-bugs
 .claude/skills/domain-modeling

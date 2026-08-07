@@ -14,6 +14,7 @@ npx-skills	mattpocock/skills	improve-codebase-architecture	codex,claude-code,ope
 npx-skills	mattpocock/skills	tdd	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	teach	codex,claude-code,opencode	mattpocock productivity skill
 npx-skills	mattpocock/skills	writing-great-skills	codex,claude-code,opencode	mattpocock productivity skill
+npx-skills	herdrdev/herdr	herdr	codex,opencode	Herdr terminal multiplexer skill
 impeccable	pbakaus/impeccable	impeccable	codex	Install to shared ~/.agents/skills without provider hooks
 opencode-ohmy	alvinunreal/oh-my-opencode-slim	*	opencode	Use bunx oh-my-opencode-slim installer
 opencode-caveman	JuliusBrussee/caveman	*	opencode	Use upstream OpenCode installer, then remove cavecrew agents

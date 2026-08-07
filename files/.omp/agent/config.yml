@@ -16,7 +16,8 @@ modelRoles:
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
-  strategy: snapcompact
+  strategy: context-full
+  idleEnabled: true
 browser: 
   headless: false
   relay: true

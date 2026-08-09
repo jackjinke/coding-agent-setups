@@ -1007,9 +1007,9 @@ install_opencode_package_dependencies() {
   npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
-ensure_omp_omniroute_plugin() {
-  local plugin_name="omniroute-pi-adapter-ext"
-  local plugin_source="git:github.com/jackjinke/omniroute-pi-adapter-ext"
+ensure_omp_cliproxyapi_plugin() {
+  local plugin_name="omp-cliproxyapi-provider"
+  local plugin_source="github:jackjinke/omp-cliproxyapi-provider"
 
   if ! group_enabled OMP; then
     return 0
@@ -1019,8 +1019,8 @@ ensure_omp_omniroute_plugin() {
     return 0
   fi
 
-  echo "Installing OmniRoute plugin for OMP"
-  omp install "$plugin_source"
+  echo "Installing CLIProxyAPI plugin for OMP"
+  omp plugin install "$plugin_source"
 }
 
 install_managed_skills() {
@@ -1314,7 +1314,7 @@ sync_to_home() {
   if [[ "$config_only" != "1" ]]; then
     install_managed_skills
     install_managed_sources
-    ensure_omp_omniroute_plugin
+    ensure_omp_cliproxyapi_plugin
   fi
   if group_enabled OMP; then
     refresh_omp_paths "$files_dir" "$home_dir"

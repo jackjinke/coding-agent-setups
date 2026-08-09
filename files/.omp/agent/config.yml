@@ -12,7 +12,7 @@ modelRoles:
   advisor: "@slow"
   reviewer: "@slow"
   slow: omniroute/combo/reviewer
-  default: "@alpha:high"
+  default: "@alpha"
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
@@ -21,12 +21,8 @@ compaction:
 browser: 
   headless: false
   relay: true
-plan: 
-  defaultOnStartup: false
 task: 
-  eager: default
   showResolvedModelBadge: true
-  prewalk: false
   isolation: 
     mode: auto
     merge: patch
@@ -45,8 +41,6 @@ providers:
   streamFirstEventTimeoutSeconds: -1
 tools: 
   approvalMode: yolo
-advisor: 
-  enabled: false
 disabledProviders: 
   - claude
   - codex
@@ -91,7 +85,6 @@ snapcompact:
   shape: auto
   systemPrompt: none
 dev: 
-  autoqaConsent: granted
   autoqa: false
   autoqaPush: 
     endpoint: ""
@@ -113,3 +106,8 @@ github:
 security: 
   enabled: false
 autoResume: true
+textVerbosity: low
+features: 
+  unexpectedStopDetection: false
+tui: 
+  scrollbackRebuild: false

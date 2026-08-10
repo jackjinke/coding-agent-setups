@@ -39,8 +39,10 @@ commands:
 providers: 
   streamIdleTimeoutSeconds: -1
   streamFirstEventTimeoutSeconds: -1
+  unexpectedStopModel: online
 tools: 
   approvalMode: yolo
+  outputMaxColumns: 0
 disabledProviders: 
   - claude
   - codex
@@ -108,6 +110,8 @@ security:
 autoResume: true
 textVerbosity: low
 features: 
-  unexpectedStopDetection: false
+  unexpectedStopDetection: true
 tui: 
-  scrollbackRebuild: false
+  scrollbackRebuild: true
+todo: 
+  reminders: false

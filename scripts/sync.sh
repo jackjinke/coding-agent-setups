@@ -1008,8 +1008,8 @@ install_opencode_package_dependencies() {
 }
 
 ensure_omp_omniroute_plugin() {
-  local plugin_name="omniroute-pi-adapter-ext"
-  local plugin_source="git:github.com/jackjinke/omniroute-pi-adapter-ext"
+  local plugin_name="omp-omniroute-provider-ext"
+  local plugin_source="git:github.com/jackjinke/omp-omniroute-provider-ext"
 
   if ! group_enabled OMP; then
     return 0

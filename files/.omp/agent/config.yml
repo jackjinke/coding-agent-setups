@@ -113,5 +113,6 @@ features:
   unexpectedStopDetection: true
 tui: 
   scrollbackRebuild: false
+  imeSafeCursor: true
 todo: 
   reminders: false

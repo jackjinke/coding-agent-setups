@@ -2,7 +2,7 @@ setupVersion: 1
 modelRoles: 
   alpha: omniroute/combo/coding-alpha
   beta: omniroute/combo/coding-beta
-  smol: "@beta:xhigh"
+  smol: "@beta:max"
   tiny: omniroute/combo/flash:high
   designer: omniroute/combo/designer:xhigh
   task: "@alpha:medium"
@@ -112,7 +112,7 @@ textVerbosity: low
 features: 
   unexpectedStopDetection: true
 tui: 
-  scrollbackRebuild: false
-  imeSafeCursor: true
+  scrollbackRebuild: true
+  imeSafeCursor: false
 todo: 
   reminders: false

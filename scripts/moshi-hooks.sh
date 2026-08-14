@@ -62,8 +62,8 @@ update_moshi_hook() {
       fi
       ;;
     Linux)
-      echo "Updating Moshi hook with the official installer."
-      install_moshi_hook_with_installer
+      echo "Updating Moshi hook."
+      moshi-hook update
       restart_moshi_daemon_if_running
       ;;
     *)

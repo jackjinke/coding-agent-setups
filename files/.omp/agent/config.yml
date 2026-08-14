@@ -67,6 +67,8 @@ statusLine:
     - mode
     - context_pct
     - git
+  rightSegments:
+    - session_name
   segmentOptions: 
     model: 
       showThinkingLevel: true

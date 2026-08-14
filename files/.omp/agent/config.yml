@@ -102,12 +102,12 @@ followUpMode: one-at-a-time
 error: 
   notify: "on"
 title: 
-  refreshOnReplan: false
+  refreshOnReplan: true
 github: 
   enabled: true
 security: 
   enabled: false
-autoResume: true
+autoResume: false
 textVerbosity: low
 features: 
   unexpectedStopDetection: true

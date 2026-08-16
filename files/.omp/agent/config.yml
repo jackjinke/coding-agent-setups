@@ -19,8 +19,8 @@ compaction:
   strategy: context-full
   idleEnabled: true
 browser: 
-  headless: false
-  relay: true
+  headless: true
+  relay: false
 task: 
   showResolvedModelBadge: true
   isolation: 
@@ -67,7 +67,7 @@ statusLine:
     - mode
     - context_pct
     - git
-  rightSegments:
+  rightSegments: 
     - session_name
   segmentOptions: 
     model: 
@@ -114,7 +114,10 @@ textVerbosity: low
 features: 
   unexpectedStopDetection: true
 tui: 
-  scrollbackRebuild: true
+  scrollbackRebuild: false
   imeSafeCursor: false
 todo: 
   reminders: false
+  enabled: true
+ttsr: 
+  builtinRules: true

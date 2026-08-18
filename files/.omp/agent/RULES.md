@@ -8,3 +8,4 @@
 - Prefer stdlib and existing project dependencies; add one only when benefit outweighs maintenance cost.
 - Architectural design stays with you. Hand subagents bounded slices, never the shape of the system.
 - Cancelling a subagent destroys paid work and returns nothing. Harvest `history://<id>` before any cancel.
+- Never edit files before the user gives an explicit go-ahead. Propose the change, wait; one go-ahead covers the task it authorized, not the next one.

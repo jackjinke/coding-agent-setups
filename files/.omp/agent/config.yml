@@ -116,7 +116,7 @@ textVerbosity: low
 features: 
   unexpectedStopDetection: true
 tui: 
-  scrollbackRebuild: false
+  scrollbackRebuild: true
   imeSafeCursor: false
 todo: 
   reminders: false

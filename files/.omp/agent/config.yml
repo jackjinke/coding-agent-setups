@@ -1,4 +1,4 @@
-setupVersion: 1
+setupVersion: 2
 modelRoles: 
   alpha: omniroute/combo/coding-alpha
   beta: omniroute/combo/coding-beta
@@ -16,8 +16,10 @@ modelRoles:
 defaultThinkingLevel: high
 personality: pragmatic
 compaction: 
-  strategy: context-full
   idleEnabled: true
+  methodOrder: 
+    - remote
+    - soft
 browser: 
   headless: true
   relay: false
@@ -121,3 +123,5 @@ todo:
   enabled: true
 ttsr: 
   builtinRules: true
+composer: 
+  shape: pi

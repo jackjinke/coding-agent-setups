@@ -124,4 +124,4 @@ todo:
 ttsr: 
   builtinRules: true
 composer: 
-  shape: pi
+  shape: claude

@@ -18,7 +18,7 @@ personality: pragmatic
 compaction: 
   idleEnabled: true
   methodOrder: 
-    - remote
+    - shake
     - soft
 browser: 
   headless: true
@@ -94,7 +94,7 @@ dev:
   autoqa: false
   autoqaPush: 
     endpoint: ""
-hideThinkingBlock: true
+hideThinkingBlock: false
 irc: 
   timeoutMs: 300000
 prewalk: 

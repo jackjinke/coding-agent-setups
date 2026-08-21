@@ -1,61 +1,39 @@
 setupVersion: 2
 modelRoles: 
-  alpha: omniroute/combo/coding-alpha
-  beta: omniroute/combo/coding-beta
-  smol: "@beta:max"
-  tiny: omniroute/combo/flash:high
-  designer: omniroute/combo/designer:xhigh
-  task: "@alpha:medium"
-  plan: "@alpha"
+  smol: gpt-5.6-luna:max
+  tiny: gpt-5.3-codex-spark:high
+  designer: kimi-k3-256k:max
+  task: "@default:medium"
+  plan: "@default"
   commit: "@smol"
   vision: omniroute/combo/vision
   advisor: "@slow"
   reviewer: "@slow"
-  slow: omniroute/combo/reviewer
-  default: "@alpha"
-defaultThinkingLevel: high
+  slow: gpt-5.6-sol:xhigh
+  default: gpt-5.6-sol:high
 personality: pragmatic
 compaction: 
   idleEnabled: true
   methodOrder: 
     - soft
-browser: 
-  headless: true
-  relay: false
 task: 
   showResolvedModelBadge: true
   isolation: 
     mode: auto
-    merge: patch
-    commits: generic
-  agentModelOverrides: 
-    {}
-  agentPrewalk: 
-    {}
 commands: 
   enableClaudeUser: false
   enableClaudeProject: false
   enableOpencodeUser: false
   enableOpencodeProject: false
-providers: 
-  streamIdleTimeoutSeconds: -1
-  streamFirstEventTimeoutSeconds: -1
-  unexpectedStopModel: online
 tools: 
-  approvalMode: yolo
   outputMaxColumns: 0
 disabledProviders: 
   - claude
   - codex
   - opencode
   - ollama
-exa: 
-  enabled: true
 secrets: 
   enabled: true
-display: 
-  shimmer: classic
-modelRoleStorage: global
 collab: 
   relayUrl: ""
 share: 
@@ -78,17 +56,7 @@ statusLine:
       showStaged: false
       showUnstaged: false
       showUntracked: false
-  transparent: false
-  sessionAccent: true
   compactThinkingLevel: true
-  separator: powerline-thin
-memory: 
-  backend: "off"
-bashInterceptor: 
-  enabled: false
-snapcompact: 
-  shape: auto
-  systemPrompt: none
 dev: 
   autoqa: false
   autoqaPush: 
@@ -96,31 +64,16 @@ dev:
 hideThinkingBlock: true
 irc: 
   timeoutMs: 300000
-prewalk: 
-  enabled: false
-treeFilterMode: default
 steeringMode: all
 interruptMode: wait
-followUpMode: one-at-a-time
 error: 
   notify: "on"
-title: 
-  refreshOnReplan: true
 github: 
   enabled: true
-security: 
-  enabled: false
-autoResume: false
 textVerbosity: low
-features: 
-  unexpectedStopDetection: false
 tui: 
   scrollbackRebuild: true
-  imeSafeCursor: false
 todo: 
   reminders: false
-  enabled: true
-ttsr: 
-  builtinRules: true
 composer: 
   shape: claude

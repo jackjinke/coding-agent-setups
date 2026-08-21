@@ -114,7 +114,7 @@ security:
 autoResume: false
 textVerbosity: low
 features: 
-  unexpectedStopDetection: true
+  unexpectedStopDetection: false
 tui: 
   scrollbackRebuild: true
   imeSafeCursor: false

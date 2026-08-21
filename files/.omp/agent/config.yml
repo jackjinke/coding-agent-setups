@@ -18,7 +18,6 @@ personality: pragmatic
 compaction: 
   idleEnabled: true
   methodOrder: 
-    - shake
     - soft
 browser: 
   headless: true

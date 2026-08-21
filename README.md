@@ -96,8 +96,8 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
 - OpenCode setup aliases `opencode` to `omos` in Bash/Zsh. With no arguments,
   `omos` starts OpenCode in Herdr on a random high port; arguments pass directly
   to the real OpenCode CLI without port or multiplexer handling.
-- Generic sync installs or updates Moshi, pairs it, and starts its service. It
-  installs Moshi hooks for harness groups selected in the same sync.
+- Syncing a harness group installs or updates Moshi, pairs it, starts its
+  service, and installs hooks only for the harness groups selected in that sync.
 
 Before pushing manually:
 

@@ -1347,7 +1347,7 @@ sync_to_home() {
     fi
     ensure_omos_script_executable
   fi
-  if [[ "$config_only" != "1" ]] && group_enabled GENERIC; then
+  if [[ "$config_only" != "1" && "${#moshi_targets[@]}" -gt 0 ]]; then
     ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents

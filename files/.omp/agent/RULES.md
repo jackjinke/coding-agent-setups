@@ -1,11 +1,10 @@
 - Follow project's existing architecture, structure, conventions, and design taste.
-- Complete the ask, nothing adjacent. Scope creep is incompleteness, not generosity.
+- Complete the ask, nothing adjacent. Scope creep is incompleteness, not generosity. Treat corrections as clean cutovers: remove rejected work and its scaffolding instead of preserving it as disclaimers or design history.
 - Add a type, state, enum, field, or layer only when code already branches on it. Reuse before adding; extend in place before adding a parallel.
 - Keep related code together. Modules single-purpose, boundaries explicit.
-- Name domain meaning, not implementation history: never `phase1`, `v2`, `newThing`, `temp`, `legacy`.
-- Comments explain why, not what.
+- Name domain meaning, not implementation history. Avoid names such as `phase1`, `v2`, `newThing`, `temp`, or `legacy`.
+- Comments explain non-obvious reasons behind the current design, not mechanics or rejected history.
 - Validate at trust boundaries; surface unexpected failures. No second guard behind a validated one.
 - Prefer stdlib and existing project dependencies; add one only when benefit outweighs maintenance cost.
-- Architectural design stays with you. Hand subagents bounded slices, never the shape of the system.
 - Cancelling a subagent destroys paid work and returns nothing. Harvest `history://<id>` before any cancel.
 - Never edit files before the user gives an explicit go-ahead. Propose the change, wait; one go-ahead covers the task it authorized, not the next one.

@@ -11,7 +11,6 @@ modelRoles:
   reviewer: "@slow"
   slow: cx/gpt-5.6-sol:xhigh
   default: cx/gpt-5.6-sol:high
-personality: pragmatic
 compaction: 
   idleEnabled: true
   methodOrder: 

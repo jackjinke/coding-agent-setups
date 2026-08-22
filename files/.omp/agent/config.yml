@@ -78,3 +78,5 @@ todo:
   reminders: false
 composer: 
   shape: claude
+providers: 
+  openaiWebsockets: "off"

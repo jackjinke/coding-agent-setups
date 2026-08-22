@@ -17,6 +17,7 @@ compaction:
   methodOrder: 
     - remote
     - soft
+  asyncEnabled: false
 task: 
   showResolvedModelBadge: true
   isolation: 
@@ -47,6 +48,7 @@ statusLine:
     - mode
     - context_pct
     - git
+    - token_rate
   rightSegments: 
     - session_name
   segmentOptions: 

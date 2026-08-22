@@ -17,7 +17,6 @@ compaction:
   methodOrder: 
     - remote
     - soft
-  asyncEnabled: false
 task: 
   showResolvedModelBadge: true
   isolation: 

@@ -74,7 +74,8 @@ github:
   enabled: true
 textVerbosity: low
 tui: 
-  scrollbackRebuild: false
+  scrollbackRebuild: true
+  resizeScrollback: rebuild
 todo: 
   reminders: false
 composer: 

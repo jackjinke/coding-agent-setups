@@ -36,7 +36,7 @@ export PATH
 source "$repo_root/scripts/moshi-hooks.sh"
 update_moshi_hook
 
-expected="$(printf 'moshi-hook update\nmoshi service install')"
+expected="$(printf 'moshi-hook update\nmoshi service uninstall\nmoshi service install')"
 actual="$(cat "$log_file")"
 if [[ "$actual" != "$expected" ]]; then
   printf 'Unexpected commands:\n%s\n' "$actual" >&2

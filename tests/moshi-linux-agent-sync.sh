@@ -58,7 +58,7 @@ assert_commands() {
   fi
 }
 
-moshi_lifecycle_prefix="$(printf 'moshi-hook update\nmoshi service install')"
+moshi_lifecycle_prefix="$(printf 'moshi-hook update\nmoshi service uninstall\nmoshi service install')"
 moshi_lifecycle_suffix="moshi service install"
 
 run_sync 2

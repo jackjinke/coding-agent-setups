@@ -102,6 +102,7 @@ restart_moshi_daemon_if_running() {
       fi
       ;;
     Linux)
+      moshi service uninstall || true
       moshi service install
       ;;
   esac

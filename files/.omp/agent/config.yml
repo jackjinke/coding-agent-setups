@@ -74,11 +74,8 @@ github:
   enabled: true
 textVerbosity: low
 tui: 
-  scrollbackRebuild: true
   resizeScrollback: rebuild
 todo: 
   reminders: false
 composer: 
   shape: claude
-providers: 
-  openaiWebsockets: "off"

@@ -20,7 +20,7 @@ task:
   showResolvedModelBadge: true
   isolation:
     mode: auto
-  eager: preferred
+  eager: default
 commands:
   enableClaudeUser: false
   enableClaudeProject: false

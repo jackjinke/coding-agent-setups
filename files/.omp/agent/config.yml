@@ -1,5 +1,5 @@
 setupVersion: 2
-modelRoles: 
+modelRoles:
   smol: cx/gpt-5.6-luna:max
   tiny: cx/gpt-5.3-codex-spark
   designer: kimi-k3-256k:max
@@ -11,71 +11,69 @@ modelRoles:
   reviewer: "@slow"
   slow: cx/gpt-5.6-sol:xhigh
   default: cx/gpt-5.6-sol:high
-compaction: 
+compaction:
   idleEnabled: true
-  methodOrder: 
+  methodOrder:
     - remote
     - soft
-task: 
+task:
   showResolvedModelBadge: true
-  isolation: 
+  isolation:
     mode: auto
   eager: preferred
-commands: 
+commands:
   enableClaudeUser: false
   enableClaudeProject: false
   enableOpencodeUser: false
   enableOpencodeProject: false
-tools: 
+tools:
   outputMaxColumns: 0
-disabledProviders: 
+disabledProviders:
   - claude
   - codex
   - opencode
   - ollama
-secrets: 
+secrets:
   enabled: true
-collab: 
+collab:
   relayUrl: ""
-share: 
+share:
   serverUrl: ""
 symbolPreset: nerd
-statusLine: 
+statusLine:
   preset: custom
-  leftSegments: 
+  leftSegments:
     - model
     - mode
     - context_pct
     - git
     - token_rate
-  rightSegments: 
+  rightSegments:
     - session_name
-  segmentOptions: 
-    model: 
+  segmentOptions:
+    model:
       showThinkingLevel: true
-    git: 
+    git:
       showBranch: true
       showStaged: false
       showUnstaged: false
       showUntracked: false
   compactThinkingLevel: true
-dev: 
+dev:
   autoqa: false
-  autoqaPush: 
+  autoqaPush:
     endpoint: ""
 hideThinkingBlock: true
-irc: 
+irc:
   timeoutMs: 300000
 steeringMode: all
 interruptMode: wait
-error: 
+error:
   notify: "on"
-github: 
+github:
   enabled: true
 textVerbosity: low
-tui: 
-  resizeScrollback: rebuild
-todo: 
+todo:
   reminders: false
-composer: 
+composer:
   shape: claude

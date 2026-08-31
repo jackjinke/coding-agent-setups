@@ -12,9 +12,8 @@ window_title = "{terminal_title} ({workspace})"
 
 [ui.sidebar.agents.rows_by_agent]
 omp = [
-  ["state_icon", "agent", "state_text"],
+  ["state_icon", "workspace", "tab"],
   ["terminal_title_stripped"],
-  ["workspace", "tab"],
 ]
 [experimental]
 kitty_graphics = true

@@ -20,7 +20,7 @@ task:
   showResolvedModelBadge: true
   isolation:
     mode: auto
-  eager: default
+  eager: preferred
 commands:
   enableClaudeUser: false
   enableClaudeProject: false
@@ -77,3 +77,5 @@ todo:
   reminders: false
 composer:
   shape: claude
+tui:
+  titleState: false

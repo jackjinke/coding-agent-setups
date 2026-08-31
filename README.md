@@ -55,9 +55,10 @@ coding-agent-setups sync --config-only
 
 For automation, `--yes` skips the checklist and selects every group.
 
-Generic / shared installs reusable skills into shared agent locations. Impeccable
-is installed once under `~/.agents/skills`; compatible harnesses discover it
-there. OpenCode selection installs OpenCode-specific plugins and Caveman.
+Generic / shared installs reusable skills into shared agent locations and syncs
+the Herdr config. Impeccable is installed once under `~/.agents/skills`;
+compatible harnesses discover it there. OpenCode selection installs
+OpenCode-specific plugins and Caveman.
 
 Choose what to publish from this machine into the repo from the same
 nothing-selected checklist:

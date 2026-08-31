@@ -232,7 +232,9 @@ migrate_legacy_state() {
   echo "Migrated sync selection to $flag_file"
 }
 
-generic_paths=()
+generic_paths=(
+  ".config/herdr/config.toml"
+)
 
 codex_paths=(
   ".codex/AGENTS.md"
@@ -712,6 +714,9 @@ sync_backup_roots() {
   fi
   if group_enabled GENERIC || agent_enabled OPENCODE; then
     printf '%s\n' "$config_home/opencode"
+  fi
+  if group_enabled GENERIC; then
+    printf '%s\n' "$config_home/herdr"
   fi
   if agent_enabled OPENCODE; then
     printf '%s\n' "$home_dir/.opencode"

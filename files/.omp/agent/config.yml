@@ -79,3 +79,5 @@ composer:
   shape: claude
 tui:
   titleState: false
+generate_image:
+  enabled: true

@@ -19,7 +19,7 @@ compaction:
 task:
   showResolvedModelBadge: true
   isolation:
-    mode: auto
+    enabled: true
   eager: preferred
 commands:
   enableClaudeUser: false
@@ -81,3 +81,17 @@ tui:
   titleState: false
 generate_image:
   enabled: true
+isolation:
+  backend: auto
+retry:
+  fallbackChains:
+    default:
+      - omniroute/kimi-k3-256k:high
+    smol:
+      - omniroute/deepseek-v4-flash:max
+    commit:
+      - omniroute/deepseek-v4-flash:high
+    task:
+      - omniroute/deepseek-v4-flash:max
+    slow:
+      - omniroute/kimi-k3-256k:max

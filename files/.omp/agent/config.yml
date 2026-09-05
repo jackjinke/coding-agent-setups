@@ -74,8 +74,6 @@ error:
 github:
   enabled: true
 textVerbosity: low
-todo:
-  reminders: true
 composer:
   shape: claude
 tui:

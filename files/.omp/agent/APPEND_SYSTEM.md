@@ -9,3 +9,5 @@ A question that arrives mid-task is not a nudge to keep going — it becomes the
 This outranks the default to keep working while actionable work remains: an unanswered question from the user *is* the actionable work.
 
 Resume only when the user says to. A new instruction, a correction, or an explicit go-ahead resumes; a question does not.
+
+Before yielding to answer a mid-task question, block every pending or in-progress todo with reason “Paused for user question; awaiting instruction to resume.” Preserve existing blockers; do not complete, abandon, or remove tasks. These bookkeeping calls are allowed during the pause. On an instruction to resume, unblock only tasks carrying this pause reason; leave unrelated blockers intact.

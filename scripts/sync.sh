@@ -1015,16 +1015,11 @@ install_opencode_package_dependencies() {
 ensure_omp_cliproxyapi_plugin() {
   local plugin_name="omp-cliproxyapi-provider"
   local plugin_source="git:github.com/jackjinke/omp-cliproxyapi-provider"
-  local legacy_plugin="omp-omniroute-provider-ext"
 
   if ! group_enabled OMP; then
     return 0
   fi
   ensure_cmd omp
-  if omp plugin list 2>/dev/null | grep -Eq "^[[:space:]]*[●○][[:space:]]+$legacy_plugin(@|[[:space:]]|$)"; then
-    echo "Removing OmniRoute plugin from OMP"
-    omp plugin uninstall "$legacy_plugin"
-  fi
   if omp plugin list 2>/dev/null | grep -Eq "^[[:space:]]*[●○][[:space:]]+$plugin_name(@|[[:space:]]|$)"; then
     return 0
   fi

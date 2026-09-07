@@ -8,8 +8,6 @@ published installer. They should not be vendored in this repo:
 - `@tarquinen/opencode-dcp` through `package.json` semver; source:
   `https://github.com/Opencode-DCP/opencode-dynamic-context-pruning`
 - `oh-my-opencode-slim`
-- `opencode-omniroute-auth` through `package.json` semver; source:
-  `https://github.com/Alph4d0g/opencode-omniroute-auth`
 - `@prevalentware/opencode-goal-plugin` through `package.json` semver; source:
   `https://github.com/prevalentWare/opencode-goal-plugin`
 

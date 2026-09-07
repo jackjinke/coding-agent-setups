@@ -3,7 +3,7 @@ sandbox_mode = "workspace-write"
 approvals_reviewer = "auto_review"
 plan_mode_reasoning_effort = "xhigh"
 model = "gpt-5.6-terra"
-model_provider = "omniroute"
+model_provider = "cliproxyapi"
 model_reasoning_effort = "high"
 service_tier = "default"
 
@@ -16,10 +16,10 @@ network_access = true
 exclude_tmpdir_env_var = false
 exclude_slash_tmp = false
 
-[model_providers.omniroute]
-name = "OmniRoute"
-base_url = "http://or.moguyun.link:20128/v1"
-env_key = "OMNIROUTE_API_KEY"
+[model_providers.cliproxyapi]
+name = "CLIProxyAPI"
+base_url = "http://cpa.sorcery.link:8317/v1"
+env_key = "CLIPROXYAPI_API_KEY"
 wire_api = "responses"
 
 [features]

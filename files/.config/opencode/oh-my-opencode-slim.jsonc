@@ -1,45 +1,45 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "omniroute",
+  "preset": "cliproxyapi",
   "presets": {
-    "omniroute": {
+    "cliproxyapi": {
       "orchestrator": {
-        "model": "omniroute/combo/coding-alpha",
+        "model": "cliproxyapi/gpt-6-astra",
         "variant": "high",
         "mcps": ["*"]
       },
       "oracle": {
-        "model": "omniroute/combo/reviewer",
+        "model": "cliproxyapi/gpt-6-astra",
         "variant": "high",
         "mcps": ["*"]
       },
       "librarian": {
-        "model": "omniroute/combo/coding-beta",
+        "model": "cliproxyapi/gpt-5.6-sol",
         "variant": "high",
         "mcps": ["context7", "exa", "gh_grep"]
       },
       "explorer": {
-        "model": "omniroute/combo/coding-beta",
+        "model": "cliproxyapi/gpt-5.6-sol",
         "variant": "high",
         "mcps": []
       },
       "designer": {
-        "model": "omniroute/combo/designer",
+        "model": "cliproxyapi/kimi-k3-256k",
         "variant": "xhigh",
         "mcps": []
       },
       "fixer": {
-        "model": "omniroute/combo/coding-beta",
+        "model": "cliproxyapi/gpt-5.6-sol",
         "variant": "xhigh",
         "mcps": []
       },
       "observer": {
-        "model": "omniroute/combo/coding-beta",
+        "model": "cliproxyapi/gpt-5.6-sol",
         "variant": "high",
         "mcps": []
       },
       "council": {
-        "model": "omniroute/combo/coding-beta",
+        "model": "cliproxyapi/gpt-5.6-sol",
         "variant": "xhigh",
         "mcps": ["*"]
       }
@@ -50,11 +50,11 @@
     "presets": {
       "default": {
         "reviewer": {
-          "model": "omniroute/combo/reviewer",
+          "model": "cliproxyapi/gpt-6-astra",
           "variant": "high"
         },
         "coding-alpha": {
-          "model": "omniroute/combo/coding-alpha",
+          "model": "cliproxyapi/gpt-6-astra",
           "variant": "xhigh"
         }
       }

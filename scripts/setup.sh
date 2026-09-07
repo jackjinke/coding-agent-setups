@@ -300,12 +300,13 @@ if [[ "$install_shell_commands" == "1" ]]; then
 fi
 
 echo "Configuring local OpenCode environment."
-base_url="$(prompt_value "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "OmniRoute base URL" "http://localhost:20128/v1")"
-set_env_var "$opencode_env" OPENCODE_OMNIROUTE_BASE_URL "$base_url"
+base_url="$(prompt_value "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "CLIProxyAPI base URL" "http://localhost:8317/v1")"
+set_env_var "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "$base_url"
+api_key="$(prompt_secret "$opencode_env" OPENCODE_CLIPROXYAPI_API_KEY "CLIProxyAPI API key")"
+set_env_var "$opencode_env" OPENCODE_CLIPROXYAPI_API_KEY "$api_key"
 set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
 set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_CODE_MODE "true"
 ensure_opencode_env_wrapper
-echo "Run /connect omniroute in OpenCode to store the OmniRoute API key."
 
 write_flags "$install_shell_commands"
 echo "Wrote setup state to $flag_file"

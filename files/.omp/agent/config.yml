@@ -14,9 +14,9 @@ modelRoles:
 compaction:
   idleEnabled: true
   methodOrder:
+    - remote
     - soft
     - snapcompact
-    - remote
 task:
   showResolvedModelBadge: true
   isolation:

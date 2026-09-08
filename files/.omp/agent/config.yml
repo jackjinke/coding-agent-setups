@@ -1,6 +1,6 @@
 setupVersion: 2
 modelRoles:
-  smol: cliproxyapi/gpt-5.6-luna:max
+  smol: cliproxyapi/gpt-5.6-luna:xhigh
   tiny: cliproxyapi/gpt-5.3-codex-spark
   designer: cliproxyapi/kimi-k3-256k:max
   task: cliproxyapi/gpt-5.6-sol:medium
@@ -21,7 +21,7 @@ task:
   showResolvedModelBadge: true
   isolation:
     enabled: true
-  eager: preferred
+  eager: default
 commands:
   enableClaudeUser: false
   enableClaudeProject: false
@@ -82,3 +82,6 @@ generate_image:
   enabled: true
 isolation:
   backend: auto
+todo:
+  enabled: true
+  reminders: false

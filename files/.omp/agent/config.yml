@@ -3,14 +3,14 @@ modelRoles:
   smol: cliproxyapi/gpt-5.6-luna:xhigh
   tiny: cliproxyapi/gpt-5.3-codex-spark
   designer: cliproxyapi/kimi-k3-256k:max
-  task: cliproxyapi/gpt-5.6-sol:medium
+  task: cliproxyapi/gpt-5.6-sol:med
   plan: "@slow"
   commit: "@smol"
   vision: cliproxyapi/gpt-5.6-luna:max
   advisor: "@slow"
   reviewer: "@slow"
   slow: cliproxyapi/gpt-6-astra:high
-  default: cliproxyapi/gpt-6-astra:medium
+  default: cliproxyapi/gpt-6-astra:med
 compaction:
   idleEnabled: true
   methodOrder:
@@ -21,7 +21,6 @@ task:
   showResolvedModelBadge: true
   isolation:
     enabled: true
-  eager: default
 commands:
   enableClaudeUser: false
   enableClaudeProject: false
@@ -83,5 +82,4 @@ generate_image:
 isolation:
   backend: auto
 todo:
-  enabled: true
   reminders: false

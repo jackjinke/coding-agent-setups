@@ -63,7 +63,7 @@ dev:
   autoqa: false
   autoqaPush:
     endpoint: ""
-hideThinkingBlock: true
+hideThinkingBlock: false
 irc:
   timeoutMs: 300000
 steeringMode: all
@@ -83,3 +83,5 @@ isolation:
   backend: auto
 todo:
   reminders: false
+providers:
+  openaiWebsockets: "off"

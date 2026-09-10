@@ -3,3 +3,5 @@ models:
     contextWindow: 400000
   gpt-6-astra:
     contextWindow: 400000
+  deepseek-v4.1-flash-expires-on-0910:
+    contextWindow: 1000000

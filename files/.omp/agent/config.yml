@@ -83,3 +83,6 @@ isolation:
   backend: auto
 todo:
   reminders: false
+omitThinking: false
+terminal:
+  showProgress: true

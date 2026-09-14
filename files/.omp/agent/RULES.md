@@ -2,9 +2,11 @@
 - Complete the ask, nothing adjacent. Scope creep is incompleteness, not generosity. Treat corrections as clean cutovers: remove rejected work and its scaffolding instead of preserving it as disclaimers or design history.
 - Add types, state, enums, fields, or layers only when required by the requested behavior or a current invariant. Reuse before adding; extend in place before adding a parallel. Do not build for hypothetical future uses.
 - Keep related code together. Modules single-purpose, boundaries explicit.
+- Keep hand-written source files at 1,000 lines or fewer. Split along cohesive module boundaries before exceeding the limit. Exclude generated files, lockfiles, and fixtures.
 - Name domain meaning, not implementation history. Avoid names such as `phase1`, `v2`, `newThing`, `temp`, or `legacy`.
 - Comments explain non-obvious reasons behind the current design, not mechanics or rejected history.
 - Validate at trust boundaries; surface unexpected failures. No second guard behind a validated one.
 - Prefer stdlib and existing project dependencies; add one only when benefit outweighs maintenance cost.
 - Cancelling a subagent destroys paid work and returns nothing. Harvest `history://<id>` before any cancel.
 - An explicit request to implement, change, or fix something authorizes the necessary in-scope edits. Requests to audit, review, explain, or plan do not. Ask before expanding scope or taking destructive actions outside that authorization.
+- Do not use em dashes in prose you author.

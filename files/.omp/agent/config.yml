@@ -64,8 +64,6 @@ dev:
   autoqaPush:
     endpoint: ""
 hideThinkingBlock: true
-irc:
-  timeoutMs: 300000
 steeringMode: all
 interruptMode: wait
 error:

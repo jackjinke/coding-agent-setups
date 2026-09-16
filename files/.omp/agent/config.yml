@@ -12,7 +12,7 @@ modelRoles:
   task: cliproxyapi/gpt-6-astra:low
   smol: cliproxyapi/gpt-5.6-luna:xhigh
 compaction:
-  idleEnabled: true
+  idleEnabled: false
   methodOrder:
     - remote
     - soft

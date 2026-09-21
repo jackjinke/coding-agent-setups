@@ -88,3 +88,15 @@ recap:
 providers:
   tinyModel: lfm2.5-230m
   tinyModelDevice: auto
+retry:
+  fallbackChains:
+    task:
+      - cliproxyapi/claude-opus-5:medium
+    designer:
+      - cliproxyapi/claude-opus-5:high
+    slow:
+      - cliproxyapi/claude-fable-5-1:high
+cycleOrder:
+  - smol
+  - default
+  - slow

@@ -96,6 +96,8 @@ retry:
       - cliproxyapi/claude-opus-5:high
     slow:
       - cliproxyapi/claude-fable-5-1:high
+    smol:
+      - cliproxyapi/deepseek-flash:high
 cycleOrder:
   - smol
   - default

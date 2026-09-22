@@ -10,13 +10,14 @@ modelRoles:
   default: cliproxyapi/gpt-6-astra:medium
   task: cliproxyapi/gpt-6-astra:low
   smol: cliproxyapi/gpt-5.6-luna:xhigh
+  tiny: local/lfm2.5-230m
 compaction:
   methodOrder:
     - remote
     - soft
     - snapcompact
 task:
-  showResolvedModelBadge: true
+  showResolvedModelBadge: false
   isolation:
     enabled: true
 commands:
@@ -86,7 +87,6 @@ doubleEscapeAction: tree
 recap:
   enabled: false
 providers:
-  tinyModel: lfm2.5-230m
   tinyModelDevice: auto
 retry:
   fallbackChains:

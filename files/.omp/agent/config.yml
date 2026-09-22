@@ -17,7 +17,6 @@ compaction:
     - soft
     - snapcompact
 task:
-  showResolvedModelBadge: false
   isolation:
     enabled: true
 commands:
@@ -80,7 +79,6 @@ isolation:
   backend: auto
 todo:
   reminders: false
-omitThinking: false
 terminal:
   showProgress: true
 doubleEscapeAction: tree
@@ -98,7 +96,3 @@ retry:
       - cliproxyapi/claude-fable-5-1:high
     smol:
       - cliproxyapi/deepseek-flash:high
-cycleOrder:
-  - smol
-  - default
-  - slow

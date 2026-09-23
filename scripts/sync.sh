@@ -1012,22 +1012,6 @@ install_opencode_package_dependencies() {
   npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
-ensure_omp_cliproxyapi_plugin() {
-  local plugin_name="omp-cliproxyapi-provider"
-  local plugin_source="git:github.com/jackjinke/omp-cliproxyapi-provider"
-
-  if ! group_enabled OMP; then
-    return 0
-  fi
-  ensure_cmd omp
-  if omp plugin list 2>/dev/null | grep -Eq "^[[:space:]]*[●○][[:space:]]+$plugin_name(@|[[:space:]]|$)"; then
-    return 0
-  fi
-
-  echo "Installing CLIProxyAPI plugin for OMP"
-  omp install "$plugin_source"
-}
-
 install_managed_skills() {
   local installer source skill allowed_agents notes
   local npx_source=""
@@ -1319,7 +1303,6 @@ sync_to_home() {
   if [[ "$config_only" != "1" ]]; then
     install_managed_skills
     install_managed_sources
-    ensure_omp_cliproxyapi_plugin
   fi
   if group_enabled OMP; then
     refresh_omp_paths "$files_dir" "$home_dir"

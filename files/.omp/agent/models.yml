@@ -1,0 +1,27 @@
+# All three providers route through CLIProxyAPI. `apiKey` names the env var
+# (set in ~/.omp/agent/.env). The key contains "sk-ant-oat" so omp sends its
+# native Claude Code request shape, which CPA passes through without cloaking.
+providers:
+  anthropic:
+    baseUrl: http://cpa.sorcery.link:8317
+    apiKey: CLIPROXYAPI_API_KEY
+    compat:
+      supportsLongCacheRetention: true
+      supportsEagerToolInputStreaming: true
+      replayUnsignedThinking: false
+    remoteCompaction:
+      enabled: true
+
+  openai-codex:
+    baseUrl: http://cpa.sorcery.link:8317/backend-api
+    apiKey: CLIPROXYAPI_API_KEY
+    remoteCompaction:
+      enabled: true
+      v2StreamingEnabled: true
+
+  cliproxyapi:
+    baseUrl: http://cpa.sorcery.link:8317/v1
+    apiKey: CLIPROXYAPI_API_KEY
+    api: openai-completions
+    discovery:
+      type: openai-models-list

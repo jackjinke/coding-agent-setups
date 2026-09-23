@@ -1,15 +1,15 @@
 setupVersion: 2
 modelRoles:
-  designer: cliproxyapi/claude-opus-5-5:medium
+  designer: anthropic/claude-opus-5-5:medium
   plan: "@slow"
   commit: "@smol"
-  vision: cliproxyapi/gpt-6-luna:max
+  vision: openai-codex/gpt-6-luna:max
   advisor: "@slow"
   reviewer: "@slow"
-  slow: cliproxyapi/gpt-6-astra:xhigh
-  default: cliproxyapi/claude-opus-5-5:high
-  task: cliproxyapi/claude-opus-5-5:medium
-  smol: cliproxyapi/gpt-6-luna:xhigh
+  slow: openai-codex/gpt-6-astra:xhigh
+  default: anthropic/claude-opus-5-5:high
+  task: anthropic/claude-opus-5-5:medium
+  smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
 compaction:
   methodOrder:

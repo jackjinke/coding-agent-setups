@@ -218,26 +218,6 @@ prompt_value() {
   printf '%s' "$value"
 }
 
-prompt_secret() {
-  local file="$1"
-  local key="$2"
-  local prompt="$3"
-  local current value
-
-  current="$(read_existing_key "$file" "$key")"
-  if [[ -n "$current" ]]; then
-    read -r -s -p "$prompt [keep existing]: " value
-    echo >&2
-    value="${value:-$current}"
-  else
-    while [[ -z "${value:-}" ]]; do
-      read -r -s -p "$prompt: " value
-      echo >&2
-    done
-  fi
-  printf '%s' "$value"
-}
-
 set_env_var() {
   local file="$1"
   local key="$2"
@@ -302,8 +282,6 @@ fi
 echo "Configuring local OpenCode environment."
 base_url="$(prompt_value "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "CLIProxyAPI base URL" "http://localhost:8317/v1")"
 set_env_var "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "$base_url"
-api_key="$(prompt_secret "$opencode_env" OPENCODE_CLIPROXYAPI_API_KEY "CLIProxyAPI API key")"
-set_env_var "$opencode_env" OPENCODE_CLIPROXYAPI_API_KEY "$api_key"
 set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
 set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_CODE_MODE "true"
 ensure_opencode_env_wrapper

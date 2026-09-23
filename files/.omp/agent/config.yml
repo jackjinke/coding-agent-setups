@@ -1,15 +1,15 @@
 setupVersion: 2
 modelRoles:
-  designer: cliproxyapi/gpt-6-astra:medium
+  designer: cliproxyapi/claude-opus-5-5:medium
   plan: "@slow"
   commit: "@smol"
-  vision: cliproxyapi/gpt-5.6-luna:max
+  vision: cliproxyapi/gpt-6-luna:max
   advisor: "@slow"
   reviewer: "@slow"
-  slow: cliproxyapi/gpt-6-astra:high
-  default: cliproxyapi/gpt-6-astra:medium
-  task: cliproxyapi/gpt-6-astra:low
-  smol: cliproxyapi/gpt-5.6-luna:xhigh
+  slow: cliproxyapi/gpt-6-astra:xhigh
+  default: cliproxyapi/claude-opus-5-5:high
+  task: cliproxyapi/claude-opus-5-5:medium
+  smol: cliproxyapi/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
 compaction:
   methodOrder:
@@ -86,13 +86,3 @@ recap:
   enabled: false
 providers:
   tinyModelDevice: auto
-retry:
-  fallbackChains:
-    task:
-      - cliproxyapi/claude-opus-5:medium
-    designer:
-      - cliproxyapi/claude-opus-5:high
-    slow:
-      - cliproxyapi/claude-fable-5-1:high
-    smol:
-      - cliproxyapi/deepseek-flash:high

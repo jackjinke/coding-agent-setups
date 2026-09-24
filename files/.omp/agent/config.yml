@@ -20,9 +20,7 @@ task:
   isolation:
     enabled: true
 commands:
-  enableClaudeUser: false
   enableClaudeProject: false
-  enableOpencodeUser: false
   enableOpencodeProject: false
 tools:
   outputMaxColumns: 0
@@ -49,14 +47,10 @@ statusLine:
   rightSegments:
     - session_name
   segmentOptions:
-    model:
-      showThinkingLevel: true
     git:
-      showBranch: true
       showStaged: false
       showUnstaged: false
       showUntracked: false
-  compactThinkingLevel: true
 dev:
   autoqa: false
   autoqaPush:
@@ -75,8 +69,6 @@ tui:
   titleState: false
 generate_image:
   enabled: true
-isolation:
-  backend: auto
 todo:
   reminders: false
 terminal:

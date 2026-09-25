@@ -5,6 +5,6 @@
 - Prefer stdlib and existing dependencies.
 - Implementation requests authorize in-scope edits; reviews, audits, and plans do not.
 - Test observable behavior against independently derived expectations; no tautologies or change detectors. Assertions must survive behavior-preserving refactors.
-- Add regression tests only for genuine gaps in behavior coverage; prefer improving existing tests to adding new ones.
+- Bug fixes get a regression test only for a genuine gap in behavior coverage; prefer improving existing tests to adding new ones.
 - Strongly prefer E2E-only testing, especially for complex features. Each run leaves a verifiable artifact containing inputs, rerun command, and results.
 - Never write unit tests after implementation. When isolation is necessary, enumerate failure modes before writing tests or code.

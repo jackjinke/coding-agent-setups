@@ -9,7 +9,6 @@
 .agents/skills/grill-with-docs
 .agents/skills/handoff
 .agents/skills/improve-codebase-architecture
-.agents/skills/tdd
 .agents/skills/teach
 .agents/skills/writing-great-skills
 .agents/skills/herdr
@@ -21,7 +20,6 @@
 .claude/skills/grill-with-docs
 .claude/skills/handoff
 .claude/skills/improve-codebase-architecture
-.claude/skills/tdd
 .claude/skills/teach
 .claude/skills/writing-great-skills
 .agents/skills/impeccable

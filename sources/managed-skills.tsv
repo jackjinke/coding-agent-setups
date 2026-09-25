@@ -11,7 +11,6 @@ npx-skills	mattpocock/skills	grilling	codex,claude-code,opencode	mattpocock prod
 npx-skills	mattpocock/skills	grill-with-docs	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	handoff	codex,claude-code,opencode	mattpocock productivity skill
 npx-skills	mattpocock/skills	improve-codebase-architecture	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	tdd	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	teach	codex,claude-code,opencode	mattpocock productivity skill
 npx-skills	mattpocock/skills	writing-great-skills	codex,claude-code,opencode	mattpocock productivity skill
 npx-skills	herdrdev/herdr	herdr	codex,opencode	Herdr terminal multiplexer skill

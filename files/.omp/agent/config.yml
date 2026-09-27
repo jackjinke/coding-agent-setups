@@ -11,11 +11,6 @@ modelRoles:
   task: anthropic/claude-opus-5-5:medium
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
-compaction:
-  methodOrder:
-    - remote
-    - soft
-    - snapcompact
 task:
   isolation:
     enabled: true
@@ -78,3 +73,7 @@ recap:
   enabled: false
 providers:
   tinyModelDevice: auto
+  openai-codex:
+    codeMode: auto
+retry:
+  waitForUsageReset: true

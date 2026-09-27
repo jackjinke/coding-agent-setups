@@ -307,6 +307,9 @@ refresh_omp_paths() {
   omp_paths=()
   discover_omp_config_paths "$src_root"
   discover_omp_config_paths "$dst_root"
+  # Discovery skips code; Herdr and Moshi install their own extensions beside
+  # these, so repo-owned extensions are listed explicitly.
+  append_omp_path ".omp/agent/extensions/impeccable.ts"
 }
 
 rsync_excludes=(
@@ -1056,7 +1059,9 @@ install_managed_skills() {
         ;;
       impeccable)
         flush_npx_skills
-        install_impeccable
+        if ! install_impeccable; then
+          echo "Impeccable install failed; skipping and keeping any existing install." >&2
+        fi
         ;;
       opencode-ohmy)
         flush_npx_skills

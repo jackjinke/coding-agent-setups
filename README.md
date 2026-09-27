@@ -57,8 +57,17 @@ For automation, `--yes` skips the checklist and selects every group.
 
 Generic / shared installs reusable skills into shared agent locations and syncs
 the Herdr config. Impeccable is installed once under `~/.agents/skills`;
-compatible harnesses discover it there. OpenCode selection installs
+compatible harnesses discover it there. If the Impeccable installer fails, sync
+warns and keeps any existing install. OpenCode selection installs
 OpenCode-specific plugins and Caveman.
+
+OMP selection syncs `~/.omp/agent/extensions/impeccable.ts`, which runs
+Impeccable's design hook after OMP `edit`/`write` calls and at session stop, the
+same checks its Claude Code and Codex hooks run. It applies to every project;
+turn it off for one project by running
+`~/.agents/skills/impeccable/scripts/impeccable hooks off` there, or everywhere
+with `IMPECCABLE_HOOK_DISABLED=1`. Hook state lives under
+`~/.impeccable/hook-state` instead of each project.
 
 Choose what to publish from this machine into the repo from the same
 nothing-selected checklist:

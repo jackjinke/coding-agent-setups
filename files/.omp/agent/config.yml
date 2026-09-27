@@ -77,3 +77,9 @@ providers:
     codeMode: auto
 retry:
   waitForUsageReset: true
+compaction:
+  methodOrder:
+    - remote
+    - soft
+    - handoff
+    - snapcompact

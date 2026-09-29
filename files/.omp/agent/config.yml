@@ -14,7 +14,7 @@ modelRoles:
 task:
   isolation:
     enabled: true
-  enableEffort: true
+  enableEffort: false
 commands:
   enableClaudeProject: false
   enableOpencodeProject: false

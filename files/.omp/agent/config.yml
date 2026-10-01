@@ -8,7 +8,7 @@ modelRoles:
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
   default: anthropic/claude-opus-5-5
-  task: anthropic/claude-opus-5-5:auto
+  task: anthropic/claude-sonnet-5-5:auto
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
 task:

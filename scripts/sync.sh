@@ -294,7 +294,7 @@ discover_omp_config_paths() {
     append_omp_path "${path#"$root/"}"
   done < <(
     find "$config_dir" \
-      \( -type d \( -name sessions -o -name terminal-sessions -o -name cache \) -prune \) -o \
+      \( -type d \( -name sessions -o -name terminal-sessions -o -name cache -o -path "$config_dir/predict" \) -prune \) -o \
       \( -type f \( -name '*.md' -o -name '*.json' -o -name '*.jsonl' -o -name '*.yaml' -o -name '*.yml' \) \
         ! -name auth.json ! -name .credentials.json ! -name history.jsonl -print0 \)
   )

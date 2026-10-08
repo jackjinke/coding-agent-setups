@@ -3,13 +3,13 @@ modelRoles:
   designer: anthropic/claude-opus-5-5:auto
   plan: "@slow"
   commit: "@smol"
-  vision: openai-codex/gpt-6-luna:max
+  vision: anthropic/claude-sonnet-5-5:medium
   advisor: "@slow"
   reviewer: "@slow"
-  slow: openai-codex/gpt-6-astra:xhigh
-  default: openai-codex/gpt-6-astra
-  task: openai-codex/gpt-6.1-sol:auto
-  smol: openai-codex/gpt-6-luna:xhigh
+  slow: anthropic/claude-opus-5-5:xhigh
+  default: anthropic/claude-opus-5-5
+  task: anthropic/claude-sonnet-5-5:auto
+  smol: anthropic/claude-sonnet-5-5:medium
   tiny: local/lfm2.5-230m
 task:
   isolation:

@@ -2,7 +2,6 @@
 # They must not be vendored under files/.
 .agents/.skill-lock.json
 .agents/skills/codebase-design
-.agents/skills/diagnosing-bugs
 .agents/skills/domain-modeling
 .agents/skills/grill-me
 .agents/skills/grilling
@@ -13,7 +12,6 @@
 .agents/skills/writing-great-skills
 .agents/skills/herdr
 .claude/skills/codebase-design
-.claude/skills/diagnosing-bugs
 .claude/skills/domain-modeling
 .claude/skills/grill-me
 .claude/skills/grilling

@@ -4,7 +4,6 @@
 # codex and opencode share ~/.agents/skills; claude-code writes ~/.claude/skills.
 # OpenCode-only installers remain gated by OpenCode selection.
 npx-skills	mattpocock/skills	codebase-design	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	diagnosing-bugs	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	domain-modeling	codex,claude-code,opencode	mattpocock engineering skill
 npx-skills	mattpocock/skills	grill-me	codex,claude-code,opencode	mattpocock productivity skill
 npx-skills	mattpocock/skills	grilling	codex,claude-code,opencode	mattpocock productivity skill

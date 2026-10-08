@@ -61,6 +61,7 @@ github:
 textVerbosity: low
 composer:
   shape: claude
+  tokenRate: false
 tui:
   titleState: false
 generate_image:
@@ -115,3 +116,6 @@ modelPresets:
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
 extendedContext: false
+theme:
+  dark: dark-dracula
+  light: limestone

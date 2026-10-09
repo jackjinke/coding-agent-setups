@@ -19,5 +19,5 @@ omp = [
 kitty_graphics = true
 
 [theme]
-name = "one-light"
+name = "one-dark"
 auto_switch = false

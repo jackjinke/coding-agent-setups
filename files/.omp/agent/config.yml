@@ -86,7 +86,8 @@ compaction:
     - handoff
     - snapcompact
   modelThresholds:
-    anthropic/claude-opus-5-5: 70%
+    anthropic/claude-opus-5-5: 50%
+    anthropic/claude-haiku-5-5: 50%
 defaultThinkingLevel: auto
 modelPresets:
   claude:
@@ -133,5 +134,5 @@ modelPresets:
     defaultThinkingLevel: auto
 extendedContext: false
 theme:
-  dark: dark-one
+  dark: titanium
   light: light-one

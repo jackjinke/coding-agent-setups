@@ -9,7 +9,7 @@ modelRoles:
   slow: openai-codex/gpt-6-astra:xhigh
   default: anthropic/claude-opus-5-5
   task: openai-codex/gpt-6.1-sol:high
-  smol: anthropic/claude-haiku-5-5:xhigh
+  smol: anthropic/claude-sonnet-5-5:medium
   tiny: local/lfm2.5-230m
 task:
   isolation:
@@ -87,7 +87,7 @@ compaction:
     - snapcompact
   modelThresholds:
     anthropic/claude-opus-5-5: 50%
-    anthropic/claude-haiku-5-5: 50%
+    anthropic/claude-sonnet-5-5: 50%
 defaultThinkingLevel: auto
 modelPresets:
   claude:
@@ -129,7 +129,7 @@ modelPresets:
       slow: openai-codex/gpt-6-astra:xhigh
       default: anthropic/claude-opus-5-5
       task: openai-codex/gpt-6.1-sol:high
-      smol: anthropic/claude-haiku-5-5:xhigh
+      smol: anthropic/claude-sonnet-5-5:medium
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
 extendedContext: false

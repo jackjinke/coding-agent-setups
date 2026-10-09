@@ -17,3 +17,7 @@ omp = [
 ]
 [experimental]
 kitty_graphics = true
+
+[theme]
+name = "solarized-light"
+auto_switch = false

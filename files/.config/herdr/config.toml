@@ -19,5 +19,5 @@ omp = [
 kitty_graphics = true
 
 [theme]
-name = "solarized-light"
+name = "one-light"
 auto_switch = false

@@ -133,5 +133,5 @@ modelPresets:
     defaultThinkingLevel: auto
 extendedContext: false
 theme:
-  dark: dark-dracula
-  light: sandstone
+  dark: dark-one
+  light: light-one

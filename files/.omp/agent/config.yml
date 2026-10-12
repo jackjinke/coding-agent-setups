@@ -1,13 +1,13 @@
 setupVersion: 2
 modelRoles:
-  designer: openai-codex/gpt-6-astra:auto
-  plan: "@slow"
-  commit: "@smol"
-  vision: openai-codex/gpt-6-luna:max
+  designer: cliproxyapi/claude-opus-5-5:auto
+  plan: anthropic/claude-opus-5-5:xhigh
+  commit: openai-codex/gpt-6-luna:xhigh
+  vision: openai-codex/gpt-6-luna:xhigh
   advisor: "@slow"
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
-  default: openai-codex/gpt-6-astra
+  default: anthropic/claude-opus-5-5
   task: openai-codex/gpt-6.1-sol:auto
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
@@ -86,8 +86,10 @@ compaction:
     - handoff
     - snapcompact
   modelThresholds:
-    anthropic/claude-opus-5-5: 50%
+    anthropic/claude-opus-5-5: 500000
     anthropic/claude-sonnet-5-5: 50%
+    openai-codex/gpt-6-astra: 400000
+    openai-codex/gpt-6-luna: 400000
 defaultThinkingLevel: auto
 modelPresets:
   claude:
@@ -100,7 +102,7 @@ modelPresets:
       reviewer: "@slow"
       slow: anthropic/claude-opus-5-5:xhigh
       default: anthropic/claude-opus-5-5
-      task: anthropic/claude-opus-5-5:auto
+      task: anthropic/claude-sonnet-5-5:auto
       smol: anthropic/claude-sonnet-5-5:medium
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
@@ -122,14 +124,14 @@ modelPresets:
     modelRoles:
       designer: cliproxyapi/claude-opus-5-5:auto
       plan: anthropic/claude-opus-5-5:xhigh
-      commit: "@smol"
-      vision: anthropic/claude-haiku-5-5:xhigh
+      commit: openai-codex/gpt-6-luna:xhigh
+      vision: openai-codex/gpt-6-luna:xhigh
       advisor: "@slow"
       reviewer: "@slow"
       slow: openai-codex/gpt-6-astra:xhigh
       default: anthropic/claude-opus-5-5
-      task: openai-codex/gpt-6.1-sol:high
-      smol: anthropic/claude-sonnet-5-5:medium
+      task: openai-codex/gpt-6.1-sol:auto
+      smol: openai-codex/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
 extendedContext: false

@@ -1,14 +1,14 @@
 setupVersion: 2
 modelRoles:
-  designer: cliproxyapi/claude-opus-5-5:auto
+  designer: cliproxyapi/claude-opus-5-5:high
   plan: anthropic/claude-opus-5-5:xhigh
   commit: openai-codex/gpt-6-luna:xhigh
   vision: openai-codex/gpt-6-luna:xhigh
   advisor: "@slow"
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
-  default: anthropic/claude-opus-5-5
-  task: openai-codex/gpt-6.1-sol:auto
+  default: anthropic/claude-opus-5-5:medium
+  task: openai-codex/gpt-6.1-sol:high
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
 task:
@@ -122,15 +122,15 @@ modelPresets:
     defaultThinkingLevel: auto
   combo:
     modelRoles:
-      designer: cliproxyapi/claude-opus-5-5:auto
+      designer: cliproxyapi/claude-opus-5-5:high
       plan: anthropic/claude-opus-5-5:xhigh
       commit: openai-codex/gpt-6-luna:xhigh
       vision: openai-codex/gpt-6-luna:xhigh
       advisor: "@slow"
       reviewer: "@slow"
       slow: openai-codex/gpt-6-astra:xhigh
-      default: anthropic/claude-opus-5-5
-      task: openai-codex/gpt-6.1-sol:auto
+      default: anthropic/claude-opus-5-5:medium
+      task: openai-codex/gpt-6.1-sol:high
       smol: openai-codex/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
@@ -138,3 +138,5 @@ extendedContext: false
 theme:
   dark: titanium
   light: light-one
+prewalk:
+  enabled: false

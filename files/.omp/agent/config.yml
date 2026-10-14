@@ -90,6 +90,7 @@ compaction:
     anthropic/claude-sonnet-5-5: 50%
     openai-codex/gpt-6-astra: 400000
     openai-codex/gpt-6-luna: 400000
+  idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
   claude:
@@ -140,3 +141,5 @@ theme:
   light: light-one
 prewalk:
   enabled: false
+display:
+  cacheMissMarker: true

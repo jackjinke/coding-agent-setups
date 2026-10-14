@@ -1,13 +1,13 @@
 setupVersion: 2
 modelRoles:
-  designer: cliproxyapi/claude-opus-5-5:high
+  designer: anthropic/claude-opus-5-5:high
   plan: anthropic/claude-opus-5-5:xhigh
   commit: openai-codex/gpt-6-luna:xhigh
   vision: openai-codex/gpt-6-luna:xhigh
-  advisor: "@slow"
+  advisor: openai-codex/gpt-6-astra:high
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
-  default: anthropic/claude-opus-5-5:medium
+  default: openai-codex/gpt-6-astra:medium
   task: openai-codex/gpt-6.1-sol:high
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
@@ -90,6 +90,7 @@ compaction:
     anthropic/claude-sonnet-5-5: 50%
     openai-codex/gpt-6-astra: 400000
     openai-codex/gpt-6-luna: 400000
+    antigravity/gemini-4-argon-high: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
@@ -123,14 +124,14 @@ modelPresets:
     defaultThinkingLevel: auto
   combo:
     modelRoles:
-      designer: cliproxyapi/claude-opus-5-5:high
+      designer: anthropic/claude-opus-5-5:high
       plan: anthropic/claude-opus-5-5:xhigh
       commit: openai-codex/gpt-6-luna:xhigh
       vision: openai-codex/gpt-6-luna:xhigh
-      advisor: "@slow"
+      advisor: openai-codex/gpt-6-astra:high
       reviewer: "@slow"
       slow: openai-codex/gpt-6-astra:xhigh
-      default: anthropic/claude-opus-5-5:medium
+      default: openai-codex/gpt-6-astra:medium
       task: openai-codex/gpt-6.1-sol:high
       smol: openai-codex/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m

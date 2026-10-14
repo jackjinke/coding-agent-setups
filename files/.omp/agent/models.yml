@@ -1,4 +1,4 @@
-# All three providers route through CLIProxyAPI. `apiKey` names the env var
+# All providers route through CLIProxyAPI. `apiKey` names the env var
 # (set in ~/.omp/agent/.env). The key contains "sk-ant-oat" so omp sends its
 # native Claude Code request shape, which CPA passes through without cloaking.
 providers:
@@ -25,3 +25,52 @@ providers:
     api: openai-completions
     discovery:
       type: openai-models-list
+
+  # CPA's Antigravity-backed models. CPA has no inbound Cloud Code Assist
+  # (/v1internal) route, so the built-in `google-antigravity` provider cannot
+  # use it. Gemini/GPT-OSS go through CPA's Gemini-native surface (raw
+  # thoughtSignature round-trip, thinkingLevel per effort); Claude goes through
+  # /v1/messages (signed thinking blocks, adaptive effort, prompt caching).
+  # Efforts mirror CPA's registry; levels outside it are rejected with 400.
+  antigravity:
+    baseUrl: http://cpa.sorcery.link:8317/v1beta
+    apiKey: CLIPROXYAPI_API_KEY
+    api: google-generative-ai
+    # Plain API-key shaping for /v1/messages; CPA translates it for Antigravity.
+    auth: apiKey
+    # GPT-OSS upstream rejects tool calls without ids.
+    compat:
+      supportsFunctionPartId: true
+    models:
+      - id: gemini-4-argon-high
+        name: Gemini 4 Argon (Antigravity)
+        reasoning: true
+        input: [text, image]
+        contextWindow: 1048576
+        maxTokens: 65536
+        thinking: { mode: google-level, efforts: [low, medium, high] }
+      - id: gemini-3.8-flash-high
+        name: Gemini 3.8 Flash (Antigravity)
+        thinking: { mode: google-level, efforts: [low, medium, high] }
+      - id: gemini-3.5-flash-lite
+        name: Gemini 3.5 Flash Lite (Antigravity)
+        thinking: { mode: google-level, efforts: [minimal, low, medium, high] }
+      - id: gemini-3.1-flash-lite
+        name: Gemini 3.1 Flash Lite (Antigravity)
+        thinking: { mode: google-level, efforts: [minimal, low, medium, high] }
+      - id: gemini-3-flash
+        name: Gemini 3 Flash (Antigravity)
+        thinking: { mode: google-level, efforts: [minimal, low, medium, high] }
+      - id: gemini-3.1-flash-image
+        name: Gemini 3.1 Flash Image (Antigravity)
+        kind: image
+      - id: claude-opus-5-5-high
+        name: Claude Opus 5.5 High (Antigravity)
+        api: anthropic-messages
+        baseUrl: http://cpa.sorcery.link:8317
+      - id: claude-sonnet-5-5-high
+        name: Claude Sonnet 5.5 High (Antigravity)
+        api: anthropic-messages
+        baseUrl: http://cpa.sorcery.link:8317
+      - id: gpt-oss-120b-medium
+        name: GPT-OSS 120B Medium (Antigravity)

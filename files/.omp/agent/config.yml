@@ -144,3 +144,4 @@ prewalk:
   enabled: false
 display:
   cacheMissMarker: true
+colorBlindMode: false

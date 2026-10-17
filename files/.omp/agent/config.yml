@@ -75,8 +75,6 @@ recap:
   enabled: false
 providers:
   tinyModelDevice: auto
-  openai-codex:
-    codeMode: auto
 retry:
   waitForUsageReset: true
 compaction:
@@ -140,9 +138,6 @@ extendedContext: false
 theme:
   dark: titanium
   light: light-one
-prewalk:
-  enabled: true
-  autoTarget: "@task"
 display:
   cacheMissMarker: true
 colorBlindMode: false

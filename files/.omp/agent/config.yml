@@ -7,7 +7,7 @@ modelRoles:
   advisor: openai-codex/gpt-6-astra:high
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
-  default: openai-codex/gpt-6-astra:medium
+  default: antigravity/gemini-4-argon:high
   task: openai-codex/gpt-6.1-sol:high
   smol: openai-codex/gpt-6-luna:xhigh
   tiny: local/lfm2.5-230m
@@ -90,7 +90,7 @@ compaction:
     anthropic/claude-sonnet-5-5: 50%
     openai-codex/gpt-6-astra: 400000
     openai-codex/gpt-6-luna: 400000
-    antigravity/gemini-4-argon-high: 500000
+    antigravity/gemini-4-argon: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
@@ -131,7 +131,7 @@ modelPresets:
       advisor: openai-codex/gpt-6-astra:high
       reviewer: "@slow"
       slow: openai-codex/gpt-6-astra:xhigh
-      default: openai-codex/gpt-6-astra:medium
+      default: antigravity/gemini-4-argon:high
       task: openai-codex/gpt-6.1-sol:high
       smol: openai-codex/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
@@ -141,7 +141,10 @@ theme:
   dark: titanium
   light: light-one
 prewalk:
-  enabled: false
+  enabled: true
+  autoTarget: "@task"
 display:
   cacheMissMarker: true
 colorBlindMode: false
+advisor:
+  enabled: true

@@ -42,14 +42,14 @@ providers:
     compat:
       supportsFunctionPartId: true
     models:
-      - id: gemini-4-argon-high
+      - id: gemini-4-argon
         name: Gemini 4 Argon (Antigravity)
         reasoning: true
         input: [text, image]
         contextWindow: 1048576
         maxTokens: 65536
         thinking: { mode: google-level, efforts: [low, medium, high] }
-      - id: gemini-3.8-flash-high
+      - id: gemini-3.8-flash
         name: Gemini 3.8 Flash (Antigravity)
         thinking: { mode: google-level, efforts: [low, medium, high] }
       - id: gemini-3.5-flash-lite
@@ -64,12 +64,12 @@ providers:
       - id: gemini-3.1-flash-image
         name: Gemini 3.1 Flash Image (Antigravity)
         kind: image
-      - id: claude-opus-5-5-high
-        name: Claude Opus 5.5 High (Antigravity)
+      - id: claude-opus-5-5
+        name: Claude Opus 5.5 (Antigravity)
         api: anthropic-messages
         baseUrl: http://cpa.sorcery.link:8317
-      - id: claude-sonnet-5-5-high
-        name: Claude Sonnet 5.5 High (Antigravity)
+      - id: claude-sonnet-5-5
+        name: Claude Sonnet 5.5 (Antigravity)
         api: anthropic-messages
         baseUrl: http://cpa.sorcery.link:8317
       - id: gpt-oss-120b-medium

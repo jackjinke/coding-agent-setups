@@ -140,6 +140,3 @@ theme:
   light: light-one
 display:
   cacheMissMarker: true
-colorBlindMode: false
-advisor:
-  enabled: true

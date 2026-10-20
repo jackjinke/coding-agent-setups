@@ -15,6 +15,7 @@ task:
   isolation:
     enabled: true
   enableEffort: false
+  eager: preferred
 commands:
   enableClaudeProject: false
   enableOpencodeProject: false
@@ -136,7 +137,7 @@ modelPresets:
     defaultThinkingLevel: auto
 extendedContext: false
 theme:
-  dark: titanium
+  dark: dark-abyss
   light: light-one
 display:
   cacheMissMarker: true

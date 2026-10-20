@@ -2,14 +2,14 @@ setupVersion: 2
 modelRoles:
   designer: anthropic/claude-opus-5-5:high
   plan: anthropic/claude-opus-5-5:xhigh
-  commit: openai-codex/gpt-6-luna:xhigh
+  commit: cliproxyapi/deepseek/deepseek-flash:high
   vision: openai-codex/gpt-6-luna:xhigh
   advisor: openai-codex/gpt-6-astra:high
   reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
   default: antigravity/gemini-4-argon:high
   task: openai-codex/gpt-6.1-sol:high
-  smol: openai-codex/gpt-6-luna:xhigh
+  smol: cliproxyapi/deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
 task:
   isolation:

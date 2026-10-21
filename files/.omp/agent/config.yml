@@ -1,21 +1,20 @@
 setupVersion: 2
 modelRoles:
-  designer: anthropic/claude-opus-5-5:high
+  designer: anthropic/claude-opus-5-5:xhigh
+  writer: antigravity/gemini-4-argon:medium
   plan: anthropic/claude-opus-5-5:xhigh
-  commit: cliproxyapi/deepseek/deepseek-flash:high
+  commit: cliproxyapi/deepseek-flash:high
   vision: openai-codex/gpt-6-luna:xhigh
   advisor: openai-codex/gpt-6-astra:high
-  reviewer: "@slow"
   slow: openai-codex/gpt-6-astra:xhigh
   default: antigravity/gemini-4-argon:high
   task: openai-codex/gpt-6.1-sol:high
-  smol: cliproxyapi/deepseek/deepseek-flash:high
+  smol: cliproxyapi/deepseek-flash:high
   tiny: local/lfm2.5-230m
+  web: web/exa
 task:
   isolation:
     enabled: true
-  enableEffort: false
-  eager: preferred
 commands:
   enableClaudeProject: false
   enableOpencodeProject: false
@@ -62,7 +61,6 @@ github:
 textVerbosity: low
 composer:
   shape: claude
-  tokenRate: false
 tui:
   titleState: false
 generate_image:
@@ -96,6 +94,7 @@ modelPresets:
   claude:
     modelRoles:
       designer: anthropic/claude-opus-5-5:auto
+      writer: antigravity/gemini-4-argon:high
       plan: "@slow"
       commit: "@smol"
       vision: anthropic/claude-haiku-5-5:high
@@ -110,6 +109,7 @@ modelPresets:
   gpt:
     modelRoles:
       designer: openai-codex/gpt-6-astra:auto
+      writer: antigravity/gemini-4-argon:high
       plan: "@slow"
       commit: "@smol"
       vision: openai-codex/gpt-6-luna:max
@@ -124,6 +124,7 @@ modelPresets:
   combo:
     modelRoles:
       designer: anthropic/claude-opus-5-5:high
+      writer: antigravity/gemini-4-argon:high
       plan: anthropic/claude-opus-5-5:xhigh
       commit: openai-codex/gpt-6-luna:xhigh
       vision: openai-codex/gpt-6-luna:xhigh
@@ -135,7 +136,6 @@ modelPresets:
       smol: openai-codex/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
-extendedContext: false
 theme:
   dark: dark-abyss
   light: light-one

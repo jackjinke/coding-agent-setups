@@ -1,10 +1,10 @@
 - Keep modules cohesive, boundaries explicit, and names domain-oriented.
-- Limit handwritten source files to 1,000 lines; split cohesively. Exclude generated files, lockfiles, and fixtures.
+- Limit new or substantially expanded handwritten source files to 1,000 lines by splitting cohesively (excluding generated files, lockfiles, and fixtures); small fixes to existing files do not require splitting.
 - Comments explain non-obvious reasons, not mechanics or discarded designs.
 - Validate at trust boundaries; do not repeat validated checks. Surface unexpected failures.
 - Prefer stdlib and existing dependencies.
-- Implementation requests authorize in-scope edits; reviews, audits, and plans do not.
+- Implementation requests authorize in-scope codebase edits; reviews, audits, and plans do not.
 - Test observable behavior against independently derived expectations; no tautologies or change detectors. Assertions must survive behavior-preserving refactors.
 - Bug fixes get a regression test only for a genuine gap in behavior coverage; prefer improving existing tests to adding new ones.
-- Strongly prefer E2E-only testing, especially for complex features. Each run leaves a verifiable artifact containing inputs, rerun command, and results.
-- Never write unit tests after implementation. When isolation is necessary, enumerate failure modes before writing tests or code.
+- Strongly prefer E2E-only testing, especially for complex features. Each run leaves a verifiable artifact in a temporary directory containing inputs, rerun command, and results.
+- Strongly avoid writing unit tests after implementation. When isolated unit tests are necessary, enumerate failure modes before writing tests or code.

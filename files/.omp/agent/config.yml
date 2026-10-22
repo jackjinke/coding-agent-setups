@@ -1,15 +1,15 @@
 setupVersion: 2
 modelRoles:
   designer: anthropic/claude-opus-5-5:xhigh
-  writer: antigravity/gemini-4-argon:medium
+  writer: google/gemini-4-argon:medium
   plan: anthropic/claude-opus-5-5:xhigh
-  commit: cliproxyapi/deepseek-flash:high
+  commit: "@smol"
   vision: openai-codex/gpt-6-luna:xhigh
   advisor: openai-codex/gpt-6-astra:high
   slow: openai-codex/gpt-6-astra:xhigh
-  default: antigravity/gemini-4-argon:high
+  default: google/gemini-4-argon:high
   task: openai-codex/gpt-6.1-sol:high
-  smol: cliproxyapi/deepseek-flash:high
+  smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
   web: web/exa
 task:
@@ -85,9 +85,11 @@ compaction:
   modelThresholds:
     anthropic/claude-opus-5-5: 500000
     anthropic/claude-sonnet-5-5: 50%
-    openai-codex/gpt-6-astra: 400000
-    openai-codex/gpt-6-luna: 400000
+    openai-codex/gpt-6-astra: 500000
+    openai-codex/gpt-6-luna: 500000
     antigravity/gemini-4-argon: 500000
+    google/gemini-4-argon: 500000
+    deepseek/deepseek-flash: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
@@ -123,18 +125,18 @@ modelPresets:
     defaultThinkingLevel: auto
   combo:
     modelRoles:
-      designer: anthropic/claude-opus-5-5:high
-      writer: antigravity/gemini-4-argon:high
+      designer: anthropic/claude-opus-5-5:xhigh
+      writer: google/gemini-4-argon:medium
       plan: anthropic/claude-opus-5-5:xhigh
-      commit: openai-codex/gpt-6-luna:xhigh
+      commit: "@smol"
       vision: openai-codex/gpt-6-luna:xhigh
       advisor: openai-codex/gpt-6-astra:high
-      reviewer: "@slow"
       slow: openai-codex/gpt-6-astra:xhigh
-      default: antigravity/gemini-4-argon:high
+      default: google/gemini-4-argon:high
       task: openai-codex/gpt-6.1-sol:high
-      smol: openai-codex/gpt-6-luna:xhigh
+      smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
+      web: web/exa
     defaultThinkingLevel: auto
 theme:
   dark: dark-abyss

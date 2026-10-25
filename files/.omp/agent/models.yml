@@ -1,6 +1,6 @@
 # All providers route through CLIProxyAPI. `apiKey` names the env var
-# (set in ~/.omp/agent/.env). The key contains "sk-ant-oat" so omp sends its
-# native Claude Code request shape, which CPA passes through without cloaking.
+# (set in ~/.omp/agent/.env). The key contains "sk-ant-oat" would make omp
+# sends its native Claude Code request shape.
 providers:
   anthropic:
     baseUrl: http://cpa.sorcery.link:8317
@@ -26,9 +26,6 @@ providers:
     discovery:
       type: openai-models-list
 
-  # CPA's Antigravity-backed Gemini models on omp's native Gemini wire.
-  # Built-in `google` rows supply ids, limits, thinking levels, and pricing;
-  # no custom models or provider `api` scope this, so it applies provider-wide.
   google:
     baseUrl: http://cpa.sorcery.link:8317/v1beta
     apiKey: CLIPROXYAPI_API_KEY

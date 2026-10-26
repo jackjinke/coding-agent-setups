@@ -74,6 +74,7 @@ recap:
   enabled: false
 providers:
   tinyModelDevice: auto
+  openaiLiveSteering: false
 retry:
   waitForUsageReset: true
 compaction:

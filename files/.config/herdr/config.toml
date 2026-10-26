@@ -4,10 +4,6 @@ delivery = "terminal"
 
 [ui]
 show_agent_labels_on_pane_borders = true
-
-
-status_indicators = "dots"
-agent_panel_sort = "spaces"
 window_title = "{terminal_title} ({workspace})"
 
 [ui.sidebar.agents.rows_by_agent]
@@ -15,9 +11,3 @@ omp = [
   ["state_icon", "workspace", "tab"],
   ["terminal_title_stripped"],
 ]
-[experimental]
-kitty_graphics = true
-
-[theme]
-name = "catppuccin"
-auto_switch = false

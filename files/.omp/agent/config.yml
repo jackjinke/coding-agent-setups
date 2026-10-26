@@ -69,6 +69,7 @@ todo:
   reminders: false
 terminal:
   showProgress: true
+  showImages: true
 doubleEscapeAction: tree
 recap:
   enabled: false

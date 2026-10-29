@@ -4,11 +4,11 @@ modelRoles:
   writer: google/gemini-4-argon:medium
   plan: anthropic/claude-opus-5-5:xhigh
   commit: "@smol"
-  vision: openai-codex/gpt-6-luna:xhigh
-  advisor: openai-codex/gpt-6-astra:high
-  slow: openai-codex/gpt-6-astra:xhigh
+  vision: openai/gpt-6-luna:xhigh
+  advisor: openai/gpt-6-astra:high
+  slow: openai/gpt-6-astra:xhigh
   default: google/gemini-4-argon:high
-  task: openai-codex/gpt-6.1-sol:high
+  task: openai/gpt-6.1-sol:high
   smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
   web: web/exa
@@ -87,11 +87,12 @@ compaction:
   modelThresholds:
     anthropic/claude-opus-5-5: 500000
     anthropic/claude-sonnet-5-5: 50%
-    openai-codex/gpt-6-astra: 500000
-    openai-codex/gpt-6-luna: 500000
+    openai/gpt-6-astra: 500000
+    openai/gpt-6-luna: 500000
     antigravity/gemini-4-argon: 500000
     google/gemini-4-argon: 500000
     deepseek/deepseek-flash: 500000
+    openai/gpt-6.1-sol: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
@@ -112,17 +113,17 @@ modelPresets:
     defaultThinkingLevel: auto
   gpt:
     modelRoles:
-      designer: openai-codex/gpt-6-astra:auto
+      designer: openai/gpt-6-astra:auto
       writer: antigravity/gemini-4-argon:high
       plan: "@slow"
       commit: "@smol"
-      vision: openai-codex/gpt-6-luna:max
+      vision: openai/gpt-6-luna:max
       advisor: "@slow"
       reviewer: "@slow"
-      slow: openai-codex/gpt-6-astra:xhigh
-      default: openai-codex/gpt-6-astra
-      task: openai-codex/gpt-6.1-sol:auto
-      smol: openai-codex/gpt-6-luna:xhigh
+      slow: openai/gpt-6-astra:xhigh
+      default: openai/gpt-6-astra
+      task: openai/gpt-6.1-sol:auto
+      smol: openai/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
     defaultThinkingLevel: auto
   combo:
@@ -131,11 +132,11 @@ modelPresets:
       writer: google/gemini-4-argon:medium
       plan: anthropic/claude-opus-5-5:xhigh
       commit: "@smol"
-      vision: openai-codex/gpt-6-luna:xhigh
-      advisor: openai-codex/gpt-6-astra:high
-      slow: openai-codex/gpt-6-astra:xhigh
+      vision: openai/gpt-6-luna:xhigh
+      advisor: openai/gpt-6-astra:high
+      slow: openai/gpt-6-astra:xhigh
       default: google/gemini-4-argon:high
-      task: openai-codex/gpt-6.1-sol:high
+      task: openai/gpt-6.1-sol:high
       smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
       web: web/exa

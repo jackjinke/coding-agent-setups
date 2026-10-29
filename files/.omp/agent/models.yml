@@ -12,12 +12,17 @@ providers:
     remoteCompaction:
       enabled: true
 
-  openai-codex:
-    baseUrl: http://cpa.sorcery.link:8317/backend-api
+  openai:
+    baseUrl: http://cpa.sorcery.link:8317/v1
     apiKey: CLIPROXYAPI_API_KEY
+    api: openai-responses
+    discovery:
+      type: openai-models-list
     remoteCompaction:
-      enabled: true
+      # Use Codex V2 headers while retaining CPA's shared /v1 Responses route.
+      api: openai-codex-responses
       v2StreamingEnabled: true
+      v2Endpoint: http://cpa.sorcery.link:8317/v1/responses
 
   cliproxyapi:
     baseUrl: http://cpa.sorcery.link:8317/v1

@@ -121,7 +121,6 @@ fi
 setup_dir="$state_dir"
 legacy_setup_dir="$config_home/coding-agent-setups"
 flag_file="${CODING_AGENT_SETUPS_FLAG_FILE:-$setup_dir/sync.env}"
-opencode_env="$home_dir/.config/opencode/.env"
 
 source "$repo_root/scripts/local-bin.sh"
 
@@ -195,68 +194,6 @@ prompt_yes_no() {
   done
 }
 
-prompt_value() {
-  local file="$1"
-  local key="$2"
-  local prompt="$3"
-  local default_value="${4:-}"
-  local current value
-
-  current="$(read_existing_key "$file" "$key")"
-  if [[ -n "$current" ]]; then
-    default_value="$current"
-  fi
-
-  if [[ -n "$default_value" ]]; then
-    read -r -p "$prompt [$default_value]: " value
-    value="${value:-$default_value}"
-  else
-    while [[ -z "${value:-}" ]]; do
-      read -r -p "$prompt: " value
-    done
-  fi
-  printf '%s' "$value"
-}
-
-set_env_var() {
-  local file="$1"
-  local key="$2"
-  local value="$3"
-  local tmp line wrote
-
-  mkdir -p "$(dirname "$file")"
-  touch "$file"
-  chmod 600 "$file"
-
-  case "$value" in
-    *$'\n'*|*$'\r'*)
-      echo "Refusing to write multiline value for $key." >&2
-      return 1
-      ;;
-  esac
-
-  tmp="$(make_temp_file)"
-  wrote=0
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    case "$line" in
-      "$key="*)
-        if [[ "$wrote" == "0" ]]; then
-          printf '%s=%s\n' "$key" "$value"
-          wrote=1
-        fi
-        ;;
-      *)
-        printf '%s\n' "$line"
-        ;;
-    esac
-  done < "$file" > "$tmp"
-  if [[ "$wrote" == "0" ]]; then
-    printf '%s=%s\n' "$key" "$value" >> "$tmp"
-  fi
-  mv "$tmp" "$file"
-  chmod 600 "$file"
-}
-
 write_flags() {
   local shell_commands="$1"
   local tmp
@@ -279,19 +216,12 @@ if [[ "$install_shell_commands" == "1" ]]; then
   install_coding_agent_shell_commands "$repo_root"
 fi
 
-echo "Configuring local OpenCode environment."
-base_url="$(prompt_value "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "CLIProxyAPI base URL" "http://localhost:8317/v1")"
-set_env_var "$opencode_env" OPENCODE_CLIPROXYAPI_BASE_URL "$base_url"
-set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS "1"
-set_env_var "$opencode_env" OPENCODE_EXPERIMENTAL_CODE_MODE "true"
-ensure_opencode_env_wrapper
-
 write_flags "$install_shell_commands"
 echo "Wrote setup state to $flag_file"
 
 echo "Setup complete."
 if [[ "${CODING_AGENT_SETUPS_SUPPRESS_NEXT_STEP:-0}" != "1" ]]; then
-  echo "Run this next to choose and apply setup files:"
+  echo "Run this next to apply setup files:"
   if [[ "$install_shell_commands" == "1" ]]; then
     echo "  coding-agent-setups sync"
   else

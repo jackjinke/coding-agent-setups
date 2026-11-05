@@ -17,7 +17,7 @@ Usage: scripts/coding-agent-setups.sh <command> [args]
 Commands:
   setup             Run interactive first-time setup.
   sync [-c|--config-only]
-                    Choose and apply setup groups to this machine.
+                    Apply setup files and skills to this machine.
   publish           Refresh this repo from this machine.
   restore           Restore a previous sync backup.
 
@@ -63,10 +63,7 @@ reset_repo_to_origin_main() {
 backup_roots() {
   printf '%s\n' \
     "$home_dir/.agents" \
-    "$home_dir/.codex" \
-    "$home_dir/.opencode" \
     "$home_dir/.local/bin" \
-    "$config_home/opencode" \
     "$home_dir/.pi/agent" \
     "$home_dir/.omp/agent"
 }

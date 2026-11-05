@@ -106,31 +106,6 @@ EOF
   echo "Updated $startup_file so $bin_dir is on PATH for new shells."
 }
 
-ensure_opencode_env_wrapper() {
-  local shell_name startup_file alias_line
-
-  shell_name="$(detect_active_shell)"
-  case "$shell_name" in
-    bash|zsh) ;;
-    *)
-      echo "Unsupported shell for automatic OpenCode alias: ${shell_name:-unknown}" >&2
-      return 0
-      ;;
-  esac
-
-  startup_file="$(shell_startup_file "$shell_name")"
-  mkdir -p "$(dirname "$startup_file")"
-  touch "$startup_file"
-  alias_line="alias opencode='\$HOME/.local/bin/omos'"
-
-  if grep -Fxq "$alias_line" "$startup_file"; then
-    return 0
-  fi
-
-  printf '\n%s\n' "$alias_line" >> "$startup_file"
-  echo "Updated $startup_file so opencode launches omos for new shells."
-}
-
 install_coding_agent_local_bins() {
   local repo_root="$1"
   local bin_dir

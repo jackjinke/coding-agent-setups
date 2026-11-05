@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@opencode-ai/plugin": "1.17.11",
-    "@prevalentware/opencode-goal-plugin": "^0.1.18",
-    "@tarquinen/opencode-dcp": "^3.1.14"
-  }
-}

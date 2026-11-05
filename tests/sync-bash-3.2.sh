@@ -11,5 +11,5 @@ docker run --rm \
     printf "#!/bin/sh\nexit 0\n" > /tmp/bin/rsync
     chmod +x /tmp/bin/rsync
     printf "INSTALL_SHELL_COMMANDS=0\n" > /tmp/home/.coding-agent-setups/sync.env
-    HOME=/tmp/home PATH=/tmp/bin:$PATH bash /repo/scripts/sync.sh sync --yes --config-only
+    HOME=/tmp/home PATH=/tmp/bin:$PATH bash /repo/scripts/sync.sh sync -c
   '

@@ -5,9 +5,9 @@ usage() {
   cat <<'USAGE'
 Usage: scripts/sync.sh [sync|publish] [--yes] [-c|--config-only]
 
-  sync               Choose setup groups, then copy them from this repo into $HOME.
-  publish            Choose setup groups, then refresh their repo files from $HOME.
-  --yes              Skip prompts and select all setup groups.
+  sync               Copy setup files and install skills from this repo into $HOME.
+  publish            Refresh repo files from $HOME.
+  --yes              Skip confirmation prompts.
   -c, --config-only  Sync checked-in config files only; skip installers/dependencies.
 
 Run scripts/setup.sh first.
@@ -137,33 +137,6 @@ ensure_cmd() {
   fi
 }
 
-ensure_bunx() {
-  if command -v bunx >/dev/null 2>&1; then
-    return 0
-  fi
-
-  echo "Missing required command: bunx; attempting to install Bun."
-  case "$(uname -s)" in
-    Darwin)
-      if command -v brew >/dev/null 2>&1; then
-        brew install bun
-      elif command -v curl >/dev/null 2>&1; then
-        curl -fsSL https://bun.sh/install | bash
-      fi
-      ;;
-    Linux)
-      ensure_cmd curl
-      curl -fsSL https://bun.sh/install | bash
-      ;;
-  esac
-
-  PATH="$home_dir/.bun/bin:$PATH"
-  export PATH
-  if ! command -v bunx >/dev/null 2>&1; then
-    echo "Missing required command after install attempt: bunx" >&2
-    exit 1
-  fi
-}
 
 require_sha1() {
   if command -v sha1sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1; then
@@ -231,31 +204,7 @@ migrate_legacy_state() {
   echo "Migrated sync selection to $flag_file"
 }
 
-generic_paths=(
-  ".config/herdr/config.toml"
-)
-
-codex_paths=(
-  ".codex/AGENTS.md"
-  ".codex/config.toml"
-  ".codex/hooks.json"
-  ".codex/rules"
-)
-
-opencode_paths=(
-  ".local/bin/omos"
-  ".config/opencode/AGENTS.md"
-  ".config/opencode/agents"
-  ".config/opencode/dcp.jsonc"
-  ".config/opencode/oh-my-opencode-slim.jsonc"
-  ".config/opencode/opencode.jsonc"
-  ".config/opencode/package-lock.json"
-  ".config/opencode/package.json"
-  ".config/opencode/plugins/env-protection.ts"
-  ".config/opencode/plugins/herdr-agent-state.js"
-  ".config/opencode/tui.jsonc"
-)
-
+generic_paths=()
 omp_paths=()
 
 append_omp_path() {
@@ -433,107 +382,6 @@ read_flag() {
   fi
 }
 
-
-selection_contains() {
-  local group="$1"
-  case ",$sync_selection," in
-    *",$group,"*) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
-group_enabled() {
-  local group="$1"
-  if [[ "$sync_selection_ready" == "1" ]]; then
-    selection_contains "$group"
-    return
-  fi
-  return 1
-}
-
-agent_enabled() {
-  group_enabled "$1"
-}
-
-select_groups() {
-  local keys=(GENERIC CODEX OPENCODE OMP)
-  local labels=("Generic / shared" "Codex" "OpenCode" "OMP")
-  local selected=(0 0 0 0)
-  local action i token answer has_selection
-
-  if [[ "$mode" == "sync" ]]; then
-    action="sync"
-  else
-    action="publish"
-  fi
-
-  if [[ "$assume_yes" != "1" && ( ! -t 0 || ! -t 1 ) ]]; then
-    echo "Group checklist requires an interactive terminal; use --yes to select all groups." >&2
-    exit 1
-  fi
-
-  if [[ "$assume_yes" != "1" ]]; then
-    while true; do
-      printf '\033[2J\033[H'
-      echo "Select setup groups to $action"
-      echo
-      for ((i = 0; i < ${#keys[@]}; i++)); do
-        if [[ "${selected[$i]}" == "1" ]]; then
-          printf '  [x] %d. %s\n' "$((i + 1))" "${labels[$i]}"
-        else
-          printf '  [ ] %d. %s\n' "$((i + 1))" "${labels[$i]}"
-        fi
-      done
-      echo
-      read -r -p "Toggle numbers (space-separated), a=all, n=none, Enter=continue: " answer
-      if [[ -z "$answer" ]]; then
-        has_selection=0
-        for ((i = 0; i < ${#keys[@]}; i++)); do
-          if [[ "${selected[$i]}" == "1" ]]; then
-            has_selection=1
-            break
-          fi
-        done
-        if [[ "$has_selection" == "1" ]]; then
-          break
-        fi
-        read -r -p "Select at least one group. Press Enter to continue." _
-        continue
-      fi
-
-      for token in ${answer//,/ }; do
-        case "$token" in
-          a|A)
-            for ((i = 0; i < ${#keys[@]}; i++)); do selected[$i]=1; done
-            ;;
-          n|N)
-            for ((i = 0; i < ${#keys[@]}; i++)); do selected[$i]=0; done
-            ;;
-          [1-4])
-            i=$((10#$token - 1))
-            if [[ "${selected[$i]}" == "1" ]]; then selected[$i]=0; else selected[$i]=1; fi
-            ;;
-          *)
-            read -r -p "Unknown choice: $token. Press Enter to continue." _
-            ;;
-        esac
-      done
-    done
-  else
-    echo "Selecting all setup groups (--yes)."
-    selected=(1 1 1 1)
-  fi
-
-  sync_selection=""
-  for ((i = 0; i < ${#keys[@]}; i++)); do
-    if [[ "${selected[$i]}" == "1" ]]; then
-      if [[ -n "$sync_selection" ]]; then sync_selection+=","; fi
-      sync_selection+="${keys[$i]}"
-    fi
-  done
-  sync_selection_ready=1
-}
-
 shell_commands_enabled() {
   local value
   value="$(read_flag INSTALL_SHELL_COMMANDS)"
@@ -606,29 +454,6 @@ copy_group() {
   done
 }
 
-ensure_omos_script_executable() {
-  local dst="$home_dir/.local/bin/omos"
-
-  if [[ -f "$dst" ]]; then
-    chmod 755 "$dst"
-  fi
-}
-
-print_enabled_groups() {
-  if group_enabled GENERIC; then
-    echo "  - Generic / shared"
-  fi
-  if agent_enabled CODEX; then
-    echo "  - Codex"
-  fi
-  if agent_enabled OPENCODE; then
-    echo "  - OpenCode"
-  fi
-  if group_enabled OMP; then
-    echo "  - OMP"
-  fi
-}
-
 confirm_publish() {
   local answer
   if [[ "$assume_yes" == "1" ]]; then
@@ -636,12 +461,9 @@ confirm_publish() {
   fi
   echo "Publish action"
   echo "Direction: $home_dir -> repo files"
-  echo "Stale files may be deleted inside $files_dir for selected groups."
+  echo "Stale files may be deleted inside $files_dir."
   echo "Secret check runs after copying."
   echo "Changed files are listed before the commit/push prompt."
-  echo "Selected groups:"
-  print_enabled_groups
-
   read -r -p "Proceed? [y/N]: " answer
   case "$(lower "$answer")" in
     y|yes) ;;
@@ -650,22 +472,6 @@ confirm_publish() {
       exit 1
       ;;
   esac
-}
-
-sanitize_codex_config() {
-  local path="$files_dir/.codex/config.toml"
-  local tmp
-  if [[ ! -f "$path" ]]; then
-    return 0
-  fi
-  tmp="$(make_temp_file)"
-  awk '
-    /^\[projects\./ { skip = 1; next }
-    /^\[hooks\.state/ { skip = 1; next }
-    /^\[/ { skip = 0 }
-    skip == 0 { print }
-  ' "$path" > "$tmp"
-  mv "$tmp" "$path"
 }
 
 cleanup_public_tree() {
@@ -686,30 +492,13 @@ backup_keep_count=3
 backup_dir="$setup_dir/backups"
 
 sync_backup_roots() {
-  if (group_enabled GENERIC && shell_commands_enabled) || agent_enabled OPENCODE; then
+  if shell_commands_enabled; then
     printf '%s\n' "$home_dir/.local/bin"
   fi
-  if group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE; then
-    printf '%s\n' "$home_dir/.agents"
-  fi
-  if agent_enabled CODEX; then
-    printf '%s\n' "$home_dir/.codex"
-  fi
-  if group_enabled GENERIC; then
-    printf '%s\n' "$home_dir/.pi/agent"
-  fi
-  if group_enabled GENERIC || agent_enabled OPENCODE; then
-    printf '%s\n' "$config_home/opencode"
-  fi
-  if group_enabled GENERIC; then
-    printf '%s\n' "$config_home/herdr"
-  fi
-  if agent_enabled OPENCODE; then
-    printf '%s\n' "$home_dir/.opencode"
-  fi
-  if group_enabled OMP; then
-    printf '%s\n' "$home_dir/.omp/agent"
-  fi
+  printf '%s\n' \
+    "$home_dir/.agents" \
+    "$home_dir/.pi/agent" \
+    "$home_dir/.omp/agent"
 }
 
 prune_folder_backups() {
@@ -766,49 +555,6 @@ create_sync_backups() {
   if [[ "$has_roots" == "1" ]]; then
     prune_folder_backups
   fi
-}
-
-source_target_enabled() {
-  local target="$1"
-  case "$target" in
-    .agents/*)
-      group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE
-      return
-      ;;
-    .codex/*)
-      agent_enabled CODEX
-      return
-      ;;
-    .claude/skills/*)
-      group_enabled GENERIC
-      return
-      ;;
-    .config/opencode/skills/impeccable)
-      group_enabled GENERIC
-      return
-      ;;
-    .config/opencode/*)
-      agent_enabled OPENCODE
-      return
-      ;;
-    .opencode/*)
-      group_enabled GENERIC || agent_enabled OPENCODE
-      return
-      ;;
-    .pi/agent/skills/*)
-      group_enabled GENERIC
-      return
-      ;;
-    .omp/agent/*)
-      group_enabled OMP
-      return
-      ;;
-    .local/bin/omos)
-      agent_enabled OPENCODE
-      return
-      ;;
-    *) return 1 ;;
-  esac
 }
 
 csv_contains() {
@@ -896,16 +642,6 @@ run_managed_build() {
   (cd "$target" && bash -lc "$build_cmd")
 }
 
-remove_caveman_opencode_agents() {
-  if ! agent_enabled OPENCODE; then
-    return 0
-  fi
-  rm -f \
-    "$config_home/opencode/agents/cavecrew-builder.md" \
-    "$config_home/opencode/agents/cavecrew-investigator.md" \
-    "$config_home/opencode/agents/cavecrew-reviewer.md"
-}
-
 install_npx_skills() {
   local source="$1"
   local allowed_agents="$2"
@@ -915,9 +651,6 @@ install_npx_skills() {
   local skill_args=()
   local skill
 
-  if ! group_enabled GENERIC; then
-    return 0
-  fi
   if [[ "${#skills[@]}" -eq 0 ]]; then
     return 0
   fi
@@ -941,9 +674,6 @@ install_npx_skills() {
 }
 
 install_impeccable() {
-  if ! group_enabled GENERIC; then
-    return 0
-  fi
 
   echo "Installing Impeccable into shared agent skills"
   npx -y impeccable@latest install \
@@ -952,43 +682,6 @@ install_impeccable() {
     --no-hooks \
     --force \
     --yes
-}
-
-install_opencode_ohmy() {
-  if ! agent_enabled OPENCODE; then
-    return 0
-  fi
-  ensure_bunx
-  echo "Installing oh-my-opencode-slim"
-  bunx oh-my-opencode-slim@latest install \
-    --no-tui \
-    --skills=yes \
-    --companion=no \
-    --background-subagents=no
-}
-
-install_opencode_caveman() {
-  if ! agent_enabled OPENCODE; then
-    return 0
-  fi
-  echo "Installing Caveman for OpenCode"
-  if ! npx -y github:JuliusBrussee/caveman -- --only opencode --non-interactive --force; then
-    echo "Caveman installer failed." >&2
-    return 1
-  fi
-  remove_caveman_opencode_agents
-}
-
-install_opencode_package_dependencies() {
-  local opencode_dir="$config_home/opencode"
-
-  if ! agent_enabled OPENCODE || [[ ! -f "$opencode_dir/package.json" ]]; then
-    return 0
-  fi
-
-  ensure_cmd npm
-  echo "Installing OpenCode package dependencies"
-  npm install --prefix "$opencode_dir" --no-audit --no-fund
 }
 
 install_managed_skills() {
@@ -1039,14 +732,6 @@ install_managed_skills() {
           echo "Impeccable install failed; skipping and keeping any existing install." >&2
         fi
         ;;
-      opencode-ohmy)
-        flush_npx_skills
-        install_opencode_ohmy
-        ;;
-      opencode-caveman)
-        flush_npx_skills
-        install_opencode_caveman
-        ;;
       *)
         flush_npx_skills
         echo "Unknown managed skill installer: $installer" >&2
@@ -1072,9 +757,6 @@ install_managed_sources() {
 
   while IFS=$'\t' read -r target_rel repo ref source_path patch_rel build_cmd; do
     [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
-    if ! source_target_enabled "$target_rel"; then
-      continue
-    fi
 
     echo "Installing upstream source: $target_rel"
     cache_dir="$(cache_dir_for_repo "$repo")"
@@ -1119,9 +801,6 @@ remove_target_file_from_home() {
 
   while IFS= read -r target_rel; do
     [[ -z "${target_rel:-}" || "$target_rel" == \#* ]] && continue
-    if ! source_target_enabled "$target_rel"; then
-      continue
-    fi
     target="$home_dir/$target_rel"
     if [[ -e "$target" || -L "$target" ]]; then
       rm -rf "$target"
@@ -1202,50 +881,23 @@ finish_publish_review() {
   fi
 }
 
-publish_opencode_from_home() {
-  local herdr_plugin=".config/opencode/plugins/herdr-agent-state.js"
-  local rel
-
-  echo "Syncing OpenCode"
-  for rel in "${opencode_paths[@]}"; do
-    if [[ "$rel" == "$herdr_plugin" && ! -e "$home_dir/$rel" ]]; then
-      echo "Warning: Herdr OpenCode plugin not found at $home_dir/$rel; preserving tracked snapshot." >&2
-      continue
-    fi
-    copy_path "$home_dir" "$files_dir" "$rel" 1
-  done
-}
-
 publish_from_home() {
-  if group_enabled OMP; then
-    refresh_omp_paths "$home_dir" "$files_dir"
-  fi
+  refresh_omp_paths "$home_dir" "$files_dir"
   mkdir -p "$files_dir"
-  if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
+  if [[ "${#generic_paths[@]}" -gt 0 ]]; then
     copy_group "Generic / shared" "$home_dir" "$files_dir" 1 "${generic_paths[@]}"
   fi
-  if agent_enabled CODEX; then
-    if [[ "${#codex_paths[@]}" -gt 0 ]]; then
-      copy_group "Codex" "$home_dir" "$files_dir" 1 "${codex_paths[@]}"
-    fi
-  fi
-  if agent_enabled OPENCODE; then
-    if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
-      publish_opencode_from_home
-    fi
-  fi
-  if group_enabled OMP && [[ "${#omp_paths[@]}" -gt 0 ]]; then
+  if [[ "${#omp_paths[@]}" -gt 0 ]]; then
     copy_group "OMP" "$home_dir" "$files_dir" 1 "${omp_paths[@]}"
   fi
-  sanitize_codex_config
   prune_non_vendored_targets_from_repo
   cleanup_public_tree
-  echo "Refreshed enabled repo files from $home_dir"
+  echo "Refreshed repo files from $home_dir"
   finish_publish_review
 }
 
 sync_to_home() {
-  if [[ "$config_only" != "1" ]] && (group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE); then
+  if [[ "$config_only" != "1" ]]; then
     ensure_cmd git
     ensure_cmd npx
     ensure_cmd patch
@@ -1254,57 +906,28 @@ sync_to_home() {
 
   create_sync_backups
   if [[ "$config_only" != "1" ]]; then
-    if group_enabled GENERIC && shell_commands_enabled; then
+    if shell_commands_enabled; then
       install_coding_agent_shell_commands "$repo_root"
     fi
-    if agent_enabled OPENCODE; then
-      ensure_opencode_env_wrapper
-    fi
-  fi
-
-  if [[ "$config_only" != "1" ]]; then
     install_managed_skills
     install_managed_sources
   fi
-  if group_enabled OMP; then
-    refresh_omp_paths "$files_dir" "$home_dir"
-  fi
-  if group_enabled GENERIC && [[ "${#generic_paths[@]}" -gt 0 ]]; then
+  refresh_omp_paths "$files_dir" "$home_dir"
+  if [[ "${#generic_paths[@]}" -gt 0 ]]; then
     copy_group "Generic / shared" "$files_dir" "$home_dir" 0 "${generic_paths[@]}"
   fi
-  if agent_enabled CODEX; then
-    if [[ "${#codex_paths[@]}" -gt 0 ]]; then
-      copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
-    fi
-  fi
-  if agent_enabled OPENCODE; then
-    if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
-      copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
-    fi
-  fi
-  if group_enabled OMP && [[ "${#omp_paths[@]}" -gt 0 ]]; then
+  if [[ "${#omp_paths[@]}" -gt 0 ]]; then
     copy_group "OMP" "$files_dir" "$home_dir" 0 "${omp_paths[@]}"
   fi
   remove_retired_targets_from_home
-  if agent_enabled OPENCODE; then
-    if [[ "$config_only" != "1" ]]; then
-      install_opencode_package_dependencies
-    fi
-    ensure_omos_script_executable
-  fi
-  remove_caveman_opencode_agents
-  echo "Synced selected repo files into $home_dir"
+  echo "Synced repo files into $home_dir"
 }
 
-sync_selection=""
-sync_selection_ready=0
 migrate_legacy_state
 require_setup_flags
-select_groups
 if [[ "$mode" == "publish" ]]; then
   confirm_publish
 fi
-
 case "$mode" in
   publish) publish_from_home ;;
   sync) sync_to_home ;;

@@ -2,11 +2,9 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks generic shared setup, Codex, OpenCode, OMP, and selected
-wrappers like `omos`, plus source manifests for upstream skills/plugins. It does
-not track OAuth files, API keys, histories, caches, logs, local databases,
-browser profiles, or other machine-specific runtime state. Claude Code, Hermes,
-and Cursor are intentionally not synced.
+This repo tracks generic shared skills/setup and OMP configuration. It does not
+track OAuth files, API keys, histories, caches, logs, local databases, browser
+profiles, or other machine-specific runtime state.
 
 ## Bootstrap
 
@@ -16,8 +14,8 @@ Setup from anywhere:
 bash -c "$(curl -fsSL https://github.com/jackjinke/coding-agent-setups/raw/main/scripts/setup.sh)"
 ```
 
-Setup is interactive. It installs the shell command and configures the local
-OpenCode environment. Machine-local state is written to:
+Setup is interactive and installs the `coding-agent-setups` shell command.
+Machine-local state is written to:
 
 ```text
 ~/.coding-agent-setups/sync.env
@@ -39,8 +37,7 @@ coding-agent-setups
 
 ## Use
 
-Choose what to sync to this machine from a checklist, which starts with nothing
-selected. The available groups are Generic/shared, Codex, OpenCode, and OMP:
+Sync skills and OMP configuration to this machine:
 
 ```bash
 coding-agent-setups sync
@@ -52,24 +49,18 @@ Sync only checked-in config files, skipping dependency and upstream installers:
 coding-agent-setups sync --config-only # or -c
 ```
 
-For automation, `--yes` skips the checklist and selects every group.
+Generic / shared installs reusable skills into `~/.agents/skills`; compatible
+harnesses discover them there. If the Impeccable installer fails, sync warns and
+keeps any existing install.
 
-Generic / shared installs reusable skills into shared agent locations and syncs
-the Herdr config. Impeccable is installed once under `~/.agents/skills`;
-compatible harnesses discover it there. If the Impeccable installer fails, sync
-warns and keeps any existing install. OpenCode selection installs
-OpenCode-specific plugins and Caveman.
-
-OMP selection syncs `~/.omp/agent/extensions/impeccable.ts`, which runs
-Impeccable's design hook after OMP `edit`/`write` calls and at session stop, the
-same checks its Claude Code and Codex hooks run. It applies to every project;
-turn it off for one project by running
-`~/.agents/skills/impeccable/scripts/impeccable hooks off` there, or everywhere
-with `IMPECCABLE_HOOK_DISABLED=1`. Hook state lives under
+OMP syncs `~/.omp/agent/` including `~/.omp/agent/extensions/impeccable.ts`,
+which runs Impeccable's design hook after OMP `edit`/`write` calls and at
+session stop. It applies to every project; turn it off for one project by
+running `~/.agents/skills/impeccable/scripts/impeccable hooks off` there, or
+everywhere with `IMPECCABLE_HOOK_DISABLED=1`. Hook state lives under
 `~/.impeccable/hook-state` instead of each project.
 
-Choose what to publish from this machine into the repo from the same
-nothing-selected checklist:
+Publish local OMP configuration changes back into the repo:
 
 ```bash
 coding-agent-setups publish
@@ -102,9 +93,6 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
   `~/.coding-agent-setups/backups/` and keeps the latest three backups.
 - `publish` runs the secret check, lists changed files, and can commit/push.
 - API keys stay in local env files. Tracked config should reference env vars.
-- OpenCode setup aliases `opencode` to `omos` in Bash/Zsh. With no arguments,
-  `omos` starts OpenCode in Herdr on a random high port; arguments pass directly
-  to the real OpenCode CLI without port or multiplexer handling.
 
 Before pushing manually:
 

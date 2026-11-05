@@ -2,11 +2,11 @@
 
 Public-safe source files for my coding agent setup.
 
-This repo tracks generic shared setup, Codex, Claude Code, OpenCode, OMP, and
-selected wrappers like `omos`, plus source manifests for upstream skills/plugins.
-It does not track OAuth files, API keys, histories, caches, logs, local databases,
-browser profiles, or other machine-specific runtime state. Hermes and Cursor are
-intentionally not synced.
+This repo tracks generic shared setup, Codex, OpenCode, OMP, and selected
+wrappers like `omos`, plus source manifests for upstream skills/plugins. It does
+not track OAuth files, API keys, histories, caches, logs, local databases,
+browser profiles, or other machine-specific runtime state. Claude Code, Hermes,
+and Cursor are intentionally not synced.
 
 ## Bootstrap
 
@@ -40,8 +40,7 @@ coding-agent-setups
 ## Use
 
 Choose what to sync to this machine from a checklist, which starts with nothing
-selected. The available groups are Generic/shared, Codex, Claude Code, OpenCode,
-and OMP:
+selected. The available groups are Generic/shared, Codex, OpenCode, and OMP:
 
 ```bash
 coding-agent-setups sync
@@ -50,7 +49,7 @@ coding-agent-setups sync
 Sync only checked-in config files, skipping dependency and upstream installers:
 
 ```bash
-coding-agent-setups sync --config-only
+coding-agent-setups sync --config-only # or -c
 ```
 
 For automation, `--yes` skips the checklist and selects every group.
@@ -106,8 +105,6 @@ bash ~/.coding-agent-setups/source/scripts/coding-agent-setups.sh sync
 - OpenCode setup aliases `opencode` to `omos` in Bash/Zsh. With no arguments,
   `omos` starts OpenCode in Herdr on a random high port; arguments pass directly
   to the real OpenCode CLI without port or multiplexer handling.
-- Syncing a harness group installs or updates Moshi, pairs it, starts its
-  service, and installs hooks only for the harness groups selected in that sync.
 
 Before pushing manually:
 

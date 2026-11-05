@@ -3,12 +3,12 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/sync.sh [sync|publish] [--yes] [--config-only]
+Usage: scripts/sync.sh [sync|publish] [--yes] [-c|--config-only]
 
-  sync           Choose setup groups, then copy them from this repo into $HOME.
-  publish        Choose setup groups, then refresh their repo files from $HOME.
-  --yes          Skip prompts and select all setup groups.
-  --config-only  Sync checked-in config files only; skip installers/dependencies.
+  sync               Choose setup groups, then copy them from this repo into $HOME.
+  publish            Choose setup groups, then refresh their repo files from $HOME.
+  --yes              Skip prompts and select all setup groups.
+  -c, --config-only  Sync checked-in config files only; skip installers/dependencies.
 
 Run scripts/setup.sh first.
 USAGE
@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
     -y|--yes)
       assume_yes=1
       ;;
-    --config-only)
+    -c|--config-only)
       config_only=1
       ;;
     -h|--help)
@@ -200,7 +200,6 @@ fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$repo_root/scripts/local-bin.sh"
-source "$repo_root/scripts/moshi-hooks.sh"
 
 files_dir="$repo_root/files"
 config_home="${XDG_CONFIG_HOME:-$home_dir/.config}"
@@ -243,14 +242,6 @@ codex_paths=(
   ".codex/rules"
 )
 
-claude_paths=(
-  ".claude/CLAUDE.md"
-  ".claude/config.json"
-  ".claude/rules"
-  ".claude/settings.json"
-  ".claude/statusline-command.sh"
-)
-
 opencode_paths=(
   ".local/bin/omos"
   ".config/opencode/AGENTS.md"
@@ -262,7 +253,6 @@ opencode_paths=(
   ".config/opencode/package.json"
   ".config/opencode/plugins/env-protection.ts"
   ".config/opencode/plugins/herdr-agent-state.js"
-  ".config/opencode/plugins/moshi-hooks.ts"
   ".config/opencode/tui.jsonc"
 )
 
@@ -307,8 +297,7 @@ refresh_omp_paths() {
   omp_paths=()
   discover_omp_config_paths "$src_root"
   discover_omp_config_paths "$dst_root"
-  # Discovery skips code; Herdr and Moshi install their own extensions beside
-  # these, so repo-owned extensions are listed explicitly.
+  # Discovery skips code; repo-owned extensions are listed explicitly.
   append_omp_path ".omp/agent/extensions/impeccable.ts"
 }
 
@@ -467,9 +456,9 @@ agent_enabled() {
 }
 
 select_groups() {
-  local keys=(GENERIC CODEX CLAUDE OPENCODE OMP)
-  local labels=("Generic / shared" "Codex" "Claude Code" "OpenCode" "OMP")
-  local selected=(0 0 0 0 0)
+  local keys=(GENERIC CODEX OPENCODE OMP)
+  local labels=("Generic / shared" "Codex" "OpenCode" "OMP")
+  local selected=(0 0 0 0)
   local action i token answer has_selection
 
   if [[ "$mode" == "sync" ]]; then
@@ -520,7 +509,7 @@ select_groups() {
           n|N)
             for ((i = 0; i < ${#keys[@]}; i++)); do selected[$i]=0; done
             ;;
-          [1-5])
+          [1-4])
             i=$((10#$token - 1))
             if [[ "${selected[$i]}" == "1" ]]; then selected[$i]=0; else selected[$i]=1; fi
             ;;
@@ -532,7 +521,7 @@ select_groups() {
     done
   else
     echo "Selecting all setup groups (--yes)."
-    selected=(1 1 1 1 1)
+    selected=(1 1 1 1)
   fi
 
   sync_selection=""
@@ -632,9 +621,6 @@ print_enabled_groups() {
   if agent_enabled CODEX; then
     echo "  - Codex"
   fi
-  if agent_enabled CLAUDE; then
-    echo "  - Claude Code"
-  fi
   if agent_enabled OPENCODE; then
     echo "  - OpenCode"
   fi
@@ -708,9 +694,6 @@ sync_backup_roots() {
   fi
   if agent_enabled CODEX; then
     printf '%s\n' "$home_dir/.codex"
-  fi
-  if group_enabled GENERIC || agent_enabled CLAUDE; then
-    printf '%s\n' "$home_dir/.claude"
   fi
   if group_enabled GENERIC; then
     printf '%s\n' "$home_dir/.pi/agent"
@@ -797,11 +780,7 @@ source_target_enabled() {
       return
       ;;
     .claude/skills/*)
-      group_enabled GENERIC || agent_enabled CLAUDE
-      return
-      ;;
-    .claude/*)
-      agent_enabled CLAUDE
+      group_enabled GENERIC
       return
       ;;
     .config/opencode/skills/impeccable)
@@ -945,9 +924,6 @@ install_npx_skills() {
 
   if csv_contains "$allowed_agents" codex; then
     agent_args+=(-a codex)
-  fi
-  if csv_contains "$allowed_agents" claude-code; then
-    agent_args+=(-a claude-code)
   fi
   if csv_contains "$allowed_agents" opencode; then
     agent_args+=(-a opencode)
@@ -1253,11 +1229,6 @@ publish_from_home() {
       copy_group "Codex" "$home_dir" "$files_dir" 1 "${codex_paths[@]}"
     fi
   fi
-  if agent_enabled CLAUDE; then
-    if [[ "${#claude_paths[@]}" -gt 0 ]]; then
-      copy_group "Claude Code" "$home_dir" "$files_dir" 1 "${claude_paths[@]}"
-    fi
-  fi
   if agent_enabled OPENCODE; then
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       publish_opencode_from_home
@@ -1274,8 +1245,7 @@ publish_from_home() {
 }
 
 sync_to_home() {
-  local moshi_targets=()
-  if [[ "$config_only" != "1" ]] && (group_enabled GENERIC || agent_enabled CODEX || agent_enabled CLAUDE || agent_enabled OPENCODE); then
+  if [[ "$config_only" != "1" ]] && (group_enabled GENERIC || agent_enabled CODEX || agent_enabled OPENCODE); then
     ensure_cmd git
     ensure_cmd npx
     ensure_cmd patch
@@ -1290,19 +1260,6 @@ sync_to_home() {
     if agent_enabled OPENCODE; then
       ensure_opencode_env_wrapper
     fi
-  fi
-
-  if agent_enabled CODEX; then
-    moshi_targets+=(codex)
-  fi
-  if agent_enabled CLAUDE; then
-    moshi_targets+=(claude)
-  fi
-  if agent_enabled OPENCODE; then
-    moshi_targets+=(opencode)
-  fi
-  if group_enabled OMP; then
-    moshi_targets+=(omp)
   fi
 
   if [[ "$config_only" != "1" ]]; then
@@ -1320,11 +1277,6 @@ sync_to_home() {
       copy_group "Codex" "$files_dir" "$home_dir" 0 "${codex_paths[@]}"
     fi
   fi
-  if agent_enabled CLAUDE; then
-    if [[ "${#claude_paths[@]}" -gt 0 ]]; then
-      copy_group "Claude Code" "$files_dir" "$home_dir" 0 "${claude_paths[@]}"
-    fi
-  fi
   if agent_enabled OPENCODE; then
     if [[ "${#opencode_paths[@]}" -gt 0 ]]; then
       copy_group "OpenCode" "$files_dir" "$home_dir" 0 "${opencode_paths[@]}"
@@ -1339,9 +1291,6 @@ sync_to_home() {
       install_opencode_package_dependencies
     fi
     ensure_omos_script_executable
-  fi
-  if [[ "$config_only" != "1" && "${#moshi_targets[@]}" -gt 0 ]]; then
-    ensure_moshi_for_targets "${moshi_targets[@]}"
   fi
   remove_caveman_opencode_agents
   echo "Synced selected repo files into $home_dir"

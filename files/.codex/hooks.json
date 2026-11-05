@@ -1,49 +1,11 @@
 {
   "hooks": {
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
-            "type": "command"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
-            "type": "command"
-          }
-        ]
-      },
       {
         "hooks": [
           {
             "command": "bash '/home/kjin/.codex/herdr-agent-state.sh' session",
             "timeout": 10,
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "'/home/kjin/.local/bin/moshi-hook' codex-hook",
             "type": "command"
           }
         ]

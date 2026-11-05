@@ -59,23 +59,6 @@ If a patch is needed for a Git source, add it to `patches/` and reference it fro
 `sources/managed-sources.tsv`. Installer-managed targets are listed in
 `sources/managed-skills.tsv` and `sources/managed-targets.txt`.
 
-## Moshi Hook
-
-Moshi hook integration is tracked by this repo for enabled agents.
-
-- Moshi hook: https://getmoshi.app/docs/hooks
-
-Tracked config:
-
-- Claude Code hook commands in `files/.claude/settings.json`
-- Codex hook commands in `files/.codex/hooks.json`
-- OpenCode generated plugin in `files/.config/opencode/plugins/moshi-hooks.ts`
-
-`sync` installs or updates Moshi when at least one harness group is selected. It
-installs hooks only for harness groups selected in the same sync, pairs Moshi
-when needed, and starts the daemon. On Linux, it installs and starts the
-official systemd user service with `moshi service install`.
-
 ## Env Protection
 
 Env protection is tracked by this repo as

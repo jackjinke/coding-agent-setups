@@ -1,18 +1,17 @@
 # installer<TAB>source<TAB>skill<TAB>agents<TAB>notes
 #
 # Generic / shared installs reusable skills for every listed skills CLI agent.
-# codex and opencode share ~/.agents/skills; claude-code writes ~/.claude/skills.
+# codex and opencode share ~/.agents/skills.
 # OpenCode-only installers remain gated by OpenCode selection.
-npx-skills	mattpocock/skills	codebase-design	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	domain-modeling	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	grill-me	codex,claude-code,opencode	mattpocock productivity skill
-npx-skills	mattpocock/skills	grilling	codex,claude-code,opencode	mattpocock productivity skill
-npx-skills	mattpocock/skills	grill-with-docs	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	handoff	codex,claude-code,opencode	mattpocock productivity skill
-npx-skills	mattpocock/skills	improve-codebase-architecture	codex,claude-code,opencode	mattpocock engineering skill
-npx-skills	mattpocock/skills	teach	codex,claude-code,opencode	mattpocock productivity skill
-npx-skills	mattpocock/skills	writing-great-skills	codex,claude-code,opencode	mattpocock productivity skill
-npx-skills	herdrdev/herdr	herdr	codex,opencode	Herdr terminal multiplexer skill
+npx-skills	mattpocock/skills	codebase-design	codex,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	domain-modeling	codex,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	grill-me	codex,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	grilling	codex,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	grill-with-docs	codex,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	improve-codebase-architecture	codex,opencode	mattpocock engineering skill
+npx-skills	mattpocock/skills	teach	codex,opencode	mattpocock productivity skill
+npx-skills	mattpocock/skills	writing-for-agents	codex,opencode	mattpocock productivity skill
+npx-skills	jackjinke/skills	tern	codex,opencode	Tern terminal multiplexer skill
 impeccable	pbakaus/impeccable	impeccable	codex	Install to shared ~/.agents/skills without provider hooks
 opencode-ohmy	alvinunreal/oh-my-opencode-slim	*	opencode	Use bunx oh-my-opencode-slim installer
 opencode-caveman	JuliusBrussee/caveman	*	opencode	Use upstream OpenCode installer, then remove cavecrew agents

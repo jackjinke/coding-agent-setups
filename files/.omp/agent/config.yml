@@ -1,4 +1,4 @@
-setupVersion: 2
+setupVersion: 3
 modelRoles:
   designer: anthropic/claude-opus-5-5:xhigh
   writer: google/gemini-4-argon:medium
@@ -7,7 +7,7 @@ modelRoles:
   vision: openai/gpt-6-luna:xhigh
   advisor: openai/gpt-6-astra:high
   slow: openai/gpt-6-astra:xhigh
-  default: google/gemini-4-argon:high
+  default: google/gemini-4-carbon:high
   task: openai/gpt-6.1-sol:high
   smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
@@ -89,17 +89,18 @@ compaction:
     anthropic/claude-sonnet-5-5: 50%
     openai/gpt-6-astra: 500000
     openai/gpt-6-luna: 500000
-    antigravity/gemini-4-argon: 500000
     google/gemini-4-argon: 500000
+    google/gemini-4-carbon: 500000
     deepseek/deepseek-flash: 500000
     openai/gpt-6.1-sol: 500000
+    openai/gpt-6.1-terra: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
   claude:
     modelRoles:
       designer: anthropic/claude-opus-5-5:auto
-      writer: antigravity/gemini-4-argon:high
+      writer: anthropic/claude-opus-5-5:medium
       plan: "@slow"
       commit: "@smol"
       vision: anthropic/claude-haiku-5-5:high
@@ -114,7 +115,7 @@ modelPresets:
   gpt:
     modelRoles:
       designer: openai/gpt-6-astra:auto
-      writer: antigravity/gemini-4-argon:high
+      writer: openai/gpt-6.1-terra:high
       plan: "@slow"
       commit: "@smol"
       vision: openai/gpt-6-luna:max
@@ -135,7 +136,7 @@ modelPresets:
       vision: openai/gpt-6-luna:xhigh
       advisor: openai/gpt-6-astra:high
       slow: openai/gpt-6-astra:xhigh
-      default: google/gemini-4-argon:high
+      default: google/gemini-4-carbon:high
       task: openai/gpt-6.1-sol:high
       smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
@@ -146,3 +147,5 @@ theme:
   light: light-one
 display:
   cacheMissMarker: true
+update:
+  auto: true

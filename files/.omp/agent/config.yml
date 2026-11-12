@@ -75,7 +75,7 @@ recap:
   enabled: false
 providers:
   tinyModelDevice: auto
-  openaiLiveSteering: false
+  openaiLiveSteering: true
 retry:
   waitForUsageReset: true
 compaction:
@@ -149,3 +149,5 @@ display:
   cacheMissMarker: true
 update:
   auto: true
+prewalk:
+  into: "@task"

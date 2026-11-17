@@ -3,8 +3,8 @@
 # sends its native Claude Code request shape.
 providers:
   anthropic:
-    baseUrl: http://cpa.sorcery.link:8317
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318
+    apiKey: MAG_API_KEY
     compat:
       supportsLongCacheRetention: true
       supportsEagerToolInputStreaming: true
@@ -13,31 +13,31 @@ providers:
       enabled: true
 
   openai:
-    baseUrl: http://cpa.sorcery.link:8317/v1
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1
+    apiKey: MAG_API_KEY
     api: openai-responses
     remoteCompaction:
       v2StreamingEnabled: true
 
   cliproxyapi:
-    baseUrl: http://cpa.sorcery.link:8317/v1
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1
+    apiKey: MAG_API_KEY
     api: openai-completions
     discovery:
       type: openai-models-list
 
   google:
-    baseUrl: http://cpa.sorcery.link:8317/v1beta
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1beta
+    apiKey: MAG_API_KEY
 
   deepseek:
-    baseUrl: http://cpa.sorcery.link:8317/v1
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1
+    apiKey: MAG_API_KEY
 
   zai:
-    baseUrl: http://cpa.sorcery.link:8317/v1
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1
+    apiKey: MAG_API_KEY
 
   moonshot:
-    baseUrl: http://cpa.sorcery.link:8317/v1
-    apiKey: CLIPROXYAPI_API_KEY
+    baseUrl: http://mag.sorcery.link:8318/v1
+    apiKey: MAG_API_KEY

@@ -1,14 +1,14 @@
 setupVersion: 3
 modelRoles:
   designer: anthropic/claude-opus-5-5:xhigh
-  writer: google/gemini-4-argon:medium
+  writer: google/gemini-4-neon:high
   plan: anthropic/claude-opus-5-5:xhigh
   commit: "@smol"
   vision: openai/gpt-6-luna:xhigh
-  advisor: openai/gpt-6-astra:high
-  slow: openai/gpt-6-astra:xhigh
-  default: google/gemini-4-carbon:high
-  task: openai/gpt-6.1-sol:high
+  advisor: openai/gpt-6.2-astra:high
+  slow: openai/gpt-6.2-astra:high
+  default: google/gemini-4-neon:high
+  task: openai/gpt-6.2-sol:high
   smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
   web: web/exa
@@ -94,6 +94,9 @@ compaction:
     deepseek/deepseek-flash: 500000
     openai/gpt-6.1-sol: 500000
     openai/gpt-6.1-terra: 500000
+    google/gemini-4-neon: 500000
+    openai/gpt-6.2-astra: 500000
+    openai/gpt-6.2-sol: 500000
   idleEnabled: true
 defaultThinkingLevel: auto
 modelPresets:
@@ -130,14 +133,14 @@ modelPresets:
   combo:
     modelRoles:
       designer: anthropic/claude-opus-5-5:xhigh
-      writer: google/gemini-4-argon:medium
+      writer: google/gemini-4-neon:high
       plan: anthropic/claude-opus-5-5:xhigh
       commit: "@smol"
       vision: openai/gpt-6-luna:xhigh
-      advisor: openai/gpt-6-astra:high
-      slow: openai/gpt-6-astra:xhigh
-      default: google/gemini-4-carbon:high
-      task: openai/gpt-6.1-sol:high
+      advisor: openai/gpt-6.2-astra:high
+      slow: openai/gpt-6.2-astra:high
+      default: google/gemini-4-neon:high
+      task: openai/gpt-6.2-sol:high
       smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
       web: web/exa

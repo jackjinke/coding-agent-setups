@@ -81,9 +81,9 @@ retry:
 compaction:
   methodOrder:
     - remote
-    - soft
     - handoff
-    - snapcompact
+    - shake
+    - soft
   modelThresholds:
     anthropic/claude-opus-5-5: 500000
     anthropic/claude-sonnet-5-5: 50%

@@ -7,10 +7,11 @@ modelRoles:
   vision: openai/gpt-6-luna:xhigh
   slow: openai/gpt-6.2-astra:high
   default: google/gemini-4-neon:high
-  task: openai/gpt-6.1-sol:high
+  task: openai/gpt-6.2-sol:high
   smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
   web: web/exa
+  advisor: "@slow:medium"
 task:
   isolation:
     enabled: true
@@ -113,6 +114,7 @@ modelPresets:
       task: anthropic/claude-sonnet-5-5:auto
       smol: anthropic/claude-sonnet-5-5:medium
       tiny: local/lfm2.5-230m
+      advisor: "@slow:medium"
   gpt:
     modelRoles:
       designer: openai/gpt-6-astra:auto
@@ -127,6 +129,7 @@ modelPresets:
       task: openai/gpt-6.1-sol:auto
       smol: openai/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
+      advisor: "@slow:medium"
   combo:
     modelRoles:
       designer: anthropic/claude-opus-5-5:xhigh
@@ -140,6 +143,7 @@ modelPresets:
       smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
       web: web/exa
+      advisor: "@slow:medium"
     defaultThinkingLevel: high
 theme:
   dark: dark-abyss

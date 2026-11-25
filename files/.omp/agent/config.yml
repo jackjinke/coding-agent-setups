@@ -5,10 +5,9 @@ modelRoles:
   plan: anthropic/claude-opus-5-5:xhigh
   commit: "@smol"
   vision: openai/gpt-6-luna:xhigh
-  advisor: openai/gpt-6.2-astra:high
   slow: openai/gpt-6.2-astra:high
   default: google/gemini-4-neon:high
-  task: openai/gpt-6.2-sol:high
+  task: openai/gpt-6.1-sol:high
   smol: deepseek/deepseek-flash:high
   tiny: local/lfm2.5-230m
   web: web/exa
@@ -86,7 +85,7 @@ compaction:
     - soft
   modelThresholds:
     anthropic/claude-opus-5-5: 500000
-    anthropic/claude-sonnet-5-5: 50%
+    anthropic/claude-sonnet-5-5: 500000
     openai/gpt-6-astra: 500000
     openai/gpt-6-luna: 500000
     google/gemini-4-argon: 500000
@@ -98,7 +97,7 @@ compaction:
     openai/gpt-6.2-astra: 500000
     openai/gpt-6.2-sol: 500000
   idleEnabled: true
-defaultThinkingLevel: auto
+defaultThinkingLevel: high
 modelPresets:
   claude:
     modelRoles:
@@ -114,7 +113,6 @@ modelPresets:
       task: anthropic/claude-sonnet-5-5:auto
       smol: anthropic/claude-sonnet-5-5:medium
       tiny: local/lfm2.5-230m
-    defaultThinkingLevel: auto
   gpt:
     modelRoles:
       designer: openai/gpt-6-astra:auto
@@ -129,7 +127,6 @@ modelPresets:
       task: openai/gpt-6.1-sol:auto
       smol: openai/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
-    defaultThinkingLevel: auto
   combo:
     modelRoles:
       designer: anthropic/claude-opus-5-5:xhigh
@@ -137,20 +134,19 @@ modelPresets:
       plan: anthropic/claude-opus-5-5:xhigh
       commit: "@smol"
       vision: openai/gpt-6-luna:xhigh
-      advisor: openai/gpt-6.2-astra:high
       slow: openai/gpt-6.2-astra:high
       default: google/gemini-4-neon:high
       task: openai/gpt-6.2-sol:high
       smol: deepseek/deepseek-flash:high
       tiny: local/lfm2.5-230m
       web: web/exa
-    defaultThinkingLevel: auto
+    defaultThinkingLevel: high
 theme:
   dark: dark-abyss
   light: light-one
 display:
   cacheMissMarker: true
-update:
-  auto: true
 prewalk:
   into: "@task"
+update:
+  auto: true

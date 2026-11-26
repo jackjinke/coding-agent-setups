@@ -61,8 +61,6 @@ github:
 textVerbosity: low
 composer:
   shape: claude
-tui:
-  titleState: false
 generate_image:
   enabled: true
 todo:
@@ -107,14 +105,13 @@ modelPresets:
       plan: "@slow"
       commit: "@smol"
       vision: anthropic/claude-haiku-5-5:high
-      advisor: "@slow"
+      advisor: "@slow:medium"
       reviewer: "@slow"
       slow: anthropic/claude-opus-5-5:xhigh
       default: anthropic/claude-opus-5-5
       task: anthropic/claude-sonnet-5-5:auto
       smol: anthropic/claude-sonnet-5-5:medium
       tiny: local/lfm2.5-230m
-      advisor: "@slow:medium"
   gpt:
     modelRoles:
       designer: openai/gpt-6-astra:auto
@@ -122,14 +119,13 @@ modelPresets:
       plan: "@slow"
       commit: "@smol"
       vision: openai/gpt-6-luna:max
-      advisor: "@slow"
+      advisor: "@slow:medium"
       reviewer: "@slow"
       slow: openai/gpt-6-astra:xhigh
       default: openai/gpt-6-astra
       task: openai/gpt-6.1-sol:auto
       smol: openai/gpt-6-luna:xhigh
       tiny: local/lfm2.5-230m
-      advisor: "@slow:medium"
   combo:
     modelRoles:
       designer: anthropic/claude-opus-5-5:xhigh
